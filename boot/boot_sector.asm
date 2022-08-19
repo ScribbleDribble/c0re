@@ -1,25 +1,38 @@
+; -stack grows downward
+; -stack has bp and sp and sp points to top of stack. decrements with each push to stack
+; -we are still in 16-bit real mode, so our stack only uses 16 bits (chars will be padded with 8-bit 0s)
+; we can should retrieve popped values in bx reg, which supports 16bit values. bl will hold char/8-bit info
 
-; tell assmebler preprocessor to automatically set the base address for labels to start at 0x7c00 (start of bootsector) and not 0x0000. Why? Boot sector code starts at 0x7c00
 
-[org 0x7c00]
+mov ah, 0x0e
 
-mov ah, 0x0e 
-mov al, "M"
+mov bp, 0x8000 ; set bp to be far away from bios or important code
+mov sp, bp ; set sp to be same as bp
+
+push "P"
+push "M"
+push "O"
+push "C"
+
+pop bx
+mov al, bl ; the lower 8 bits hold the char. higher 8 bits have padded 0s
 int 0x10 
-mov al, "I"
-int 0x10
-mov al, "C"
-int 0x10
-mov al, "A"
-int 0x10
-mov al, [some_char] ; access value held by pointer (indirect addressing)
+
+pop bx
+mov al, bl
 int 0x10
 
+pop bx 
+mov al, bl
+int 0x10
+
+mov al, [0x7ffe] ; this is 0x8000 (bp addr) - 0x2 (16-bit char values stored in stack). 
+; we move this into the al reg and display it. this proves that the stack is 16-bit and we move downwards
+ 
+int 0x10
 
 jmp $
 
-some_char:
-	db "H" ; if we were to access this address, we would get just its offset (25 bytes). 25 bytes in main memory would point to somewhere in the IVT. So we would need to either use a preprocessor directive to adjust the base address automatically or manually account for where this code lives in main memory every time.
 
 times 510-($-$$) db 0	; pad out machine instructions with 0s from 
 
