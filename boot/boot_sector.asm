@@ -1,39 +1,43 @@
-; -stack grows downward
-; -stack has bp and sp and sp points to top of stack. decrements with each push to stack
-; -we are still in 16-bit real mode, so our stack only uses 16 bits (chars will be padded with 8-bit 0s)
-; we can should retrieve popped values in bx reg, which supports 16bit values. bl will hold char/8-bit info
+; as you may know, a function call is essentially a jmp instruction to a label, executing some code
+; ... then jumping where we were before. This is not scalable -- if we call one function 
+; in different places of our program, we can only jump back to one label in the program.
+; what we can do is use functions kindly given by the cpu -- call and ret. 
+; call allows us to save the program location of the calling function.
+; ret will take us back to caller's location.
 
+; for func args, we need to push these args to a stack. why we cannot use registers? 
+; ...because this introduces side effects, such as modifying the calling funcs data that they may need
 
-mov ah, 0x0e
+[org 0x7c00]
 
-mov bp, 0x8000 ; set bp to be far away from bios or important code
-mov sp, bp ; set sp to be same as bp
+mov al, 0x20
+cmp al, 0x20
 
-push "P"
-push "M"
-push "O"
-push "C"
-
-pop bx
-mov al, bl ; the lower 8 bits hold the char. higher 8 bits have padded 0s
-int 0x10 
-
-pop bx
-mov al, bl
+je then_block
+mov al, "A"
 int 0x10
+jmp the_end
 
-pop bx 
-mov al, bl
-int 0x10
+then_block:
+	mov al, "B"
+	int 0x10
+	jmp the_end	
 
-mov al, [0x7ffe] ; this is 0x8000 (bp addr) - 0x2 (16-bit char values stored in stack). 
-; we move this into the al reg and display it. this proves that the stack is 16-bit and we move downwards
- 
-int 0x10
+the_end:
+	pusha 
+	call print_char
+	popa
 
-jmp $
+jmp $ 
+
+print_char:
+	mov ah, 0x0e; 
+	mov al, bl	
+	int 0x10; 
+	ret ; restore state of registers for preceding functions in stack 
 
 
-times 510-($-$$) db 0	; pad out machine instructions with 0s from 
 
-dw 0xaa55	; magic number telling bios that disk is bootable
+times 510-($-$$) db 0
+dw 0xaa55
+
