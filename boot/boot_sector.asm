@@ -5,39 +5,47 @@
 ; call allows us to save the program location of the calling function.
 ; ret will take us back to caller's location.
 
-; for func args, we need to push these args to a stack. why we cannot use registers? 
-; ...because this introduces side effects, such as modifying the calling funcs data that they may need
+; for func args, we can use registers. The caller and callee will decide between them on what registers to use.  but how can we make sure the callee does not overwrite a register of the caller/parent?
 
+; for this we use a special commmand pusha (saves all registers on stack and popa (restore
+; all register state)
+ 
 [org 0x7c00]
 
-mov al, 0x20
+
+mov ah, 0x0e
+
+mov al, 0x21
 cmp al, 0x20
 
 je then_block
-mov al, "A"
-int 0x10
-jmp the_end
+jmp else_block
 
 then_block:
 	mov al, "B"
 	int 0x10
 	jmp the_end	
 
+else_block:
+	mov al, "A"
+	int 0x10
+	jmp the_end
+
 the_end:
-	pusha 
-	call print_char
-	popa
-
-jmp $ 
-
-print_char:
-	mov ah, 0x0e; 
-	mov al, bl	
-	int 0x10; 
-	ret ; restore state of registers for preceding functions in stack 
+	mov al, "C" ; our argument for print_char
+	;call print_char ; sets program counter to start of print_char and pushes return addr on stack
+	%include "print_string.asm"
+	mov bx, GOODBYE_MSG
+	call print_string 
 
 
+
+jmp $
 
 times 510-($-$$) db 0
 dw 0xaa55
 
+
+; Data
+GOODBYE_MSG:
+db "Goodbye!", 0
