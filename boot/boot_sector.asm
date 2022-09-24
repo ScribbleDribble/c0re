@@ -29,23 +29,28 @@ then_block:
 else_block:
 	mov al, "A"
 	int 0x10
-	jmp the_end
+
 
 the_end:
-	mov al, "C" ; our argument for print_char
-	;call print_char ; sets program counter to start of print_char and pushes return addr on stack
-	%include "print_string.asm"
-	mov bx, GOODBYE_MSG
-	call print_string 
-
+; 	mov al, "C" ; our argument for print_char
+; 	call print_char ; sets program counter to start of print_char and pushes return addr on stack
+; 	call print_char
+	mov bx, MSG
+	call print_string
+	mov dx, 0x2468
+	call print_hex
 
 
 jmp $
+
+%include "print_string.asm"
+%include "print_hex.asm"
+
+MSG:
+db "Booting up!", 0
+
 
 times 510-($-$$) db 0
 dw 0xaa55
 
 
-; Data
-GOODBYE_MSG:
-db "Goodbye!", 0
