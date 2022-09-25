@@ -1,35 +1,50 @@
+; The aim is to now load the kernel into memory, as it wont fit in our boot sector. This is why the boot sector is known to be bootstrap code for the kernel. 
+; To access the kernel, which resides on the disk, we need to know how to read using disk drives. 
+; The BIOS provides a useful abstraction for data drives (disk, floppy) and we will use them to read. 
 
-; a segment register is basically an offset that the cpu stores for certain elements of the program. For instance, the data segment stores an offset for data, 
-; the cpu will use it to calculate the absolute address of a piece of data, like a label. So yeah, the CPU uses this value automatically.
+; Imagine a platter with a head (like a vinyl player) but several of them stacked together. Thats our hard drive.
+; How do we access a specific block of data within stacked platters?
 
-; there segment registers are:  data segment (ds), code segment (cs), stack segment (ss), extra segment (es - user defined))
-; they are useful because we can only reference up to 0xffff when using gp registers, as we are in real protected mode. This only allows us to access up to 65kB of memory access, and this
-; is simply not enough for bootstraping an OS. segmentation allows us address more memory - thanks cpu designers. 
+; We can use a 3D esque coordinate system - Cylinder Head Sector (addressing):
+ 
+; Cylinder - Imagine a cylinder clipping through all of the platters. You will then notice a circle that the 
+; cylinder forms is a track for all platters. So a cyclinder is the set of tracks for all cylinders.
 
-; there is one rule though, the cpu will multiply the given offset_address by 16. In essence, this is if we shifted our hex values to the right by one. 
-; for example, say i want to have all my data to have an index of 0x7c00 (start of boot sector), then we can set the ds register to be 0x7c0. 
-; now if we wanted access a label, say with address 0x120, the cpu will then check the relevant segment register (ds in this case) and then calculate its absolute address
-; (0x7c0 * 16 + 0x120)  
+; Head - this allows us to select an individual platter, as there is usually a 2-1 association of head to platter
+; one is head for reading and one for writing.
 
-; now we can access around 1MB of data (0xffff * 16 + 0xffff)
-; In essence  we have (base_offset * 16 + offset_from_base) and the cpu uses that to find the absolute address :)
+; Sector - A track is divided by sectors, usually in 512B. So we can select which one here.
+
+; To use the BIOS' interface for accessing the drives, it expects data to be placed in certain registers. 
+
+; https://www.youtube.com/watch?v=d0xn68w3KPE for a visualisation of the disk
+
+mov ah, 0x02	; BIOS read sector function
 
 
-mov ah, 0x0e
+; CHS addressing scheme 
+mov dl, 0	; Read drive 0
+mov ch, 3	; Select cylinder 3
+mov dh, 1	; Select track 2 - these are 0 indexed
+mov cl, 4	; select 4th sector on the track - these are 1 indexed
 
-mov bx, 0x7c0 ; unfortunately, we can only move values to segment registers if they come from bx. 
-mov ds, bx	; works!
+mov al, 5	; read 5 sectors from the start point (4th sector - specified above)
 
-mov al, [some_char]
-int 0x10
 
-mov al, [es:some_char] ; you need to explicitly tell the cpu to use the gp segment register, otherwise it will use ds
-int 0x10	; fails to print some_char data because base (offset) address has not been set!
+; we now want to tell the BIOS where to copy the data in memory. For this we use segment registers
+; (to again allow us to access more regions of memory in real mode). 
 
-mov bx, 0x7c0	
-mov es, bx	; here we set the base (offset) address 
-mov al, [es:some_char] 
-int 0x10	; works!
+; The BIOS expects us to use the extra segment register (es) and bx as our "offset from base offset". 
+; this is ES:BX
+
+mov bx, 0xa000
+mov es, bx
+mov bx, 0x1234
+
+; remember, cpu will do (0xa000 * 16 + 0x1234) -> 0xa1234
+int 0x13 ; issue BIOS to perform the read from disk.
+
+
 
 jmp $
 
