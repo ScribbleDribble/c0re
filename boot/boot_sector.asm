@@ -1,53 +1,40 @@
-; as you may know, a function call is essentially a jmp instruction to a label, executing some code
-; ... then jumping where we were before. This is not scalable -- if we call one function 
-; in different places of our program, we can only jump back to one label in the program.
-; what we can do is use functions kindly given by the cpu -- call and ret. 
-; call allows us to save the program location of the calling function.
-; ret will take us back to caller's location.
 
-; for func args, we can use registers. The caller and callee will decide between them on what registers to use.  but how can we make sure the callee does not overwrite a register of the caller/parent?
+; a segment register is basically an offset that the cpu stores for certain elements of the program. For instance, the data segment stores an offset for data, 
+; the cpu will use it to calculate the absolute address of a piece of data, like a label. So yeah, the CPU uses this value automatically.
 
-; for this we use a special commmand pusha (saves all registers on stack and popa (restore
-; all register state)
- 
-[org 0x7c00]
+; there segment registers are:  data segment (ds), code segment (cs), stack segment (ss), extra segment (es - user defined))
+; they are useful because we can only reference up to 0xffff when using gp registers, as we are in real protected mode. This only allows us to access up to 65kB of memory access, and this
+; is simply not enough for bootstraping an OS. segmentation allows us address more memory - thanks cpu designers. 
+
+; there is one rule though, the cpu will multiply the given offset_address by 16. In essence, this is if we shifted our hex values to the right by one. 
+; for example, say i want to have all my data to have an index of 0x7c00 (start of boot sector), then we can set the ds register to be 0x7c0. 
+; now if we wanted access a label, say with address 0x120, the cpu will then check the relevant segment register (ds in this case) and then calculate its absolute address
+; (0x7c0 * 16 + 0x120)  
+
+; now we can access around 1MB of data (0xffff * 16 + 0xffff)
+; In essence  we have (base_offset * 16 + offset_from_base) and the cpu uses that to find the absolute address :)
 
 
 mov ah, 0x0e
 
-mov al, 0x21
-cmp al, 0x20
+mov bx, 0x7c0 ; unfortunately, we can only move values to segment registers if they come from bx. 
+mov ds, bx	; works!
 
-je then_block
-jmp else_block
+mov al, [some_char]
+int 0x10
 
-then_block:
-	mov al, "B"
-	int 0x10
-	jmp the_end	
+mov al, [es:some_char] ; you need to explicitly tell the cpu to use the gp segment register, otherwise it will use ds
+int 0x10	; fails to print some_char data because base (offset) address has not been set!
 
-else_block:
-	mov al, "A"
-	int 0x10
-
-
-the_end:
-; 	mov al, "C" ; our argument for print_char
-; 	call print_char ; sets program counter to start of print_char and pushes return addr on stack
-; 	call print_char
-	mov bx, MSG
-	call print_string
-	mov dx, 0x2468
-	call print_hex
-
+mov bx, 0x7c0	
+mov es, bx	; here we set the base (offset) address 
+mov al, [es:some_char] 
+int 0x10	; works!
 
 jmp $
 
-%include "print_string.asm"
-%include "print_hex.asm"
-
-MSG:
-db "Booting up!", 0
+some_char:
+db "A"
 
 
 times 510-($-$$) db 0
