@@ -18,11 +18,11 @@ WHITE_ON_BLACK equ 0x0f
 
 
 ; ebx - base address of string to print
-print_str:
+print_string_vga:
 	pusha
 	mov edx, BASE_VIDEO_MEMORY_ADDR
 
-start: 
+loop_start:
 	mov ah, WHITE_ON_BLACK
 	mov al, [ebx]
 
@@ -34,7 +34,7 @@ start:
 	add ebx, 1
 	add edx, 2	; remember that we are storing the character and then its display attribute on the next byte, so increment by two
 
-	jmp start
+	jmp loop_start
 
 print_end:
 	popa 

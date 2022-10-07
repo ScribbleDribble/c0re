@@ -1,0 +1,33 @@
+The Global Descriptor Table
+
+in order for us to load our big kernel into memory, we must make use of segmentation in protected mode, and its structure and operation is different than in 16-bit real mode.
+The motivation for using 32-bit segmentation remains the same as before - we need to increase our range of addressable memory.  
+now we no longer use a 16-bit register but instead a descriptor. This descriptor describes the structure of the segment; it contains several "parameters" to make up our description of the segment e.g. for cs
+In essense, a segmentation allows us to handle memory access at a very low level and now in protected mode, we can include memory protection. Its why its called protected mode! 
+
+Beforehand, we translated logical addresses to a physical one by first looking at address stored in a segment register * 16 + offset. 
+Now the segment register will point to an index in the GDT, which gives us a segment descriptor. We then  
+
+The Global Descriptor Table (GDT) is a data structure for storing these segments. We will provide the CPU a GDT descriptor, which will describe to the CPU where to find the GDT. The first 8 bytes of the GDT will be null bytes to make the cpu check for uninitialised segment registers (set to 0x0). 
+
+We will implement segmentation using the flat memory model. In this model, we have two segments, code and data, which overlap each other. Paging is another technique and translates virtual memory addresses to physical ones.
+
+
+It is is a 64-bit descriptor but structurally composed of two 32-bit words of memory. We will not go over every possible attribute of the descriptor to keep things simple. 
+
+
+Attributes for the code segment
+
+Segment base address
+Priviledge level - 0 to 5 (0 being highest)
+
+Flags
+Code - we set this as 1 if code segment 
+Conforming - if 0 then code in a segment with lower priviledges may not call code in this segment - key feature for memory protection.
+Readable - 1 if readible, 0 if execute only. Readible allows us to define constants in memory (from our code).
+Accessed - Used for debugging since this bit is flipped to 1 if segment is accessed. So set to 0 intially.
+Granularity - When set to 1, it will multiply our segmentation limit by 16^3 (hex shift by 3), allowing us to access 4gb.
+Default operation size - 0 = 16-bit and 1 = 32-bit (we will obviously use 32-bit here)
+
+
+

@@ -1,0 +1,28 @@
+
+We need to disable interrupts. interrupts, like segment based addressing, are implemented differently in 32-bit protected mode. In protected mode the IVT the BIOS setup for us is meaningless because:
+
+- BIOS routines assume segmentation is just like in real mode
+
+Next we tell the CPU about the GDT we just made by giving it a GDT descriptor, using a special command.
+
+We make the actual switch over by setting a bit in a special register called the control register, cr0.
+We cannot set that bit directly on the register.
+
+We need to make sure that the we flush out cpu pipelining so that instruction/data for protected mode are not 
+decoded and executed in real mode due to prefetching instructions. to avoid this, we can do whats called a far jump.
+
+trxxshed - ivory 
+
+To issue a far jump: jmp <segment>:<address offset> - we must jump to a new segment
+We  update our cs register to the offset of the code segment descriptor inside our GDT.
+
+in protected mode, our segment registers are no longer useful, as we now have segment descriptors.
+point segment registers to data segment.
+
+
+
+move stack position so it has some space
+ 
+ 
+
+
