@@ -1,2 +1,3 @@
-void reverse(char* str, int arr_size);
-void int_to_str(int x, char* res);
+void reverse(char* str, int len);
+void int_to_str(int x, char* res, int len);
+void int_to_hex_str(int x, char* res, int len);
