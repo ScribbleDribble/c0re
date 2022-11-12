@@ -1,19 +1,24 @@
-#include "../drivers/screen.h"
 
 void reverse(char* str, int len) {
 	int i = 0;
 	// leave \0 in place
 	int j = len - 1;
 	char temp;
-	kprint(str, 0x0f, 22, 0);
 	while (i < j) {
-		kprint_char(str[i], 0x0f, 20, i);
 		temp = str[i];
 		str[i++] = str[j];
 		str[j--] = temp;
 	}
 }
 
+
+void memset(int* src, int c, int n) {
+	int i;
+	for (i = 0; i < n; ++i) {
+		*src = c;
+		src++;
+	}
+}
 
 void int_to_str(int x, char* res, int len) {
 	// we do not have dynamic memory allocation yet. so use fixed sized array for now
