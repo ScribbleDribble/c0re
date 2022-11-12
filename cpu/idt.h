@@ -1,4 +1,6 @@
-#include "types.h"
+#include "irq.h"
+#include "isr.h"
+
 
 typedef struct idt_entry {
 	uint16_t isr_low_offset; // bits 0..15 - low 16 bits of isr address
@@ -18,7 +20,6 @@ typedef struct idt_descriptor {
 }__attribute__((packed))
 idt_descriptor_t;
 
-extern void _isr0();
 void idt_init();
 
 

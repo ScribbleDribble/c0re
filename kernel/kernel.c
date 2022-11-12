@@ -25,6 +25,9 @@ int main() {
 	init_idt();
 
 	// generates cpu exception, triggering isr0
+
+	// generates a hardware interrupt
+	__asm__ __volatile__ ("sti");
 	int val = 5/0;
 
 }

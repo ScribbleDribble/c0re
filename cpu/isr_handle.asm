@@ -1,5 +1,5 @@
 extern interrupt_handler
-
+;  cpu looks inside idt to find which isr will handle cpu generated interrupt. OS then takes over code as seen here. 
 ; isrs will prepare our stack for our interrupt handlers. Given a cpu exception, the cpu might push a value onto the stack
 ; to keep a uniform stack, all isrs will push an error code. 
 
@@ -52,7 +52,7 @@ _isr_common:
 
     popa
     add esp, 8  ; removes error codes and pushed isr number
-    sti
+    sti     ; set interrupts flag
     iret    ; pops cs, eip, eflags, ss, and esp.
 
     mov ax, 0x10
