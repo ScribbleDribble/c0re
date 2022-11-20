@@ -8,7 +8,7 @@ gdt_null:
 	dd 0x0
 
 gdt_code_segment_descriptor: 
-	; base = 0x0 limit=0xfffff (maximise limit for greater flexibility)
+	; base = 0x0 limit=0xfffff (maximise limit to conform to flat memory model - we plan on using paging)
 	; 1st flags (present)1 (priviledge)00 (descriptor type)1 -> 0b1001
 	; type flags (code)1 (conforming)0 (readable)1 (accessed)0 -> 0b1010
 	; 2nd flags (granularity)1 (32-bit default)1 (64-bit seg) 0 (AVL) 0 -> 1100

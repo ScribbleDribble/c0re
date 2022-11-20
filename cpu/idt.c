@@ -5,7 +5,7 @@ idt_entry_t idt[256];
 idt_descriptor_t idt_descriptor;
 
 extern void interrupt_handler() {
-    kprint("Interrupt handler was called!", 0x0f, 0, 30);
+    puts("Interrupt handler was called!");
 }
 
 void init_idt() {
@@ -26,7 +26,7 @@ void init_idt() {
     irq_remap();
     add_idt_gate(32, _irq0, 0x8E, 0x08);
     
-	kprint(">Initialised IDT", 0x0f, 10, 0);
+	puts(">Initialised IDT");
 
     _idt_load();
 }

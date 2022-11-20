@@ -1,12 +1,29 @@
 #define PIC_MAIN_START_INDEX 32
 #define IRQ0 32
+#define IRQ1 33
+#define IRQ2 34
+#define IRQ3 35
+#define IRQ4 36
+#define IRQ5 37
+#define IRQ6 38
+#define IRQ7 39
 
 #define PIC_SECONDARY_START_INDEX 40
-#define IRQ9 40
+#define IRQ8 40
+#define IRQ9 41
+#define IRQ10 42
+#define IRQ11 43
+#define IRQ12 44
+#define IRQ13 45
+#define IRQ14 46
+#define IRQ15 47
 
-#define PIC_MAIN_PORT 0x20
-#define PIC_SECONDARY_PORT 0xA0
-
+// port mapped io
+#define PIC_MAIN_CMD_PORT 0x20
+#define PIC_MAIN_DATA_PORT 0x21
+#define PIC_SECONDARY_CMD_PORT 0xA0
+#define PIC_SECONDARY_DATA_PORT 0xA1
+#define PIC_RESET_CMD 0x11 
 #define PIC_SUCCESS_CODE 0x20
 #define PIC_IRQ_COUNT 8
 

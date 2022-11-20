@@ -7,17 +7,29 @@
 // this will be a problem since we are in protected mode and have
 // processor interrupts taken in that slot, so we remap.
 void irq_remap() {
-    port_byte_write(0x20, 0x11);
-    port_byte_write(0x20, 0x11);
-    port_byte_write(0xA0, 0x11);
-    port_byte_write(0x21, 0x20);
-    port_byte_write(0xA1, 0x28);
-    port_byte_write(0x21, 0x04);
-    port_byte_write(0xA1, 0x02);
-    port_byte_write(0x21, 0x01);
-    port_byte_write(0xA1, 0x01);
-    port_byte_write(0x21, 0x0);
-    port_byte_write(0xA1, 0x0);
+    const int x86_arch_mode = 0x1;
+    const int enable_all_irqs = 0;
+    const int pic_main_connector_slot = 0x4;
+    const int pic_secondary_connector_slot = 0x2;
+    // send initialise command to master pic command port. 
+    port_byte_write(PIC_MAIN_CMD_PORT, PIC_RESET_CMD);
+    // after sending this command, the PIC now expects 4 parameters via its data port
+    // 1. The first parameter is the starting offsets for the new IRQ numbers. we want to start at 32 for our main pic. 
+    port_byte_write(PIC_MAIN_DATA_PORT, IRQ0);
+    // 2. Specify the slot in the pic that connects to the other PIC (4th slot in master)
+    port_byte_write(PIC_MAIN_DATA_PORT, pic_main_connector_slot);
+    // 3. specify x86 mode
+    port_byte_write(PIC_MAIN_DATA_PORT, x86_arch_mode);
+    // 4. tells which IRQs to disable. we want them all enabled, so enter 0
+    port_byte_write(PIC_MAIN_DATA_PORT, enable_all_irqs);
+
+    // we repeat, but with some changes to make it relevant for secondary pic
+    port_byte_write(PIC_SECONDARY_CMD_PORT, PIC_RESET_CMD);
+    port_byte_write(PIC_SECONDARY_DATA_PORT, IRQ8);
+    port_byte_write(PIC_SECONDARY_DATA_PORT, pic_secondary_connector_slot);
+    port_byte_write(PIC_SECONDARY_DATA_PORT, x86_arch_mode);
+    port_byte_write(PIC_SECONDARY_DATA_PORT, enable_all_irqs);
+
 }
 
 int interrupt_handlers[256];
@@ -26,13 +38,16 @@ void irq_handler(registers_t registers) {
 
     if (registers.interrupt_no >= PIC_SECONDARY_START_INDEX)
     {
-        port_byte_write(PIC_SECONDARY_PORT, PIC_SUCCESS_CODE); // send signal to secondary pic that we have handled irq
+        port_byte_write(PIC_SECONDARY_CMD_PORT, PIC_SUCCESS_CODE); // send signal to secondary pic that we have handled irq
     }
-    port_byte_write(PIC_MAIN_PORT, PIC_SUCCESS_CODE);
+    port_byte_write(PIC_MAIN_CMD_PORT, PIC_SUCCESS_CODE);
 
     if (interrupt_handlers[registers.interrupt_no] != 0) {
         // isr_t handler = interrupt_handler[registers.interrupt_handler];
         // handler(registers);
     }
-    kprint("hardware interrupt occured!", 0x0f, 20, 20);
+    puts("Hardware interrupt occured - system halted.");
+    while (1) {
+
+    }
 }
