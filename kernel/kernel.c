@@ -3,8 +3,6 @@
 #include "../cpu/idt.h"
 
 int main() {
-	int row = 0;
-	int col = 0;
 	
 	clear_screen();
 	puts("Micah's OS");

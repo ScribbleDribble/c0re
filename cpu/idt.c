@@ -1,10 +1,11 @@
 #include "idt.h"
 #include "irq.h"
+#include "timer.h"
 
 idt_entry_t idt[256];
 idt_descriptor_t idt_descriptor;
 
-extern void interrupt_handler() {
+void interrupt_handler() {
     puts("Interrupt handler was called!");
 }
 
@@ -19,12 +20,13 @@ void init_idt() {
     // 0x8E typically used as flags - (present=1, dpl=0b00, type=0b1110 => flags=0b1000_1110=0x8E)
     // gdt_code_selector 0x08, remember each gdt segment is 8 bytes
     // first gdt segment is null and the second is our code segment.  
-    add_idt_gate(0, (unsigned) _isr0, 0x8E, 0x08);
+    add_idt_gate(0, (unsigned) _isr0, IDT_GATE_FLAGS, 0x08);
     // ... to implement the other 31 idt gates for processor exceptions
 
     // hardware interrupts - TODO maybe put this in irq.c and call here
     irq_remap();
-    add_idt_gate(32, _irq0, 0x8E, 0x08);
+    add_idt_gate(IRQ0, _irq0, IDT_GATE_FLAGS, 0x08);
+    init_timer(50);
     
 	puts(">Initialised IDT");
 

@@ -34,16 +34,37 @@ void irq_remap() {
 
 int interrupt_handlers[256];
 
-void irq_handler(registers_t registers) {
 
-    if (registers.interrupt_no >= PIC_SECONDARY_START_INDEX)
+void register_interrupt_handler(uint8_t index, int handler) {
+    interrupt_handlers[handler];
+}
+
+typedef struct interrupt_frame {
+    uint32_t ip;
+    uint32_t cs;
+    uint32_t flags;
+    uint32_t ss;
+    uint32_t sp;
+}__attribute__((packed)) interrupt_frame;
+
+__attribute__((interrupt))
+void irq_handler(interrupt_frame* registers) {
+    char reg_value[32];
+    uint32_t* sp = registers->sp;
+    uint32_t int_no = *(sp + 8);
+    uint32_t err_code = *(sp + 9);
+    int_to_str(int_no, reg_value, 32);
+    puts(reg_value);
+
+    if (int_no >= PIC_SECONDARY_START_INDEX)
     {
         port_byte_write(PIC_SECONDARY_CMD_PORT, PIC_SUCCESS_CODE); // send signal to secondary pic that we have handled irq
     }
     port_byte_write(PIC_MAIN_CMD_PORT, PIC_SUCCESS_CODE);
 
-    if (interrupt_handlers[registers.interrupt_no] != 0) {
-        // isr_t handler = interrupt_handler[registers.interrupt_handler];
+    if (interrupt_handlers[int_no] != 0) {
+
+        // int handler = interrupt_handlers[int_no];
         // handler(registers);
     }
     puts("Hardware interrupt occured - system halted.");

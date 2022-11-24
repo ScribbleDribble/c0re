@@ -1,7 +1,7 @@
 #include "screen.h"
 
 
-unsigned int line;
+static unsigned int line;
 
 void kprint_char(const char character, const unsigned char character_mode, const int row, const int col) {
 
@@ -15,7 +15,7 @@ void kprint_char(const char character, const unsigned char character_mode, const
 	
 }
 
-void kprint(const char* string, const unsigned char character_mode, int row, int col) {
+static void kprint(const char* string, const unsigned char character_mode, int row, int col) {
 	if (!(row < MAX_HEIGHT && row >= 0 && col < MAX_WIDTH && col >= 0))
 		return;
 
@@ -43,6 +43,8 @@ void kprint(const char* string, const unsigned char character_mode, int row, int
 
 void puts(const char* str) {
 	// TODO consider implement scrolling for when line >= HEIGHT (just copy everything but top line and include new str). also append \n to end
+	// variable args 
+	// string formatting e.g. kputs("we have %i cookies", n_cookies)
 	kprint(str, 0x0f, line++, 0);
 }
 

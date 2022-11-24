@@ -1,3 +1,4 @@
+#include "string.h"
 
 void reverse(char* str, int len) {
 	int i = 0;
@@ -23,13 +24,15 @@ void memset(int* src, int c, int n) {
 void int_to_str(int x, char* res, int len) {
 	// we do not have dynamic memory allocation yet. so use fixed sized array for now
 	int i = 0;
+
+	if (x == 0)
+		res[i++] = '0';
 	
 	while (x >= 1) {
 		char ascii_char = '0';
 		int rem = x % 10;
 		ascii_char += rem;
 		res[i++] = ascii_char;
-		
 		x /= 10;
 	}
 

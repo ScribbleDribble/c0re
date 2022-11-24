@@ -1,6 +1,7 @@
 #include "irq.h"
 #include "isr.h"
 
+#define IDT_GATE_FLAGS 0x8E
 
 typedef struct idt_entry {
 	uint16_t isr_low_offset; // bits 0..15 - low 16 bits of isr address
