@@ -3,12 +3,12 @@
 typedef unsigned int uint32_t;
 typedef short int uint16_t;
 typedef unsigned char uint8_t;
-typedef struct registers_t {
-    uint16_t ds;
-    uint32_t edi, esi, ebp, esp, ebx, edx, ecx, eax;
-    uint32_t interrupt_no, err_code;
-    uint32_t eip, cs, eflags, useresp, ss;
-}registers_t;
-
+typedef struct registers
+{
+   uint32_t ds;                  // Data segment selector
+   uint32_t edi, esi, ebp, esp, ebx, edx, ecx, eax; // Pushed by pusha.
+   uint32_t int_no, err_code;    // Interrupt number and error code (if applicable)
+   uint32_t eip, cs, eflags, useresp, ss; // Pushed by the processor automatically.
+} registers_t;
 
 #endif

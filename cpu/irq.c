@@ -32,27 +32,17 @@ void irq_remap() {
 
 }
 
+
 int interrupt_handlers[256];
 
 
-void register_interrupt_handler(uint8_t index, int handler) {
-    interrupt_handlers[handler];
+void register_interrupt_handler(uint8_t index, void (*handler)) {
+    interrupt_handlers[index] = handler;
 }
 
-typedef struct interrupt_frame {
-    uint32_t ip;
-    uint32_t cs;
-    uint32_t flags;
-    uint32_t ss;
-    uint32_t sp;
-}__attribute__((packed)) interrupt_frame;
-
-__attribute__((interrupt))
-void irq_handler(interrupt_frame* registers) {
+ 
+void irq_handler(uint8_t int_no) {
     char reg_value[32];
-    uint32_t* sp = registers->sp;
-    uint32_t int_no = *(sp + 8);
-    uint32_t err_code = *(sp + 9);
     int_to_str(int_no, reg_value, 32);
     puts(reg_value);
 
@@ -64,11 +54,8 @@ void irq_handler(interrupt_frame* registers) {
 
     if (interrupt_handlers[int_no] != 0) {
 
-        // int handler = interrupt_handlers[int_no];
-        // handler(registers);
+        void (*handler) = &(interrupt_handlers[int_no]);
+        (*handler); // handler(registers);
     }
     puts("Hardware interrupt occured - system halted.");
-    while (1) {
-
-    }
 }

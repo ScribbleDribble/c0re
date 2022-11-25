@@ -42,5 +42,7 @@
 
 // used to declare an external function defined in irq.asm 
 extern void _irq0();
+extern void _irq1();
 
 void irq_remap();
+void irq0();

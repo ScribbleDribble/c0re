@@ -26,9 +26,10 @@ void init_idt() {
     // hardware interrupts - TODO maybe put this in irq.c and call here
     irq_remap();
     add_idt_gate(IRQ0, _irq0, IDT_GATE_FLAGS, 0x08);
-    init_timer(50);
+    add_idt_gate(IRQ1, _irq1, IDT_GATE_FLAGS, 0x08);
+    // init_timer(50);
     
-	puts(">Initialised IDT");
+	
 
     _idt_load();
 }
