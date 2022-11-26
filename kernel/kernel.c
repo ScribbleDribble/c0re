@@ -1,6 +1,7 @@
 #include "../drivers/screen.h"
 #include "string.h"
 #include "../cpu/idt.h"
+#include "../drivers/ps2.h"
 
 int main() {
 	
@@ -10,8 +11,8 @@ int main() {
 	init_idt();
 	puts(">Initialised IDT");
 	__asm__ volatile ("sti");
-	puts(">Enabled interrupts");
-
+	// puts(">Enabled interrupts");
+	ps2_init();
 
 	// generates cpu exception, triggering isr0
 	// int val = 5/0;

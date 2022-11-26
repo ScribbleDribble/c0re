@@ -13,7 +13,7 @@ void reverse(char* str, int len) {
 }
 
 
-void memset(int* src, int c, int n) {
+void memory_set(char* src, unsigned int c, int n) {
 	int i;
 	for (i = 0; i < n; ++i) {
 		*src = c;
@@ -21,23 +21,33 @@ void memset(int* src, int c, int n) {
 	}
 }
 
-void int_to_str(int x, char* res, int len) {
+void int_to_str(const int x, char* res, int len) {
 	// we do not have dynamic memory allocation yet. so use fixed sized array for now
+	// TODO case for -ve numbers
 	int i = 0;
+	int tmp = x;
 
-	if (x == 0)
+	if (x == 0) {
 		res[i++] = '0';
+	} else if (x < 0) {
+		tmp *= -1;
+
+	}
 	
-	while (x >= 1) {
+	while (tmp >= 1) {
 		char ascii_char = '0';
-		int rem = x % 10;
+		int rem = tmp % 10;
 		ascii_char += rem;
 		res[i++] = ascii_char;
-		x /= 10;
+		tmp /= 10;
 	}
 
-	res[i] = '\0';
+	if (x < 0)
+		res[i++] = '-';
+
 	reverse(res, i);
+	res[len-1] = '\0';
+
 }
 
 void int_to_hex_str(int x, char* res, int len) {

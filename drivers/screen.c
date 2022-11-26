@@ -48,6 +48,10 @@ void puts(const char* str) {
 	kprint(str, 0x0f, line++, 0);
 }
 
+void putc(const char* character) {
+	kprint_char(character, 0x0f, line++, 0);
+}
+
 void clear_screen() {
 	int col;
 	int i = 0;

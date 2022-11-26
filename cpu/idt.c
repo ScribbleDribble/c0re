@@ -13,7 +13,7 @@ void init_idt() {
 	idt_descriptor.limit = sizeof(idt_entry_t)*256 - 1; 
     idt_descriptor.base_address = &idt;
 
-    memset(&idt, 0, 256);
+    memory_set(&idt, 0, sizeof(idt));
     
     // maybe put in isr.c and call here. 
 

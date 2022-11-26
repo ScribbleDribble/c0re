@@ -62,5 +62,5 @@ void irq_handler(interrupt_state_t int_state) {
         handler = interrupt_handlers[int_state.no];
         handler();
     }
-    puts("Hardware interrupt occured - system halted.");
+    //puts("Hardware interrupt occured - system halted.");
 }
