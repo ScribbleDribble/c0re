@@ -8,4 +8,4 @@
 #define PIT_DATA_PORT 0x40
 #define REPEAT_CMD 0x36
 
-void init_timer(unsigned int frequency);
+int configure_timer(unsigned int frequency);

@@ -10,17 +10,16 @@ int main() {
 	init_idt();
 	puts(">Initialised IDT");
 	__asm__ volatile ("sti");
-	puts("Enabled interrupts");
-	// __asm__ volatile ("int $0x20");
+	puts(">Enabled interrupts");
 
 
 	// generates cpu exception, triggering isr0
-	int val = 5/0;
+	// int val = 5/0;
 
-	// generates a hardware interrupt, triggering irq0
-	// __asm__ volatile ("int $0x20");
+	// generates a hardware interrupt, triggering irq1
+	// __asm__ volatile ("int $0x21");
 	while (1) {
-
+		// puts("OS loop");
 	}
 }
 		

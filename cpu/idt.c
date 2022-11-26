@@ -27,7 +27,9 @@ void init_idt() {
     irq_remap();
     add_idt_gate(IRQ0, _irq0, IDT_GATE_FLAGS, 0x08);
     add_idt_gate(IRQ1, _irq1, IDT_GATE_FLAGS, 0x08);
-    // init_timer(50);
+
+    // TODO move outside of idt setup. this programs a running device.
+    configure_timer(10);
     
 	
 

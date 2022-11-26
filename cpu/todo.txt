@@ -1,5 +1,7 @@
 1. improve vga driver - scrolling, puts like function
-2. more strings.h functions 
-3. keyboard input - do we read from a port provided by keyboard (post cpu recv irq signal)
-4. a basic shell
-5. paging - read up on xv6 paging and try to implement yourself 
+2. more strings.h functions
+3. merge isr and irq into one file 
+4. debug header or functionality for quick debugging
+5. keyboard input - do we read from a port provided by keyboard (post cpu recv irq signal)
+6. a basic shell
+7. paging - read up on xv6 paging and try to implement yourself 

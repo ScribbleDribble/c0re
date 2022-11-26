@@ -21,7 +21,6 @@ _irq1:
 _irq_common_stub:
     ;pusha   ; regular register save
     ; pushad  ; ext reg save
-    
     mov ax, 10
     call irq_handler
 
@@ -30,5 +29,5 @@ _irq_common_stub:
 
     add esp, 8
     sti
-    iret ; the special kind of ret for interrupts.
+    iret ; the special kind of ret for interrupts
 

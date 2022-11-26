@@ -1,5 +1,10 @@
 #include "timer.h"
 #include "../kernel/string.h"
+
+#define SUCCESS_CODE 0
+#define FAILURE_CODE 1
+
+
 static uint32_t tick = 0;
 
 void timer_callback() {
@@ -7,7 +12,12 @@ void timer_callback() {
     puts("Tick");
 }
 
-void init_timer(uint32_t frequency) {
+int configure_timer(uint32_t frequency) {
+
+    if (frequency == 0) {
+        puts("Cannot divide input clock by zero. Halting OS!");
+        return FAILURE_CODE;
+    }
     
     register_interrupt_handler(IRQ0, &timer_callback);
     
@@ -25,4 +35,6 @@ void init_timer(uint32_t frequency) {
     // the data ports read a byte at a time. 
     port_byte_write(PIT_DATA_PORT, lo);
     port_byte_write(PIT_DATA_PORT, hi);
+    
+    return SUCCESS_CODE;
 }
