@@ -9,10 +9,10 @@ static uint32_t tick = 0;
 
 void timer_callback() {
     tick++;
-    puts("Tick");
+    // puts("Tick");
 }
 
-int configure_timer(uint32_t frequency) {
+int configure_timer(unsigned int frequency) {
 
     if (frequency == 0) {
         puts("Cannot divide input clock by zero. Halting OS!");
@@ -35,6 +35,6 @@ int configure_timer(uint32_t frequency) {
     // the data ports read a byte at a time. 
     port_byte_write(PIT_DATA_PORT, lo);
     port_byte_write(PIT_DATA_PORT, hi);
-    
+
     return SUCCESS_CODE;
 }

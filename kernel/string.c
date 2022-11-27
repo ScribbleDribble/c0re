@@ -23,7 +23,6 @@ void memory_set(char* src, unsigned int c, int n) {
 
 void int_to_str(const int x, char* res, int len) {
 	// we do not have dynamic memory allocation yet. so use fixed sized array for now
-	// TODO case for -ve numbers
 	int i = 0;
 	int tmp = x;
 
@@ -31,7 +30,6 @@ void int_to_str(const int x, char* res, int len) {
 		res[i++] = '0';
 	} else if (x < 0) {
 		tmp *= -1;
-
 	}
 	
 	while (tmp >= 1) {
