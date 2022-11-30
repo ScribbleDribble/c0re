@@ -2,6 +2,7 @@
 #include "string.h"
 #include "../cpu/idt.h"
 #include "../drivers/ps2.h"
+#include "../drivers/keyboard.h"
 
 int main() {
 	
@@ -13,6 +14,7 @@ int main() {
 	__asm__ volatile ("sti");
 	// puts(">Enabled interrupts");
 	ps2_init();
+	keyboard_init();
 
 	// generates cpu exception, triggering isr0
 	// int val = 5/0;

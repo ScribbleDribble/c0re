@@ -1,5 +1,6 @@
 #include "string.h"
 
+
 void reverse(char* str, int len) {
 	int i = 0;
 	// leave \0 in place
@@ -12,12 +13,19 @@ void reverse(char* str, int len) {
 	}
 }
 
-
 void memory_set(char* src, unsigned int c, int n) {
 	int i;
 	for (i = 0; i < n; ++i) {
 		*src = c;
 		src++;
+	}
+}
+
+//todo: arbitrary blocks of memory copy (using void*)
+void memory_copy(char* dest, char* src, int n) {
+	int i;
+	for (i = 0; i < n; ++i) {
+		dest[i] = src[i];
 	}
 }
 

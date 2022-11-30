@@ -72,6 +72,7 @@ typedef struct ps2_device_t {
 
 }ps2_device_t;
 
+ps2_device_t device;
 #endif
 
 _Bool is_expecting_id_data();

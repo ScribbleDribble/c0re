@@ -2,11 +2,13 @@
 
 extern "C" {
     #include "../string.h"
+    #include <string.h>
 }
 
 class IntegerToStringParamTests : public ::testing::TestWithParam<int> {
     
 };
+
 
 // will break for -ve numbers!
 TEST_P(IntegerToStringParamTests, TestIntToString) { 
@@ -28,6 +30,22 @@ TEST_P(IntegerToStringParamTests, TestIntToString) {
     puts(actual);
 }
 
+TEST(MemoryCopyParamTests, TestMemoryCopy) {
+    char some_array1[] = "Hello ";
+    char some_array2[] = "Hello World!";
+    char *varA, *varB, *varC;
+    varA=(char*)malloc(32);
+    varB=(char*)malloc(32);
+    
+    memcpy(some_array2, some_array1, sizeof(some_array1));
+
+    // char* new_values = "Bye  ";
+    // memcpy(some_array1, new_values, 3);
+    // memory_copy(some_array2, new_values, 3);
+    // EXPECT_TRUE( 0 == memcmp( some_array1, some_array2, sizeof( some_array1 ) ) );
+
+}
+
 
 INSTANTIATE_TEST_CASE_P(
         tests,
@@ -36,6 +54,7 @@ INSTANTIATE_TEST_CASE_P(
     0,1,10,123,421221, 999, 000, -1, -20
     )
 );
+
 
 int main(int argc, char **argv) {
 

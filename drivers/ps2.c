@@ -4,12 +4,9 @@
 // PS/2 Module - to be utilised by all PS/2 devices // 
 // implementation of https://wiki.osdev.org/%228042%22_PS/2_Controller#Translation
 
-// inits all members to 0
 ps2_device_t device = {0};
 
-// small thing to fix - we are receiving responses here but in our init code we using polling instead of interrupts.
-// we will need to wait until our cpu receives an interrupt 
-// only supports 1 device for now.
+// irq handler for ps2 devices. will call device driver specific code. 
 void ps2_device_callback() {
     // puts("Received interrupt request, response:");
 
@@ -65,12 +62,15 @@ void set_device_id(uint8_t prepend_id_data) {
         device.id_flow.is_complete = 1;
     }
 }
+
+
 /**
     inits ps/2 controller by resetting and clearing its data 
     pauses irqs and writes from the device for non-disturbance.
     also tests to see if CONTROLLER functions as expected. 
  */
 void ps2_init() {
+    // todo - break up into functions
 
     // disable devices so that incoming data overwrite data we request
     port_byte_write(CMD_PORT, DISABLE_PORT1);
@@ -158,11 +158,9 @@ void ps2_init() {
     identify_devices();
 }
 
-
 void test_device_connectivity() {
     // test device connected to port 1
     // TODO generalise for both ports;
-
     char str[32];
     memory_set(str, 0, 32);
 
@@ -200,7 +198,6 @@ static void poll_write_buf_ready_status() {
 static void identify_devices() {
     // would be better to have timeout logic incase this isnt successful
 
-
     device_write_byte(DISABLE_SCANNING);
 
     while (!device.id_flow.is_scanning_disabled)
@@ -224,7 +221,6 @@ static void identify_devices() {
 
     puts(">PS/2 Device identification complete - device id is: ");
     puts(buf);
-    
     
 }
 
