@@ -1,3 +1,6 @@
+#include "port_io.h"
+#include <stdint.h>
+
 #define PIC_MAIN_START_INDEX 32
 #define IRQ0 32
 #define IRQ1 33

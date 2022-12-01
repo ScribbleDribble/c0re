@@ -1,6 +1,5 @@
 #include "string.h"
 
-
 void reverse(char* str, int len) {
 	int i = 0;
 	// leave \0 in place

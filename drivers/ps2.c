@@ -8,11 +8,10 @@ ps2_device_t device = {0};
 
 // irq handler for ps2 devices. will call device driver specific code. 
 void ps2_device_callback() {
-    // puts("Received interrupt request, response:");
-
     uint8_t data = device_read_byte();
     char buf[16];
     int_to_hex_str(data, buf, 16);
+    puts(buf);
 
     switch(data) {
         case ACK:
@@ -36,7 +35,7 @@ void ps2_device_callback() {
                 device_id_processor(data);
                 break;
             }
-            puts(">PS/2 Unhandled response to device!");
+            // puts(">PS/2 Unhandled response to device!");
     }
 }
 

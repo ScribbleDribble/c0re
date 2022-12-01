@@ -11,10 +11,9 @@ void interrupt_handler() {
 
 void init_idt() {
 	idt_descriptor.limit = sizeof(idt_entry_t)*256 - 1; 
-    idt_descriptor.base_address = &idt;
+    idt_descriptor.base_address = (uint32_t) &idt;
 
     memory_set(&idt, 0, sizeof(idt));
-    
     // maybe put in isr.c and call here. 
 
     // 0x8E typically used as flags - (present=1, dpl=0b00, type=0b1110 => flags=0b1000_1110=0x8E)
@@ -27,11 +26,6 @@ void init_idt() {
     irq_remap();
     add_idt_gate(IRQ0, _irq0, IDT_GATE_FLAGS, 0x08);
     add_idt_gate(IRQ1, _irq1, IDT_GATE_FLAGS, 0x08);
-
-    // TODO move outside of idt setup. this programs a running device.
-    configure_timer(10);
-    
-	
 
     _idt_load();
 }

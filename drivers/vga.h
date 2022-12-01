@@ -1,3 +1,5 @@
+#ifndef _SCREEN_H
+#define _SCREEN_H
 #define VIDEO_ADDRESS 0xb8000
 #define MAX_HEIGHT 24
 #define MAX_WIDTH 80
@@ -13,6 +15,8 @@ typedef struct position2D_t{
 void puts(const char* str);
 void putc(const char character);
 void clear_screen();
-static position2D_t handle_special_non_null_char(char c, int row, int col);
+static void handle_special_non_null_char(char c, position2D_t* pos);
 static void scroll_down_one_line();
 static _Bool is_special_non_null_char(const char c);
+
+#endif 

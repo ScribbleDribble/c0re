@@ -1,6 +1,4 @@
-#include "port_io.h"
 #include "irq.h"
-#include "types.h"
 
 
 // IRQs by default have their isr mappings starting at 0 but not 32.
@@ -47,8 +45,7 @@ typedef struct interrupt_state_t {
 void irq_handler(interrupt_state_t int_state) {
     char reg_value[32];
     int_to_str(int_state.no, reg_value, 32);
-    puts(reg_value);
-
+    // puts(reg_value);
 
     if (int_state.no >= PIC_SECONDARY_START_INDEX)
     {
@@ -62,5 +59,4 @@ void irq_handler(interrupt_state_t int_state) {
         handler = interrupt_handlers[int_state.no];
         handler();
     }
-    //puts("Hardware interrupt occured - system halted.");
 }

@@ -43,8 +43,6 @@
 
 #define ACK 0xFA
 
-
-
 uint8_t device_read_byte();
 void device_write_byte(uint8_t data);
 
@@ -53,11 +51,8 @@ static void poll_write_buf_ready_status();
 static void identify_devices();
 
 typedef struct ps2_device_t {
-    
-    // 
     uint16_t id;
     _Bool is_reset_success;
-    
     // to be modified by irq handler. helps ps2 code know the response to interrupt data
     struct id_flow {
         _Bool is_scanning_disabled;
@@ -65,14 +60,15 @@ typedef struct ps2_device_t {
         _Bool has_received_id1;
         _Bool has_received_id2;
         _Bool is_complete;
-
     };
-
     struct id_flow id_flow;
 
 }ps2_device_t;
 
 ps2_device_t device;
+
+void ps2_init();
+_Bool is_expecting_id_data();
+
 #endif
 
-_Bool is_expecting_id_data();
