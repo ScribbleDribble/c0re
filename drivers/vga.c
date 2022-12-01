@@ -57,13 +57,8 @@ void putc(const char character) {
 }
 
 void clear_screen() {
-	int col;
-	int i = 0;
 	char* addr = (char*) VIDEO_ADDRESS;
-	for (; (unsigned int) addr < 2*(MAX_HEIGHT*MAX_WIDTH + VIDEO_ADDRESS); addr += 2)
-	{
-		*addr = ' ';
-	}
+	memory_set(addr, 0, CHAR_SIZE*(MAX_HEIGHT*MAX_WIDTH + VIDEO_ADDRESS));
 }
 
 static _Bool is_special_non_null_char(const char c) {

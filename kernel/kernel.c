@@ -14,7 +14,7 @@ int main() {
 	puts(">Initialised IDT");
 	__asm__ volatile ("sti");
 	puts(">Enabled interrupts");
-	// configure_timer(10);
+	configure_timer(10);
 
 	ps2_init();
 	keyboard_init();
