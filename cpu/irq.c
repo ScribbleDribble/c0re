@@ -31,7 +31,7 @@ void irq_remap() {
 }
 
 
-int interrupt_handlers[256];
+void* interrupt_handlers[256];
 void register_interrupt_handler(uint8_t index, void (*handler)) {
     interrupt_handlers[index] = handler;
 }

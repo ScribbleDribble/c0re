@@ -1,6 +1,5 @@
 #include "idt.h"
-#include "irq.h"
-#include "timer.h"
+
 
 idt_entry_t idt[256];
 idt_descriptor_t idt_descriptor;
@@ -24,8 +23,8 @@ void init_idt() {
 
     // hardware interrupts - TODO maybe put this in irq.c and call here
     irq_remap();
-    add_idt_gate(IRQ0, _irq0, IDT_GATE_FLAGS, 0x08);
-    add_idt_gate(IRQ1, _irq1, IDT_GATE_FLAGS, 0x08);
+    add_idt_gate(IRQ0, (uint32_t) _irq0, IDT_GATE_FLAGS, 0x08);
+    add_idt_gate(IRQ1, (uint32_t) _irq1, IDT_GATE_FLAGS, 0x08);
 
     _idt_load();
 }

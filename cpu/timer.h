@@ -1,3 +1,6 @@
+#ifndef _TIMER_H
+#define _TIMER_H
+
 #include "../kernel/string.h"
 #include "irq.h"
 #include "port_io.h"
@@ -9,3 +12,5 @@
 #define REPEAT_CMD 0x36
 
 int configure_timer(unsigned int frequency);
+
+#endif

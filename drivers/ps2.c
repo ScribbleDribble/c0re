@@ -1,5 +1,4 @@
 #include "ps2.h"
-#include "../cpu/irq.h"
 
 // PS/2 Module - to be utilised by all PS/2 devices // 
 // implementation of https://wiki.osdev.org/%228042%22_PS/2_Controller#Translation
@@ -12,7 +11,7 @@ void ps2_device_callback() {
     char buf[16];
     int_to_hex_str(data, buf, 16);
     puts(buf);
-
+    
     switch(data) {
         case ACK:
             if (!device.is_reset_success) {
@@ -33,7 +32,7 @@ void ps2_device_callback() {
         default:
             if (is_expecting_id_data()) {
                 device_id_processor(data);
-                break;
+                return;
             }
             // puts(">PS/2 Unhandled response to device!");
     }
@@ -89,13 +88,13 @@ void ps2_init() {
     memory_set(str, 0, 32);
 
     port_byte_write(CMD_PORT, READ_CONTROLLER_CONFIG);
-    char controller_config_flag = port_byte_read(DATA_PORT);
+    uint8_t controller_config_flag = port_byte_read(DATA_PORT);
     // this flag configures our ps/2 devices.
     // 1. we want to disable IRQs from both ps/2 devices (ports) so we are not interrupted during setup
     // 2. disbale translation (not sure why but its suggested)
     // so we clear bits 0,1 and 6 and write that back into the controller.
-    const char setup_mask = 0b00111101;
-    const char new_controller_config_flag = controller_config_flag & setup_mask;
+    uint8_t setup_mask = 0b00111101;
+    uint8_t new_controller_config_flag = controller_config_flag & setup_mask;
     port_byte_write(CMD_PORT, WRITE_CONTROLLER_CONFIG);
     port_byte_write(DATA_PORT, new_controller_config_flag);
 
@@ -104,7 +103,7 @@ void ps2_init() {
     status_flag = port_byte_read(STATUS_PORT);
     while ((status_flag & 0));
 
-    char controller_response = port_byte_read(DATA_PORT);
+    uint8_t controller_response = port_byte_read(DATA_PORT);
     switch (controller_response) {
         case CONTROLLER_TEST_SUCCESS:
             puts(">PS/2 Test successful!");

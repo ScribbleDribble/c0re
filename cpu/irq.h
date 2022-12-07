@@ -1,4 +1,5 @@
 #include "port_io.h"
+#include "../kernel/string.h"
 #include <stdint.h>
 
 #define PIC_MAIN_START_INDEX 32
@@ -49,3 +50,5 @@ extern void _irq1();
 
 void irq_remap();
 void irq0();
+
+void register_interrupt_handler(uint8_t index, void (*handler));

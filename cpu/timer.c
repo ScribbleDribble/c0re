@@ -1,5 +1,4 @@
 #include "timer.h"
-#include "../kernel/string.h"
 
 #define SUCCESS_CODE 0
 #define FAILURE_CODE 1

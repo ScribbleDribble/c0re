@@ -4,6 +4,8 @@
 #include "../cpu/port_io.h"
 #include "../kernel/string.h"
 #include <stdint.h>
+#include "../cpu/irq.h"
+
 
 #define CMD_PORT 0x64
 #define DATA_PORT 0x60 // used for reading data that was received from a PS/2 device or from the PS/2 controller itself and writing data to a PS/2 device or to the PS/2 controller itself.
@@ -60,8 +62,7 @@ typedef struct ps2_device_t {
         _Bool has_received_id1;
         _Bool has_received_id2;
         _Bool is_complete;
-    };
-    struct id_flow id_flow;
+    }id_flow;
 
 }ps2_device_t;
 
@@ -69,6 +70,9 @@ ps2_device_t device;
 
 void ps2_init();
 _Bool is_expecting_id_data();
+void device_id_processor(uint8_t id_byte);
+void set_device_id(uint8_t prepend_id_data);
+void test_device_connectivity();
 
 #endif
 

@@ -1,4 +1,4 @@
-
+#include "driver_entry.h"
 
 
 void init_drivers() {
