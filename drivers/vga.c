@@ -45,8 +45,8 @@ static void kprint(const char* string, const unsigned char character_mode, posit
 	}
 }
 
-void puts(const char* str) {
-	// maybe append \n to end, variable args -> string formatting e.g. kputs("we have %i cookies", n_cookies)
+void kputs(const char* str) {
+	// maybe append \n to end, variable args -> string formatting e.g. kkputs("we have %i cookies", n_cookies)
 	position2D_t pos = {line++, 0};
 	kprint(str, 0x0f, &pos);
 }

@@ -45,7 +45,7 @@ typedef struct interrupt_state_t {
 void irq_handler(interrupt_state_t int_state) {
     char reg_value[32];
     int_to_str(int_state.no, reg_value, 32);
-    // puts(reg_value);
+    // kputs(reg_value);
 
     if (int_state.no >= PIC_SECONDARY_START_INDEX)
     {

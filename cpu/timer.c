@@ -8,13 +8,13 @@ static uint32_t tick = 0;
 
 void timer_callback() {
     tick++;
-    // puts("Tick");
+    // kputs("Tick");
 }
 
 int configure_timer(unsigned int frequency) {
 
     if (frequency == 0) {
-        puts("Cannot divide input clock by zero. Halting OS!");
+        kputs("Cannot divide input clock by zero. Halting OS!");
         return FAILURE_CODE;
     }
     

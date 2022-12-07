@@ -5,9 +5,9 @@
 
 void keyboard_init() {
     if (device.id == KEYBOARD_ID) {
-        puts("Keyboard detected!");
+        kputs("Keyboard detected!");
     } else {
-        puts("Keyboard not detected on PS/2 port 1.");
+        kputs("Keyboard not detected on PS/2 port 1.");
     }
 
     // enable scanning

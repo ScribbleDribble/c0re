@@ -15,7 +15,7 @@ typedef struct position2D_t{
     unsigned int col;
 }position2D_t;
 
-void puts(const char* str);
+void kputs(const char* str);
 void putc(const char character);
 void clear_screen();
 static void handle_special_non_null_char(char c, position2D_t* pos);

@@ -5,7 +5,7 @@ idt_entry_t idt[256];
 idt_descriptor_t idt_descriptor;
 
 void interrupt_handler() {
-    puts("Interrupt handler was called!");
+    kputs("Interrupt handler was called!");
 }
 
 void init_idt() {

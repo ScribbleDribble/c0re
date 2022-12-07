@@ -10,7 +10,7 @@ void ps2_device_callback() {
     uint8_t data = device_read_byte();
     char buf[16];
     int_to_hex_str(data, buf, 16);
-    puts(buf);
+    kputs(buf);
     
     switch(data) {
         case ACK:
@@ -34,7 +34,7 @@ void ps2_device_callback() {
                 device_id_processor(data);
                 return;
             }
-            // puts(">PS/2 Unhandled response to device!");
+            // kputs(">PS/2 Unhandled response to device!");
     }
 }
 
@@ -81,7 +81,7 @@ void ps2_init() {
     // if first bit of status flag is set, then there is data to be consumed. 
     // keep on performing reads until buffer is flushed 
     while ((status_flag & 1)) {
-        puts(">Flushing ps/2 output port");
+        kputs(">Flushing ps/2 output port");
         uint8_t data = port_byte_read(DATA_PORT);
     }
     char str[32];
@@ -106,13 +106,13 @@ void ps2_init() {
     uint8_t controller_response = port_byte_read(DATA_PORT);
     switch (controller_response) {
         case CONTROLLER_TEST_SUCCESS:
-            puts(">PS/2 Test successful!");
+            kputs(">PS/2 Test successful!");
             break;
         case CONTROLLER_TEST_FAILURE:
-            puts(">PS/2 Controller Test failed!");
+            kputs(">PS/2 Controller Test failed!");
             break;
         default:
-            puts(">PS/2 Unexpected response from controller test!");
+            kputs(">PS/2 Unexpected response from controller test!");
     }
 
     // seems like qemu doesnt support dual channels so just test the first port for now.
@@ -122,22 +122,22 @@ void ps2_init() {
     controller_response = port_byte_read(DATA_PORT);
     switch(controller_response) {
         case PORT1_SUCCESS:
-            puts(">PS/2 Port 1 success!");
+            kputs(">PS/2 Port 1 success!");
             break;
         case PORT_CLOCK_LINE_STUCK_LOW:
-            puts(">PS/2 port failure: Data line stuck low");
+            kputs(">PS/2 port failure: Data line stuck low");
             break;
         case PORT_CLOCK_LINE_STUCK_HIGH:
-            puts(">PS/2 port failure: Clock line stuck high");
+            kputs(">PS/2 port failure: Clock line stuck high");
             break;
         case PORT_DATA_LINE_STUCK_LOW:
-            puts(">PS/2 port failure: Data line stuck low");
+            kputs(">PS/2 port failure: Data line stuck low");
             break;
         case PORT_DATA_LINE_STUCK_HIGH:
-            puts(">PS/2 port failure: Data line stuck high");
+            kputs(">PS/2 port failure: Data line stuck high");
             break;
         default:
-            puts(">PS/2 Unhandled response to port test failure!");
+            kputs(">PS/2 Unhandled response to port test failure!");
     }
 
     // enable devices
@@ -164,9 +164,9 @@ void test_device_connectivity() {
 
     device_write_byte(RESET_DEVICE);
     while (!device.is_reset_success) {
-        puts(">PS/2 Waiting for device reset to be successful");
+        kputs(">PS/2 Waiting for device reset to be successful");
     }
-    puts(">PS/2 Device Reset successful!");
+    kputs(">PS/2 Device Reset successful!");
 }
 
 // read buffer from os perspective - data is ready to be read
@@ -176,9 +176,9 @@ static void poll_read_buf_ready_status() {
     char data[32];
     while (!(status_flag & (uint8_t) is_ready)) {
         status_flag = port_byte_read(STATUS_PORT);
-        puts(">PS/2 driver: Polling read buffer...");
+        kputs(">PS/2 driver: Polling read buffer...");
         int_to_hex_str(status_flag, data, 32);
-        puts(data);
+        kputs(data);
     }
 }
 
@@ -188,7 +188,7 @@ static void poll_write_buf_ready_status() {
     uint8_t status_flag = port_byte_read(STATUS_PORT);
     while ((status_flag >> 1) & (uint8_t) is_busy) {
         status_flag = port_byte_read(STATUS_PORT);
-        puts(">PS/2 interface driver: Polling write buffer..");
+        kputs(">PS/2 interface driver: Polling write buffer..");
     }
 }
 
@@ -199,26 +199,26 @@ static void identify_devices() {
     device_write_byte(DISABLE_SCANNING);
 
     while (!device.id_flow.is_scanning_disabled)
-        puts(">PS/2 Waiting for scanning to be disabled");
+        kputs(">PS/2 Waiting for scanning to be disabled");
 
-    puts(">PS/2 Received ACK for disabling scanning");
+    kputs(">PS/2 Received ACK for disabling scanning");
 
     device_write_byte(IDENTIFY_DEVICE);
     while (!device.id_flow.is_identifying)
-        puts(">PS/2 Waiting for Ack for device identification");
-    puts(">PS/2 Received ack for identifying device");
+        kputs(">PS/2 Waiting for Ack for device identification");
+    kputs(">PS/2 Received ack for identifying device");
     char buf[17];
 
     while(!device.id_flow.has_received_id1)
-        puts(">PS/2 Waiting for id part1");
+        kputs(">PS/2 Waiting for id part1");
     while(!device.id_flow.has_received_id2)
-        puts(">PS/2 Waiting for id part2");
+        kputs(">PS/2 Waiting for id part2");
 
     device.id_flow.is_complete = 1;
     int_to_hex_str(device.id, buf, 17);
 
-    puts(">PS/2 Device identification complete - device id is: ");
-    puts(buf);
+    kputs(">PS/2 Device identification complete - device id is: ");
+    kputs(buf);
     
 }
 

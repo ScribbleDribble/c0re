@@ -6,12 +6,12 @@
 int main() {
 	// TODO master driver file which intiates everything and is called by kernel.
 	clear_screen();
-	puts("Micah's OS");
-	puts("Testing this out");
+	kputs("Micah's OS");
+	kputs("Testing this out");
 	init_idt();
-	puts(">Initialised IDT");
+	kputs(">Initialised IDT");
 	__asm__ volatile ("sti");
-	puts(">Enabled interrupts");
+	kputs(">Enabled interrupts");
 	init_drivers();
 	
 	while (1);

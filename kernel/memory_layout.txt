@@ -1,0 +1,17 @@
+physical address space
+
+--- kernel space ---
+
+
+
+----- user space -----
+--- stack --- 
+
+--- heap ---
+
+...
+
+--- data --- 
+
+--- text --- 0x000
+
