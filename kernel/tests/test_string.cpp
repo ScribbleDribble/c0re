@@ -27,7 +27,6 @@ TEST_P(IntegerToStringParamTests, TestIntToString) {
     for (int i = 0; i < 32; ++i) {
         EXPECT_EQ(actual[i], expected[i]) << "Vectors x and y differ at index " << i;
     }
-    kputs(actual);
 }
 
 TEST(MemoryCopyParamTests, TestMemoryCopy) {
