@@ -35,6 +35,7 @@ load_kernel:
 BEGIN_PM:
         mov ebx, MSG_INIT_PROTECTED_MODE
         call print_string_vga
+
 	call KERNEL_OFFSET
 	jmp $	
 

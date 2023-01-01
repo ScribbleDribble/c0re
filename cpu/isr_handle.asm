@@ -89,3 +89,7 @@ _isr8:
     ; cpu has already pushed error code onto the stack
     push byte 8
     jmp _isr_common
+
+_isr14:
+    push byte 14
+    jmp _isr_common

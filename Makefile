@@ -49,12 +49,19 @@ cpu/irq_handle.o : cpu/irq_handle.asm
 cpu/idt.o : cpu/idt.c cpu/irq.c
 	i386-elf-gcc --freestanding -c cpu/idt.c -o cpu/idt.o
 
+kernel/vmm.o: kernel/vmm.c
+	i386-elf-gcc --freestanding -c kernel/vmm.c -o kernel/vmm.o
 
+kernel/pmm.o: kernel/pmm.c
+	i386-elf-gcc --freestanding -c kernel/pmm.c -o kernel/pmm.o
+
+kernel/enable_paging.o: kernel/enable_paging.asm
+	nasm kernel/enable_paging.asm -f elf -o kernel/enable_paging.o
 
 # links ELF kernel_entry and kernel for direct access to main function of kernel. 
 # the binary will start at address 0x1000
-bin/kernel.bin : kernel/kernel.o kernel/kernel_entry.o kernel/string.o drivers/vga.o cpu/idt_load.o cpu/idt.o cpu/isr_handle.o cpu/irq_handle.o cpu/irq.o cpu/port_io.o cpu/timer.o drivers/ps2.o drivers/keyboard.o drivers/driver_entry.o
-	i386-elf-ld kernel/kernel.o kernel/kernel_entry.o kernel/string.o drivers/vga.o cpu/idt_load.o cpu/idt.o cpu/isr_handle.o cpu/irq.o cpu/port_io.o cpu/irq_handle.o cpu/timer.o drivers/ps2.o drivers/keyboard.o drivers/driver_entry.o -Ttext 0x1000 -o bin/kernel.bin --oformat binary
+bin/kernel.bin : kernel/kernel.o kernel/kernel_entry.o kernel/string.o drivers/vga.o cpu/idt_load.o cpu/idt.o cpu/isr_handle.o cpu/irq_handle.o cpu/irq.o cpu/port_io.o cpu/timer.o drivers/ps2.o drivers/keyboard.o drivers/driver_entry.o kernel/vmm.o kernel/pmm.o kernel/enable_paging.o
+	i386-elf-ld kernel/kernel.o kernel/kernel_entry.o kernel/string.o drivers/vga.o cpu/idt_load.o cpu/idt.o cpu/isr_handle.o cpu/irq.o cpu/port_io.o cpu/irq_handle.o cpu/timer.o drivers/ps2.o drivers/keyboard.o drivers/driver_entry.o kernel/vmm.o kernel/pmm.o kernel/enable_paging.o -Ttext 0x1000 -o bin/kernel.bin --oformat binary
 
 bin/boot_sector.bin : boot/boot_sector.asm
 	cd boot; nasm boot_sector.asm -f bin -o ../bin/boot_sector.bin

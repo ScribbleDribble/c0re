@@ -3,6 +3,9 @@ switch_to_pm:
 	cli	; disable interrupts as interrupts work differently in PM. interrupt-ageddon may happen if we dont
 	lgdt [gdt_descriptor]	; load GDT
 
+	; cr0 register is useful for giving us CONTROL over the processor. depending on which bit you set in the register, you activate functionality
+	; 1 bit = 1 processor property. e.g. 0th bit when set activates protected mode. 
+
 	mov eax, cr0	; set first bit of cr0 register to activate protected mode 
 	or eax, 0x1	
 	mov cr0, eax

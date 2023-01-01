@@ -19,6 +19,8 @@ void init_idt() {
     // gdt_code_selector 0x08, remember each gdt segment is 8 bytes
     // first gdt segment is null and the second is our code segment.  
     add_idt_gate(0, (unsigned) _isr0, IDT_GATE_FLAGS, 0x08);
+    add_idt_gate(14, (unsigned) _isr14, IDT_GATE_FLAGS, 0x08);
+
     // ... to implement the other 31 idt gates for processor exceptions
 
     // hardware interrupts - TODO maybe put this in irq.c and call here

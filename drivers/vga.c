@@ -2,7 +2,7 @@
 
 static unsigned int line;
 
-void kprint_char(const char character, const unsigned char character_mode, position2D_t* pos) {
+static void kprint_char(const char character, const unsigned char character_mode, position2D_t* pos) {
 
 	if (!(pos->row < MAX_HEIGHT && pos->row >= 0 && pos->col < MAX_WIDTH && pos->col >= 0))
 		return;
@@ -51,7 +51,7 @@ void kputs(const char* str) {
 	kprint(str, 0x0f, &pos);
 }
 
-void putc(const char character) {
+void kputc(const char character) {
 	position2D_t pos = {line++, 0};
 	kprint_char(character, 0x0f, &pos);
 }
