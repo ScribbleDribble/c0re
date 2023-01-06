@@ -5,18 +5,19 @@
 #define PAGE_DIRECTORY_ADDR 0xa0000000
 #define PAGE_SIZE 4096
 #define PTE_SIZE 4
-#define PDE_SIZE 4096
+#define PDE_SIZE 4
 
 #define MAX_PTE_COUNT 1024
 #define MAX_PD_COUNT 1024
+// #define PT_BASE_ADDR 0x42000 // 100kb into free memory region of lower memory. 4kb aligned
+// #define PD_BASE_ADDR 0x21000
+
 #define PT_BASE_ADDR 0x42000 // 100kb into free memory region of lower memory. 4kb aligned
 #define PD_BASE_ADDR 0x21000
-
 
 #include <stdint.h>
 #include "../kernel/string.h"
 #include <stdbool.h>
-#include "pmm.h"
 
 uint32_t create_pde(
     _Bool present,
@@ -43,7 +44,8 @@ uint32_t create_pte(
     const uint32_t page_frame_addr
 );
 
-uint32_t vmm_init();
+void vmm_init();
+
 
 
 #endif

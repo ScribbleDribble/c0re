@@ -4,8 +4,18 @@
 idt_entry_t idt[256];
 idt_descriptor_t idt_descriptor;
 
-void interrupt_handler() {
+typedef struct interrupt_state_t {
+    int no;
+    int err_code;
+}interrupt_state_t;
+
+
+void interrupt_handler(interrupt_state_t int_state) {
+    char buf[32];
+    int_to_hex_str(int_state.no, buf, 32);
+    kputs(buf);
     kputs("Interrupt handler was called!");
+    
 }
 
 void init_idt() {
@@ -18,8 +28,25 @@ void init_idt() {
     // 0x8E typically used as flags - (present=1, dpl=0b00, type=0b1110 => flags=0b1000_1110=0x8E)
     // gdt_code_selector 0x08, remember each gdt segment is 8 bytes
     // first gdt segment is null and the second is our code segment.  
-    add_idt_gate(0, (unsigned) _isr0, IDT_GATE_FLAGS, 0x08);
-    add_idt_gate(14, (unsigned) _isr14, IDT_GATE_FLAGS, 0x08);
+    add_idt_gate(ISR0, (unsigned) _isr0, IDT_GATE_FLAGS, 0x08);
+    add_idt_gate(ISR1, (unsigned) _isr1, IDT_GATE_FLAGS, 0x08);
+    add_idt_gate(ISR2, (unsigned) _isr2, IDT_GATE_FLAGS, 0x08);
+    add_idt_gate(ISR3, (unsigned) _isr3, IDT_GATE_FLAGS, 0x08);
+    add_idt_gate(ISR4, (unsigned) _isr4, IDT_GATE_FLAGS, 0x08);
+    add_idt_gate(ISR5, (unsigned) _isr5, IDT_GATE_FLAGS, 0x08);
+    add_idt_gate(ISR6, (unsigned) _isr6, IDT_GATE_FLAGS, 0x08);
+    add_idt_gate(ISR7, (unsigned) _isr7, IDT_GATE_FLAGS, 0x08);
+    add_idt_gate(ISR8, (unsigned) _isr8, IDT_GATE_FLAGS, 0x08);
+    add_idt_gate(ISR9, (unsigned) _isr9, IDT_GATE_FLAGS, 0x08);
+    add_idt_gate(ISR10, (unsigned) _isr10, IDT_GATE_FLAGS, 0x08);
+    add_idt_gate(ISR11, (unsigned) _isr11, IDT_GATE_FLAGS, 0x08);
+    add_idt_gate(ISR12, (unsigned) _isr12, IDT_GATE_FLAGS, 0x08);
+    add_idt_gate(ISR13, (unsigned) _isr13, IDT_GATE_FLAGS, 0x08);
+    add_idt_gate(ISR14, (unsigned) _isr14, IDT_GATE_FLAGS, 0x08);
+    add_idt_gate(ISR15, (unsigned) _isr15, IDT_GATE_FLAGS, 0x08);
+    add_idt_gate(ISR16, (unsigned) _isr16, IDT_GATE_FLAGS, 0x08);
+    add_idt_gate(ISR17, (unsigned) _isr17, IDT_GATE_FLAGS, 0x08);
+    add_idt_gate(ISR18, (unsigned) _isr18, IDT_GATE_FLAGS, 0x08);
 
     // ... to implement the other 31 idt gates for processor exceptions
 

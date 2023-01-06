@@ -135,8 +135,11 @@
 #include "string.h"
 #include "../drivers/vga.h"
 
-static uint32_t pd[MAX_PD_COUNT];
-static uint32_t pte_table[MAX_PD_COUNT][MAX_PTE_COUNT];
+char buf[64];
+
+uint32_t* page_table;
+uint32_t* page_directory;
+
 
 uint32_t create_pde(
     _Bool present,
@@ -177,9 +180,9 @@ uint32_t create_pde(
     flags |= present;
 
     unsigned int pde = pt_address;
-    pde <<= 12;
+    // pde <<= 12;
     pde |= flags;
-    
+
     return pde;
 }
 
@@ -226,37 +229,61 @@ uint32_t
     flags |= present;
     
     uint32_t pte = page_frame_addr;
-    pte <<= 12;
+    // pte <<= 12;
     pte |= flags;
     
     return pte;
     
 }
 
-void blank_page_directory(uint32_t* base_pd_address) {
-    int i;
-    char buf[32];
-    for (i = 0; i < MAX_PTE_COUNT; i++) {
-        // pte_table[0][i] = create_pte(0,1,0,0,0,0,0,0,0,0, (uint32_t) kalloc());
-        uint32_t* pte_address = (uint32_t*) PT_BASE_ADDR + PTE_SIZE*i;
-        
-        int_to_str(i, buf, 32);
-        kputs(buf);
 
-        *pte_address = create_pte(0,1,0,0,0,0,0,0,0,0, (uint32_t) pmm_kalloc());
+
+
+void blank_page_directory() {
+    int i;     
+    for (i = 0; i < MAX_PTE_COUNT; i++) {
+        page_table[i] = create_pte(1,1,1,0,0,0,0,0,0,0, (uint32_t) pmm_kalloc());
     }
 
     for (i = 0; i < MAX_PD_COUNT; i++) {
-        // pd[i] = create_pde(0,1,0,0,0,0,0,0, PT_BASE_ADDR);
-        uint32_t* pd_addr = (uint32_t*) base_pd_address + i*PDE_SIZE;
-        *pd_addr = create_pde(0,1,0,0,0,0,0,0, PT_BASE_ADDR+i*PTE_SIZE*MAX_PTE_COUNT);
+        if (i == 0)
+            page_directory[i] = create_pde(1,1,1,0,0,0,0,0, (uint32_t) page_table);
+        else
+            page_directory[i] = create_pde(0,1,1,0,0,0,0,0, (uint32_t) page_table);
+
     }
-    
+
 }
 
-uint32_t vmm_init() {
+void identity_map_kernel() {
+    if (!pmm_kalloc_addr(0x1000) == true) {
+        kputs("Panic!! Can't identity map kernel.");
+        while(1);
+    }
+
+    uint32_t page_dir = page_directory[1];
+    uint32_t* page_table = (uint32_t*) (page_dir >> 12);
+
+    int i;
+    for (i = 0; i < MAX_PTE_COUNT; i++) {
+        page_table[i] = create_pte(1,1,1,0,0,0,0,0,0,0, (uint32_t) 0x1000 + PAGE_SIZE * i);
+    }
+
+
+
+    // point second page table to 1:1 map physical addresses hosting kernel to a virtual address of the same location 
+    //page table has already been created by blank_page_directory, we just need to set its page table. 
+
+}
+
+
+void vmm_init() {
     pmm_init();
-    blank_page_directory((uint32_t*) PD_BASE_ADDR);
+    page_table = PT_BASE_ADDR;
+    page_directory = PD_BASE_ADDR;
+
+    blank_page_directory();
+    // identity_map_kernel();
 }
 
 

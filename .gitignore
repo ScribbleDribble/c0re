@@ -9,3 +9,9 @@ kernel/tests/test_string
 kernel/tests/*.cmake
 kernel/tests/CMakeFiles/*
 kernel/tests/CMakeCache*
+*/CMakeFiles*
+*/CMakeCaches*
+*/.cmake
+drivers/tests/CMakeFiles/*
+*.cmake
+*CMakeCache.txt

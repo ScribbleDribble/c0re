@@ -40,9 +40,9 @@ global _isr31
 
 ; save cpu state
 _isr_common:
-    pusha ; save gp registers
+    ; pusha ; save gp registers
    
-    pushad ; save extended registers
+    ; pushad ; save extended registers
 
     mov ax, 0x10
 
@@ -84,12 +84,79 @@ _isr2:
     push byte 2 
     jmp _isr_common
 
+_isr3:
+    push byte 0
+    push byte 3 
+    jmp _isr_common
+
+_isr4:
+    push byte 0
+    push byte 4 
+    jmp _isr_common
+
+_isr5:
+    push byte 0
+    push byte 5 
+    jmp _isr_common
+
+_isr6:
+    push byte 0
+    push byte 6
+    jmp _isr_common
+
+_isr7:
+    push byte 0
+    push byte 7 
+    jmp _isr_common
 
 _isr8:
     ; cpu has already pushed error code onto the stack
     push byte 8
     jmp _isr_common
 
+_isr9:
+    ; cpu has already pushed error code onto the stack
+    push byte 0
+    push byte 9
+    jmp _isr_common
+
+_isr10:
+    push byte 10
+    jmp _isr_common
+
+_isr11:
+    push byte 11
+    jmp _isr_common
+
+_isr12:
+    push byte 12
+    jmp _isr_common
+
+_isr13:
+    push byte 13
+    jmp _isr_common
+
 _isr14:
     push byte 14
+    jmp _isr_common
+
+
+_isr15:
+    push 0
+    push byte 15
+    jmp _isr_common
+
+_isr16:
+    push 0
+    push byte 16
+    jmp _isr_common
+
+_isr17:
+    push 0
+    push byte 17
+    jmp _isr_common
+
+_isr18:
+    push 0
+    push byte 18
     jmp _isr_common
