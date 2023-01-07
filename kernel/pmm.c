@@ -41,7 +41,7 @@ bool pmm_kalloc_addr(uint32_t addr) {
 }   
 
 void pmm_free(void* ptr) {
-    int idx = ptr-PHYS_BASE % ALIGN;
+    uint32_t idx = (uint32_t) ptr-PHYS_BASE % ALIGN;
     bitmap[idx] = FREE;
 }
 
@@ -53,4 +53,6 @@ void pmm_init() {
     }
 }
 
-// pmm_kalloc(size, base_addr)
+
+
+

@@ -22,13 +22,11 @@
 
 #define MEMORY_FULL 999
 
-static bool bitmap[N_BLOCKS];
-
-uint32_t* pmm_kalloc();
+uint32_t* pmm_kalloc(void);
 bool pmm_kalloc_addr(uint32_t addr);
 
 void pmm_free(void* ptr);
 
-void pmm_init();
+void pmm_init(void);
 
 #endif 

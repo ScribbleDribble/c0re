@@ -12,11 +12,11 @@ void reverse(char* str, int len) {
 	}
 }
 
-void memory_set(char* src, unsigned int c, int n) {
+void memory_set(void* src, unsigned int c, int n) {
 	int i;
+	char* ptr = (char*) src;
 	for (i = 0; i < n; ++i) {
-		*src = c;
-		src++;
+		ptr[i] = c;
 	}
 }
 

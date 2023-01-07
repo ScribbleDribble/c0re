@@ -18,34 +18,34 @@
 #include <stdint.h>
 #include "../kernel/string.h"
 #include <stdbool.h>
+#include "pmm.h"
 
 uint32_t create_pde(
-    _Bool present,
-    _Bool writable,
-    _Bool is_userspace,
-    _Bool write_through_policy,
-    _Bool cache_disable,
-    _Bool accessed,
-    _Bool available,
-    _Bool page_size,
+    bool present,
+    bool writable,
+    bool is_userspace,
+    bool write_through_policy,
+    bool cache_disable,
+    bool accessed,
+    bool available,
+    bool page_size,
     unsigned int pt_address);
 
 uint32_t create_pte(
-    const _Bool present,
-    const _Bool writable,
-    const _Bool is_userspace,
-    const _Bool write_through_policy,
-    const _Bool cache_disable,
-    const _Bool accessed,
-    const _Bool dirty,
-    const _Bool page_attr_table,
-    const _Bool granularity,
-    const _Bool available,
+    const bool present,
+    const bool writable,
+    const bool is_userspace,
+    const bool write_through_policy,
+    const bool cache_disable,
+    const bool accessed,
+    const bool dirty,
+    const bool page_attr_table,
+    const bool granularity,
+    const bool available,
     const uint32_t page_frame_addr
 );
 
-void vmm_init();
-
+void vmm_init(void);
 
 
 #endif

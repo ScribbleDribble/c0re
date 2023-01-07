@@ -91,25 +91,6 @@
 // e.g. if page frame stores just code, it is unlikely to change (if there is no JIT compilation!).
 // so it becomes set when memory != disk
 
-// typedef struct PageTableEntry {
-//     __Bool present;
-//     __Bool writable;
-//     __Bool is_userspace;
-//     __Bool write_through_policy;
-//     __Bool cache_disable;
-//     __Bool dirty;
-//     __Bool page_size;
-//     __Bool unused; 
-//     __Bool unused2;
-
-
-
-// }PageTableEntry;
-
-// todo
-// have a ptr in memory that incr by page_size for each page. 
-// 
-
 
 /*
     malloc() - increase heap for process
@@ -140,16 +121,17 @@ char buf[64];
 uint32_t* page_table;
 uint32_t* page_directory;
 
+static void vmm_logs(void);
 
 uint32_t create_pde(
-    _Bool present,
-    _Bool writable,
-    _Bool is_userspace,
-    _Bool write_through_policy,
-    _Bool cache_disable,
-    _Bool accessed,
-    _Bool available,
-    _Bool page_size,
+    bool present,
+    bool writable,
+    bool is_userspace,
+    bool write_through_policy,
+    bool cache_disable,
+    bool accessed,
+    bool available,
+    bool page_size,
     unsigned int pt_address
 ) 
 {
@@ -180,7 +162,6 @@ uint32_t create_pde(
     flags |= present;
 
     unsigned int pde = pt_address;
-    // pde <<= 12;
     pde |= flags;
 
     return pde;
@@ -229,7 +210,7 @@ uint32_t
     flags |= present;
     
     uint32_t pte = page_frame_addr;
-    // pte <<= 12;
+
     pte |= flags;
     
     return pte;
@@ -240,9 +221,15 @@ uint32_t
 
 
 void blank_page_directory() {
+    // TODO
+    // 1. only use pmm_kalloc for the FREE REGIONS within memory and not reserved parts
+    // so do not call pmm_kalloc for reserved memory regions 
+    // 2. reserve memory for the page directory and page tables. 
+
+
     int i;     
     for (i = 0; i < MAX_PTE_COUNT; i++) {
-        page_table[i] = create_pte(1,1,1,0,0,0,0,0,0,0, (uint32_t) pmm_kalloc());
+        page_table[i] = create_pte(1,1,0,0,0,0,0,0,0,0, (uint32_t) pmm_kalloc());
     }
 
     for (i = 0; i < MAX_PD_COUNT; i++) {
@@ -255,39 +242,72 @@ void blank_page_directory() {
 
 }
 
-void identity_map_kernel() {
-    if (!pmm_kalloc_addr(0x1000) == true) {
-        kputs("Panic!! Can't identity map kernel.");
-        while(1);
-    }
+// // id maps <1MB of memory 
+// void identity_map_lower_memory() {
+//     if (!pmm_kalloc_addr(0x1000) == true) {
+//         kputs("Panic!! Can't identity map kernel.");
+//         while(1);
+//     }
 
-    uint32_t page_dir = page_directory[1];
-    uint32_t* page_table = (uint32_t*) (page_dir >> 12);
+    
 
-    int i;
-    for (i = 0; i < MAX_PTE_COUNT; i++) {
-        page_table[i] = create_pte(1,1,1,0,0,0,0,0,0,0, (uint32_t) 0x1000 + PAGE_SIZE * i);
-    }
+//     int i;
+//     for (i = 0; i < MAX_PTE_COUNT; i++) {
+
+// +        if (PAGE_SIZE*i >= 1048576) {
+//             page_table[i] = create_pte(1,1,1,0,0,0,0,0,0,0, (uint32_t) pmm_kalloc());
+//         }
+//     }
 
 
+//     // point second page table to 1:1 map physical addresses hosting kernel to a virtual address of the same location 
+//     //page table has already been created by blank_page_directory, we just need to set its page table. 
 
-    // point second page table to 1:1 map physical addresses hosting kernel to a virtual address of the same location 
-    //page table has already been created by blank_page_directory, we just need to set its page table. 
-
-}
+// }
 
 
 void vmm_init() {
     pmm_init();
-    page_table = PT_BASE_ADDR;
-    page_directory = PD_BASE_ADDR;
+    page_table = (uint32_t*) PT_BASE_ADDR;
+    page_directory = (uint32_t*) PD_BASE_ADDR;
 
     blank_page_directory();
+    vmm_logs();
     // identity_map_kernel();
 }
 
 
+uint32_t* get_pd(uint8_t index) {
+    return page_directory+index;
+}
 
+static void vmm_logs() {
+    #ifdef DEBUG
+        // should point to 0x42000 and have flags as 0x7. res = 0x00042007
+        int_to_hex_str(*page_directory, buf, 32);
+        kputs(buf);
+        // should be address of first page table i.e 0x00042000
+        int_to_hex_str(page_table, buf, 32);
+        kputs(buf);
+
+        // should point to first 4kb aligned address in memory that is free to use, provided by kalloc. should be 0x00100000. 
+        // should also have flags as 0x7
+        // so 0x00100007
+        int_to_hex_str(*page_table, buf, 32);
+        kputs(buf);
+        // next entry in page table should point to the next value provided by kalloc. should be 0x00101007
+        int_to_hex_str(*(page_table+1), buf, 32);
+        kputs(buf);
+        // last entry has a physical address, when subtracted with phys address pointed by first pte, produces 4MB difference (4190208). 
+        int_to_str((uint32_t)*(page_table+1023)-*(page_table), buf, 32);
+        kputs(buf);
+
+        // last entry of page directory should point to the first page table, so its value should be 0x0004200
+        int_to_hex_str(*(page_directory + 1023), buf, 32);
+        kputs(buf);
+    #endif
+    
+}
 
 
 
