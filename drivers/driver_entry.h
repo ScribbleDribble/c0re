@@ -6,6 +6,6 @@
 #include "vga.h"
 #include "../cpu/timer.h"
 
-void init_drivers();
+void init_drivers(void);
 
 #endif

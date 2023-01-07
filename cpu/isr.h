@@ -20,25 +20,25 @@
 #define ISR17 17
 #define ISR18 18
 
-extern void _isr0();
-extern void _isr1();
-extern void _isr2();
-extern void _isr3();
-extern void _isr4();
-extern void _isr5();
-extern void _isr6();
-extern void _isr7();
-extern void _isr8();
-extern void _isr9();
-extern void _isr10();
-extern void _isr11();
-extern void _isr12();
-extern void _isr13();
-extern void _isr14();
-extern void _isr15();
-extern void _isr16();
-extern void _isr17();
-extern void _isr18();
+extern void _isr0(void);
+extern void _isr1(void);
+extern void _isr2(void);
+extern void _isr3(void);
+extern void _isr4(void);
+extern void _isr5(void);
+extern void _isr6(void);
+extern void _isr7(void);
+extern void _isr8(void);
+extern void _isr9(void);
+extern void _isr10(void);
+extern void _isr11(void);
+extern void _isr12(void);
+extern void _isr13(void);
+extern void _isr14(void);
+extern void _isr15(void);
+extern void _isr16(void);
+extern void _isr17(void);
+extern void _isr18(void);
 
 
 

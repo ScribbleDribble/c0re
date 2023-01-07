@@ -9,6 +9,6 @@
 // commands //
 #define ENABLE_SCANNING 0xF4
 
-void keyboard_init();
+void keyboard_init(void);
 
 #endif

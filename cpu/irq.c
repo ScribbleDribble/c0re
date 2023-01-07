@@ -30,9 +30,12 @@ void irq_remap() {
 
 }
 
+typedef void (*irq_handler_func_t) (void); // type of func ptr is just irq_handler
 
-void* interrupt_handlers[256];
-void register_interrupt_handler(uint8_t index, void (*handler)) {
+irq_handler_func_t interrupt_handlers[256];
+
+
+void register_interrupt_handler(uint8_t index, void (*handler) (void)) {
     interrupt_handlers[index] = handler;
 }
 
@@ -42,10 +45,8 @@ typedef struct interrupt_state_t {
     int err_code;
 }interrupt_state_t;
 
-void irq_handler(interrupt_state_t int_state) {
-    char reg_value[32];
-    int_to_str(int_state.no, reg_value, 32);
-    // kputs(reg_value);
+// handler for all irqs. calls handler specific to irq
+void process_hardware_interrupt(interrupt_state_t int_state) {
 
     if (int_state.no >= PIC_SECONDARY_START_INDEX)
     {
@@ -54,8 +55,7 @@ void irq_handler(interrupt_state_t int_state) {
     port_byte_write(PIC_MAIN_CMD_PORT, PIC_SUCCESS_CODE);
 
     if (interrupt_handlers[int_state.no] != 0) {
-        
-        void (*handler) ();
+        irq_handler_func_t handler;
         handler = interrupt_handlers[int_state.no];
         handler();
     }

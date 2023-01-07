@@ -18,9 +18,7 @@ typedef struct position2D_t{
 
 void kputs(const char* str);
 void kputc(const char character);
-void clear_screen();
-static void handle_special_non_null_char(char c, position2D_t* pos);
-static void scroll_down_one_line();
-static _Bool is_special_non_null_char(const char c);
+void clear_screen(void);
+
 
 #endif 

@@ -1,6 +1,5 @@
 
 #include "pmm.h"
-
 #include "string.h"
 // region 1 - 0x7e00 - 0x7fff
 // region 2 - current PHYS_BASE - PHYS_END
@@ -46,7 +45,6 @@ void pmm_free(void* ptr) {
 }
 
 void pmm_init() {
-    // TODO cleaner memset function which takes in a void* pointer
     int i;
     for (i = 0; i < N_BLOCKS; i++) {
         bitmap[i] = FREE;

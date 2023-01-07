@@ -1,10 +1,12 @@
 #ifndef _PS2_H
 #define _PS2_H
 
+#include <stdint.h>
+
 #include "../cpu/port_io.h"
 #include "../kernel/string.h"
-#include <stdint.h>
-#include "../cpu/irq.h"
+#include "../drivers/vga.h" // kputs
+#include "../cpu/irq.h"     
 
 
 #define CMD_PORT 0x64
@@ -45,12 +47,6 @@
 
 #define ACK 0xFA
 
-uint8_t device_read_byte();
-void device_write_byte(uint8_t data);
-
-static void poll_read_buf_ready_status();
-static void poll_write_buf_ready_status();
-static void identify_devices();
 
 typedef struct ps2_device_t {
     uint16_t id;
@@ -68,11 +64,17 @@ typedef struct ps2_device_t {
 
 ps2_device_t device;
 
-void ps2_init();
-_Bool is_expecting_id_data();
+
+uint8_t device_read_byte(void);
+void device_write_byte(uint8_t data);
+
+
+
+void ps2_init(void);
+_Bool is_expecting_id_data(void);
 void device_id_processor(uint8_t id_byte);
 void set_device_id(uint8_t prepend_id_data);
-void test_device_connectivity();
+void test_device_connectivity(void);
 
 #endif
 

@@ -8,7 +8,6 @@ static uint32_t tick = 0;
 
 void timer_callback() {
     tick++;
-    // kputs("Tick");
 }
 
 int configure_timer(unsigned int frequency) {

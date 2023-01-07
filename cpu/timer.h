@@ -5,6 +5,7 @@
 #include "irq.h"
 #include "port_io.h"
 #include <stdint.h>
+#include "../drivers/vga.h"
 
 #define INPUT_CLOCK 1193180 //in hz
 #define PIT_CMD_PORT 0x43

@@ -20,13 +20,11 @@
 #define FREE 0
 #define IN_USE 1
 
-#define MEMORY_FULL 999
+#define MEMORY_FULL 999  
 
 uint32_t* pmm_kalloc(void);
 bool pmm_kalloc_addr(uint32_t addr);
-
 void pmm_free(void* ptr);
-
 void pmm_init(void);
 
 #endif 
