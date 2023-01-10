@@ -11,11 +11,8 @@
 #define FREE 0
 #define IN_USE 1
 #define N_BLOCKS 3500 // 14MB of free physical memory in blocks. 
-#define PHYS_BASE 0x0
+#define PHYS_BASE 0x00100000
 #define PHYS_END 0x00E00000
-
-// #define PHYS_BASE 0
-// #define PHYS_END 0x00100000
 
 #define FREE 0
 #define IN_USE 1

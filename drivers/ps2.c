@@ -11,8 +11,8 @@ static void identify_devices(void);
 // irq handler for ps2 devices. will call device driver specific code. 
 void ps2_device_callback() {
     uint8_t data = device_read_byte();
-    char buf[16];
-    int_to_hex_str(data, buf, 16);
+    char buf[32];
+    int_to_hex_str(data, buf, 32);
     kputs(buf);
     
     switch(data) {

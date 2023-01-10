@@ -1,15 +1,15 @@
 #include "vga.h"
 
-static unsigned int line;
+static unsigned int line = 0;
 
 static void kprint_char(const char character, const unsigned char character_mode, position2D_t* pos) {
 
 	if (!(pos->row < MAX_HEIGHT && pos->col < MAX_WIDTH))
 		return;
 	
-	char* mapped_addr = (char*) VIDEO_ADDRESS + CHAR_SIZE*(pos->col + pos->row*MAX_WIDTH); 
+	char* mapped_addr = (char*) (VIDEO_ADDRESS + CHAR_SIZE*(pos->col + pos->row*MAX_WIDTH)); 
 	*mapped_addr = character;
-	mapped_addr++;
+	mapped_addr += 1;
 	*mapped_addr = character_mode;
 	
 }
@@ -18,20 +18,12 @@ static bool is_special_non_null_char(const char c) {
 	return c == '\n' || c =='\t';
 }
 
-static void scroll_down_one_line(void) {
-	position2D_t local_pos = {0, 0};
-	char* addr = (char*) VIDEO_ADDRESS + (MAX_WIDTH*CHAR_SIZE);
-	// shift every char in video memory (from 2nd line) upwards
-	for (; (unsigned int) addr < CHAR_SIZE*(MAX_HEIGHT*MAX_WIDTH + VIDEO_ADDRESS) - CHAR_SIZE*MAX_WIDTH; addr += CHAR_SIZE)
-	{	
-		if (local_pos.col == MAX_WIDTH) {
-			local_pos.row++;
-			local_pos.col = 0;
-		}
-		kprint_char(*addr, 0x0f, &local_pos);
-		local_pos.col++;
-	}
-	
+void scroll_down_one_line(void) {
+	memory_copy(
+				(char*) VIDEO_ADDRESS, 
+				(char*) VIDEO_ADDRESS + (MAX_WIDTH*CHAR_SIZE), 
+				CHAR_SIZE*(MAX_HEIGHT*MAX_WIDTH) - CHAR_SIZE*MAX_WIDTH
+				);
 }
 
 static void handle_special_non_null_char(char c, position2D_t* pos) {
@@ -88,6 +80,6 @@ void kputc(const char character) {
 
 void clear_screen() {
 	char* addr = (char*) VIDEO_ADDRESS;
-	memory_set(addr, 0, CHAR_SIZE*(MAX_HEIGHT*MAX_WIDTH + VIDEO_ADDRESS));
+	memory_set(addr, 0, CHAR_SIZE*(MAX_HEIGHT*MAX_WIDTH));
 	line = 0;
 }

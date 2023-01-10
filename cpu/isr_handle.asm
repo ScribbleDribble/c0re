@@ -22,40 +22,25 @@ global _isr15
 global _isr16
 global _isr17
 global _isr18
-global _isr19
-global _isr20
-global _isr21
-global _isr22
-global _isr23
-global _isr24
-global _isr25
-global _isr26
-global _isr27
-global _isr28
-global _isr29
-global _isr30
-global _isr31
-
 
 
 ; save cpu state
 _isr_common:
-    ; pusha ; save gp registers
-   
-    ; pushad ; save extended registers
+    pusha ; save gp registers
+    pushad ; save extended registers
 
     mov ax, 0x10
 
     call interrupt_handler
     ; now we have finished handling the interrupt, restore state.
+    call eax  ; speciak call to preserve eip
     popad
-
     popa
     add esp, 8  ; removes error codes and pushed isr number
     sti     ; set interrupts flag
     iret    ; pops cs, eip, eflags, ss, and esp.
 
-    mov ax, 0x10
+    ; mov ax, 0x10
 
 ; // Processor Exceptions // - occurs when the cpu can no longer resume normal execution
 
@@ -67,7 +52,7 @@ _isr_common:
 ; division by 0
 _isr0:
     cli
-    push byte 0 
+    push byte 0
     push byte 0
     jmp _isr_common
 
@@ -80,83 +65,99 @@ _isr1:
 
 ; non maskable interrupt exception
 _isr2:
+    cli 
     push byte 0
     push byte 2 
     jmp _isr_common
 
 _isr3:
+    cli 
     push byte 0
     push byte 3 
     jmp _isr_common
 
 _isr4:
+    cli
     push byte 0
     push byte 4 
     jmp _isr_common
 
 _isr5:
+    cli
     push byte 0
     push byte 5 
     jmp _isr_common
 
 _isr6:
+    cli
     push byte 0
     push byte 6
     jmp _isr_common
 
 _isr7:
+    cli
     push byte 0
     push byte 7 
     jmp _isr_common
 
 _isr8:
+    cli
     ; cpu has already pushed error code onto the stack
     push byte 8
     jmp _isr_common
 
 _isr9:
+    cli
     ; cpu has already pushed error code onto the stack
     push byte 0
     push byte 9
     jmp _isr_common
 
 _isr10:
+    cli
     push byte 10
     jmp _isr_common
 
 _isr11:
+    cli
     push byte 11
     jmp _isr_common
 
 _isr12:
+    cli
     push byte 12
     jmp _isr_common
 
 _isr13:
+    cli
     push byte 13
     jmp _isr_common
 
 _isr14:
+    cli
     push byte 14
     jmp _isr_common
 
-
 _isr15:
+    cli
     push 0
     push byte 15
     jmp _isr_common
 
 _isr16:
+    cli
     push 0
     push byte 16
     jmp _isr_common
 
 _isr17:
+    cli
     push 0
     push byte 17
     jmp _isr_common
 
 _isr18:
+    cli
     push 0
     push byte 18
     jmp _isr_common

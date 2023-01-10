@@ -21,10 +21,13 @@ void memory_set(void* src, unsigned int c, int n) {
 }
 
 //todo: arbitrary blocks of memory copy (using void*)
-void memory_copy(char* dest, char* src, int n) {
+void memory_copy(void* dest, void* src, int n) {
 	int i;
+
+	char* to = (char*) dest;
+	char* from = (char*) src;
 	for (i = 0; i < n; ++i) {
-		dest[i] = src[i];
+		to[i] = from[i];
 	}
 }
 
@@ -56,8 +59,10 @@ void int_to_str(const int x, char* res, int len) {
 }
 
 void int_to_hex_str(int x, char* res, int len) {
-
 	int i = 0;
+	if (x == 0) {
+		res[i++] = '0';
+	}
 	while (x >= 1) {
 		int rem = x % 16;
 		int ascii_char = '0';

@@ -10,12 +10,10 @@ typedef struct interrupt_state_t {
 }interrupt_state_t;
 
 
-void interrupt_handler(interrupt_state_t int_state) {
-    char buf[32];
-    int_to_hex_str(int_state.no, buf, 32);
-    kputs(buf);
-    kputs("Interrupt handler was called!");
-    
+void interrupt_handler(unsigned int data) {
+    int int_no = *(&data+16);
+    int ec =  *(&data+17);
+    kputs("Interrupt handler was called!");  
 }
 
 void init_idt() {
@@ -56,6 +54,10 @@ void init_idt() {
     add_idt_gate(IRQ1, (uint32_t) _irq1, IDT_GATE_FLAGS, 0x08);
 
     _idt_load();
+    kputs(">Initialised IDT");
+
+    __asm__ volatile ("sti");
+    kputs(">Enabled interrupts");
 }
 
 void add_idt_gate(uint8_t idx, uint32_t isr_offset, uint8_t flags, uint16_t gdt_code_selector) {

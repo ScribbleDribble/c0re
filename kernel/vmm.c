@@ -220,29 +220,34 @@ uint32_t
 
 
 
-void blank_page_directory() {
-    // TODO
+void init_page_directory() {
     // 1. only use pmm_kalloc for the FREE REGIONS within memory and not reserved parts
     // so do not call pmm_kalloc for reserved memory regions 
     // 2. reserve memory for the page directory and page tables. 
 
-
+    // identity map lower addressable memory (<1MB) and source the remaining 3MB from usable memory
+    memory_set(page_table, 0, 4*1024);
+    memory_set(page_directory, 0, 4*1024);
+    
     int i;     
     for (i = 0; i < MAX_PTE_COUNT; i++) {
-        page_table[i] = create_pte(1,1,0,0,0,0,0,0,0,0, (uint32_t) pmm_kalloc());
+        if (PAGE_SIZE*i < PHYS_BASE) {
+            page_table[i] = create_pte(1,1,0,0,0,0,0,0,0,0, i*PAGE_SIZE);
+        } else { 
+            page_table[i] = create_pte(0,1,1,0,0,0,0,0,0,0, (uint32_t) pmm_kalloc());
+        }
     }
-
+    // use shared page tables to initialise page directory. only first page table will be in memory.
     for (i = 0; i < MAX_PD_COUNT; i++) {
-        if (i == 0)
-            page_directory[i] = create_pde(1,1,1,0,0,0,0,0, (uint32_t) page_table);
-        else
+        if (i == 0) {
+            page_directory[i] = create_pde(1,1,0,0,0,0,0,0, (uint32_t) page_table);
+        } else {
             page_directory[i] = create_pde(0,1,1,0,0,0,0,0, (uint32_t) page_table);
-
+        }
     }
-
 }
 
-// // id maps <1MB of memory 
+// id maps <1MB of memory 
 // void identity_map_lower_memory() {
 //     if (!pmm_kalloc_addr(0x1000) == true) {
 //         kputs("Panic!! Can't identity map kernel.");
@@ -270,10 +275,8 @@ void vmm_init() {
     pmm_init();
     page_table = (uint32_t*) PT_BASE_ADDR;
     page_directory = (uint32_t*) PD_BASE_ADDR;
-
-    blank_page_directory();
+    init_page_directory();
     vmm_logs();
-    // identity_map_kernel();
 }
 
 

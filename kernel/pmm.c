@@ -1,10 +1,7 @@
 
 #include "pmm.h"
 #include "string.h"
-// region 1 - 0x7e00 - 0x7fff
-// region 2 - current PHYS_BASE - PHYS_END
 
-// how do we get know 
 
 
 // keeps track of what blocks are free in memory - 4MB in memory (4kb * 1000)

@@ -5,6 +5,11 @@ all : bin/boot_sector.bin bin/kernel.bin
 run : bin/os_image
 	qemu-system-x86_64 -fda bin/os_image
 
+# logs interrupts and register state to logs.txt
+log-run : bin/os_image
+	echo "" > logs.txt
+	qemu-system-x86_64 -d int -D logs.txt -fda bin/os_image > logs.txt 
+
 CFLAGS += -Wall -Wextra -Wpedantic \
           -Wformat=2 -Wno-unused-parameter -Wshadow \
           -Wwrite-strings -Wstrict-prototypes  \
@@ -14,10 +19,6 @@ CFLAGS += -Wall -Wextra -Wpedantic \
 ifeq ($(CC),gcc)
     CFLAGS += -Wjump-misses-init -Wlogical-op
 endif
-
-# debug : bin/os_image
-# 	$(MAKE) bin/kernel.elf
-# 	qemu-system-x86_64 -s -S -fda bin/os_image 
 
 drivers/driver_entry.o : drivers/driver_entry.c
 	i386-elf-gcc --freestanding -c -g $(CFLAGS) drivers/driver_entry.c -o drivers/driver_entry.o
