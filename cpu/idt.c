@@ -11,8 +11,8 @@ typedef struct interrupt_state_t {
 
 
 void interrupt_handler(unsigned int data) {
-    int int_no = *(&data+16);
-    int ec =  *(&data+17);
+    // int int_no = *(&data+16);
+    // int ec =  *(&data+17);
     kputs("Interrupt handler was called!");  
 }
 

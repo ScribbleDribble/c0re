@@ -25,3 +25,8 @@ keyboard.h
 - dependent on hashtable.h queue.h
 
 cleaner Makefile
+
+Future: qemu e2e tests. Dump logs from qemu and read data using python testing script. 
+E.g. check state of registers from log file. Must use:
+
+qemu-system-x86 -d <option> -fda bin/os_image

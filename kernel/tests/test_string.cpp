@@ -14,7 +14,6 @@ class IntegerToStringParamTests : public ::testing::TestWithParam<int> {
 TEST_P(IntegerToStringParamTests, TestIntToString) { 
     int num = GetParam();
 
-     
     char expected[32];
     char actual[32];
 
@@ -43,7 +42,6 @@ TEST(MemoryCopyParamTests, TestMemoryCopy) {
     // memcpy(some_array1, new_values, 3);
     // memory_copy(some_array2, new_values, 3);
     // EXPECT_TRUE( 0 == memcmp( some_array1, some_array2, sizeof( some_array1 ) ) );
-
 }
 
 

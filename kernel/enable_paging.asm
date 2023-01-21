@@ -11,13 +11,5 @@ _enable_paging:
     mov eax, cr0
     or eax, 0x80000001
     mov cr0, eax
-
-    ; ret
-
+    
     ret
-
-; PAGE_DIRECTORY_PHYS_ADDRESS:
-;     db 0x00
-
-inf:
-    jmp inf

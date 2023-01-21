@@ -6,6 +6,7 @@
 
 // keeps track of what blocks are free in memory - 4MB in memory (4kb * 1000)
 static bool bitmap[N_BLOCKS];
+static uint32_t tail = 0;
 
 // returns free block within physical memory to be used as a page
 uint32_t* pmm_kalloc() {
@@ -13,6 +14,8 @@ uint32_t* pmm_kalloc() {
     for(i = 0; i < N_BLOCKS; i++) {
         if (bitmap[i] == (bool) FREE) {
             bitmap[i] = (bool) IN_USE;
+            // point to next free block. should check if its not out of bounds
+            tail = i+1;
             return (uint32_t*) (ALIGN*i+PHYS_BASE);
         }    
     }
@@ -47,6 +50,11 @@ void pmm_init() {
         bitmap[i] = FREE;
     }
 }
+
+uint32_t pmm_get_bitmap_tail() {
+    return tail;
+}
+
 
 
 

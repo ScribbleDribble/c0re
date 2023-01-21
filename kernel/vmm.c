@@ -60,7 +60,9 @@
 
 // Page Directory Entry Structure //
 
-// Each entry is 4 bytes (32 bits). Bits 31-12 contains the physical address of the page table. Remember, we dont need to have every page table loaded 
+// Each entry is 4 bytes (32 bits). Bits 31-12 point to the physical address of the page table. 
+
+// Remember, we dont need to have every page table loaded 
 // ... within main memory, so we also have a present bit here again as the first bit of the entry - the usefulness for of the 2 level table structure!
 // bit 1, W decides if the page table is writable. bit 2, U, when set is suitable for user space/ring 3.
 
@@ -90,6 +92,9 @@
 // ... for identifying when we should write a victim frame's content to disk. Only write the data to disk if the memory contains new data. 
 // e.g. if page frame stores just code, it is unlikely to change (if there is no JIT compilation!).
 // so it becomes set when memory != disk
+
+// each page frame is 4kb aligned. This means that every page frame's address should end with 000. This leaves us room to mask out the lower 3 hex
+// digits. e.g. pmm returns address 0xaa000 so 0xaa123 is a valid pte.
 
 
 /*
@@ -168,7 +173,6 @@ uint32_t create_pde(
 }
 
 
-
 uint32_t
  create_pte(
     const _Bool present,
@@ -217,18 +221,9 @@ uint32_t
     
 }
 
-
-
-
-void init_page_directory() {
-    // 1. only use pmm_kalloc for the FREE REGIONS within memory and not reserved parts
-    // so do not call pmm_kalloc for reserved memory regions 
-    // 2. reserve memory for the page directory and page tables. 
-
-    // identity map lower addressable memory (<1MB) and source the remaining 3MB from usable memory
-    memory_set(page_table, 0, 4*1024);
-    memory_set(page_directory, 0, 4*1024);
-    
+// links page directories to expected address of page tables
+// identity maps lower addressable memory (<1MB) within the root page table - also built here
+void init_paging_structures() {
     int i;     
     for (i = 0; i < MAX_PTE_COUNT; i++) {
         if (PAGE_SIZE*i < PHYS_BASE) {
@@ -237,81 +232,43 @@ void init_page_directory() {
             page_table[i] = create_pte(0,1,1,0,0,0,0,0,0,0, (uint32_t) pmm_kalloc());
         }
     }
-    // use shared page tables to initialise page directory. only first page table will be in memory.
     for (i = 0; i < MAX_PD_COUNT; i++) {
         if (i == 0) {
             page_directory[i] = create_pde(1,1,0,0,0,0,0,0, (uint32_t) page_table);
         } else {
-            page_directory[i] = create_pde(0,1,1,0,0,0,0,0, (uint32_t) page_table);
+            page_directory[i] = create_pde(0,1,1,0,0,0,0,0, (uint32_t) PT_BASE_ADDR + MAX_PTE_COUNT*i*4);
         }
     }
 }
-
-// id maps <1MB of memory 
-// void identity_map_lower_memory() {
-//     if (!pmm_kalloc_addr(0x1000) == true) {
-//         kputs("Panic!! Can't identity map kernel.");
-//         while(1);
-//     }
-
-    
-
-//     int i;
-//     for (i = 0; i < MAX_PTE_COUNT; i++) {
-
-// +        if (PAGE_SIZE*i >= 1048576) {
-//             page_table[i] = create_pte(1,1,1,0,0,0,0,0,0,0, (uint32_t) pmm_kalloc());
-//         }
-//     }
-
-
-//     // point second page table to 1:1 map physical addresses hosting kernel to a virtual address of the same location 
-//     //page table has already been created by blank_page_directory, we just need to set its page table. 
-
-// }
 
 
 void vmm_init() {
     pmm_init();
     page_table = (uint32_t*) PT_BASE_ADDR;
     page_directory = (uint32_t*) PD_BASE_ADDR;
-    init_page_directory();
-    vmm_logs();
+    init_paging_structures();
+    create_page_table(KERNEL_PD_INDEX);
 }
 
+void create_page_table(uint16_t pd_index) {
+    // since every page table is continguous, find offset to page table start
+    int i = MAX_PTE_COUNT*pd_index;
+    // calculate end of page table address and iterate till then
+    int end_offset = (pd_index*MAX_PTE_COUNT)+MAX_PTE_COUNT;
+    for (; i < end_offset; i++) {
+        page_table[i] = create_pte(1,1,0,0,0,0,0,0,0,0, (uint32_t) pmm_kalloc());
+    }
+    page_directory[1] |= VMM_PRESENT;
+}
 
 uint32_t* get_pd(uint8_t index) {
     return page_directory+index;
 }
 
-static void vmm_logs() {
-    #ifdef DEBUG
-        // should point to 0x42000 and have flags as 0x7. res = 0x00042007
-        int_to_hex_str(*page_directory, buf, 32);
-        kputs(buf);
-        // should be address of first page table i.e 0x00042000
-        int_to_hex_str(page_table, buf, 32);
-        kputs(buf);
-
-        // should point to first 4kb aligned address in memory that is free to use, provided by kalloc. should be 0x00100000. 
-        // should also have flags as 0x7
-        // so 0x00100007
-        int_to_hex_str(*page_table, buf, 32);
-        kputs(buf);
-        // next entry in page table should point to the next value provided by kalloc. should be 0x00101007
-        int_to_hex_str(*(page_table+1), buf, 32);
-        kputs(buf);
-        // last entry has a physical address, when subtracted with phys address pointed by first pte, produces 4MB difference (4190208). 
-        int_to_str((uint32_t)*(page_table+1023)-*(page_table), buf, 32);
-        kputs(buf);
-
-        // last entry of page directory should point to the first page table, so its value should be 0x0004200
-        int_to_hex_str(*(page_directory + 1023), buf, 32);
-        kputs(buf);
-    #endif
+// iterate through page table and return first page, mark as present and return virt address
+uint32_t get_available_page(uint16_t page_directory_idx) {
     
 }
-
 
 
  

@@ -10,6 +10,9 @@ log-run : bin/os_image
 	echo "" > logs.txt
 	qemu-system-x86_64 -d int -D logs.txt -fda bin/os_image > logs.txt 
 
+# kernel runs with debug msgs
+	
+
 CFLAGS += -Wall -Wextra -Wpedantic \
           -Wformat=2 -Wno-unused-parameter -Wshadow \
           -Wwrite-strings -Wstrict-prototypes  \

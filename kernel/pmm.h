@@ -23,5 +23,7 @@ uint32_t* pmm_kalloc(void);
 bool pmm_kalloc_addr(uint32_t addr);
 void pmm_free(void* ptr);
 void pmm_init(void);
+uint32_t pmm_get_bitmap_tail(void);
+
 
 #endif 

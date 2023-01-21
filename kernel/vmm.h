@@ -15,6 +15,11 @@
 #define PT_BASE_ADDR 0x42000 // 100kb into free memory region of lower memory. 4kb aligned
 #define PD_BASE_ADDR 0x21000
 
+#define KERNEL_PD_INDEX 1 
+
+#define VMM_PRESENT 1
+
+
 #include <stdint.h>
 #include "../kernel/string.h"
 #include <stdbool.h>
@@ -47,5 +52,9 @@ uint32_t create_pte(
 
 void vmm_init(void);
 
+// only here for testing purposes 
+void init_page_directory(void);
+void create_page_table(uint16_t pd_index);
+//
 
 #endif

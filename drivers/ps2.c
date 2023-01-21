@@ -16,7 +16,7 @@ void ps2_device_callback() {
     kputs(buf);
     
     switch(data) {
-        case ACK:
+        case ACK: {
             if (!device.is_reset_success) {
                 device.is_reset_success = 1;
                 break;
@@ -30,15 +30,17 @@ void ps2_device_callback() {
                 break;
             }
             break;
-        case DEVICE_RESET_FAILURE:
+        }   
+        case DEVICE_RESET_FAILURE: {
             device.is_reset_success = 0;
             break;
-        default:
+        }
+        default: {
             if (is_expecting_id_data()) {
                 device_id_processor(data);
                 return;
             }
-            // kputs(">PS/2 Unhandled response to device!");
+        }       // kputs(">PS/2 Unhandled response to device!");
     }
 }
 
