@@ -67,8 +67,8 @@ TEST_F(VMMTest, TestPalloc) {
     int n_allocs = 3; 
 
     create_page_table(pd_index);
-    palloc(pd_index, n_allocs);
-    // we have 0 kalloc calls at this point so its easy to track expected page frame address
+    int allocated_vaddress = (uint32_t) palloc(pd_index, n_allocs);
+    EXPECT_EQ(allocated_vaddress, pd_index * PT_SIZE_BYTES);
 
     // point to third page table
     uint32_t* pt = (uint32_t *) PT_BASE_ADDR;

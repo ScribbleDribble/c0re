@@ -9,8 +9,9 @@
 
 #define PAGE_DIRECTORY_ADDR 0xa0000000
 #define PAGE_SIZE 4096
-#define PTE_SIZE 4
-#define PDE_SIZE 4
+#define PTE_SIZE_BYTES 4
+#define PDE_SIZE_BYTES 4
+#define PT_SIZE_BYTES PAGE_SIZE * MAX_PTE_COUNT
 
 #define MAX_PTE_COUNT 1024
 #define MAX_PD_COUNT 1024
@@ -60,7 +61,7 @@ void vmm_init(void);
 // only here for testing purposes 
 void init_page_directory(void);
 void create_page_table(uint16_t pd_index);
-void* palloc(uint16_t pd_index, int n_allocs);
+uint32_t palloc(uint16_t pd_index, int n_allocs);
 //
 
 #endif

@@ -260,32 +260,36 @@ void create_page_table(uint16_t pd_index) {
     page_directory[pd_index] |= VMM_PRESENT;
 }
 
-void* palloc(uint16_t pd_index, int n_allocs) {
-
+// returns first vaddress of contingous n page allocation
+uint32_t palloc(uint16_t pd_index, int n_allocs) {
     if (n_allocs <= 0 || n_allocs >= MAX_PTE_COUNT) {
         kputs("err: Invalid allocation amount");
-        return (void*) -1;
+        return 0;
     }
-    int i = MAX_PTE_COUNT*pd_index;
+    int start = MAX_PTE_COUNT*pd_index;
     int end = (pd_index*MAX_PTE_COUNT)+MAX_PTE_COUNT;
-    void* first_page = (void*) -1;
+    int i = start;
+    int first_pte_index = -1;
+    
     while (i < end && n_allocs > 0) {
         if (!IS_PRESENT(page_table[i])) {
             SET_PRESENT(page_table[i]);
             SET_ADDR(page_table[i]);
             n_allocs -= 1;
-            if (first_page == (void*) -1) {
-                first_page = (void *) page_table[i];
+            if (first_pte_index == -1) {
+                first_pte_index = i - start;
             }
         }
         i++;
     }
 
-    if (first_page == (void*) -1)
-        kputs("err: Something went wrong in palloc!");
-    return first_page;
+    if (first_pte_index == -1 || n_allocs > 0)
+        kputs("err: Something went wrong in vmm:palloc!");
+
+    return (pd_index * 0x400000 + first_pte_index * 0x1000);
 }
 
-
-
+// getting the vaddr from a page table is only a matter of finding page's offset. e.g. vaddr = 0x401000
+// to find its page, PT 1 ends at 0x400000 (4MB) so its in the second offset of PT 2 (1000-2000)
+// vice versa, if we have PT 2's second page, we can find its vaddr by (PD_INDEX * 0x40000 + PT_INDEX * 0x1000)
  
