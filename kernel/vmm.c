@@ -283,10 +283,11 @@ uint32_t palloc(uint16_t pd_index, int n_allocs) {
         i++;
     }
 
-    if (first_pte_index == -1 || n_allocs > 0)
-        kputs("err: Something went wrong in vmm:palloc!");
-
-    return (pd_index * 0x400000 + first_pte_index * 0x1000);
+    if (first_pte_index == -1 || n_allocs > 0){
+        kputs("err: Failed to alloc page within vmm:palloc!");
+        return 0;
+    }
+    return pd_index * PT_SIZE_BYTES + first_pte_index * PTE_SIZE_BYTES;
 }
 
 // getting the vaddr from a page table is only a matter of finding page's offset. e.g. vaddr = 0x401000
