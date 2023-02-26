@@ -98,10 +98,10 @@
 
 
 /*
-    malloc() - increase heap for process
+    malloc() - if block of virtual memory runs out, request more (sbrk, mmap)
         |
         v
-       vmm   - will check if any pages are free to use. if not, call kalloc to use up a new page frame
+       vmm   - will call kalloc to allocate new page. returns virtual address of page. 
         |
         v
        pmm    - checks for free blocks within physical memory. returns base addr of page frame to use.  
@@ -125,8 +125,6 @@ char buf[64];
 
 uint32_t* page_table;
 uint32_t* page_directory;
-
-static void vmm_logs(void);
 
 uint32_t create_pde(
     bool present,
@@ -229,7 +227,7 @@ void init_paging_structures() {
         if (PAGE_SIZE*i < PHYS_BASE) {
             page_table[i] = create_pte(1,1,0,0,0,0,0,0,0,0, i*PAGE_SIZE);
         } else { 
-            page_table[i] = create_pte(0,1,1,0,0,0,0,0,0,0, (uint32_t) pmm_kalloc());
+            page_table[i] = create_pte(0,1,1,0,0,0,0,0,0,0, 0);
         }
     }
     for (i = 0; i < MAX_PD_COUNT; i++) {
@@ -256,19 +254,38 @@ void create_page_table(uint16_t pd_index) {
     // calculate end of page table address and iterate till then
     int end_offset = (pd_index*MAX_PTE_COUNT)+MAX_PTE_COUNT;
     for (; i < end_offset; i++) {
-        page_table[i] = create_pte(1,1,0,0,0,0,0,0,0,0, (uint32_t) pmm_kalloc());
+        page_table[i] = create_pte(0,1,0,0,0,0,0,0,0,0, 0);
     }
-    page_directory[1] |= VMM_PRESENT;
+    // maybe call palloc for first pte
+    page_directory[pd_index] |= VMM_PRESENT;
 }
 
-uint32_t* get_pd(uint8_t index) {
-    return page_directory+index;
+void* palloc(uint16_t pd_index, int n_allocs) {
+
+    if (n_allocs <= 0 || n_allocs >= MAX_PTE_COUNT) {
+        kputs("err: Invalid allocation amount");
+        return (void*) -1;
+    }
+    int i = MAX_PTE_COUNT*pd_index;
+    int end = (pd_index*MAX_PTE_COUNT)+MAX_PTE_COUNT;
+    void* first_page = (void*) -1;
+    while (i < end && n_allocs > 0) {
+        if (!IS_PRESENT(page_table[i])) {
+            SET_PRESENT(page_table[i]);
+            SET_ADDR(page_table[i]);
+            n_allocs -= 1;
+            if (first_page == (void*) -1) {
+                first_page = (void *) page_table[i];
+            }
+        }
+        i++;
+    }
+
+    if (first_page == (void*) -1)
+        kputs("err: Something went wrong in palloc!");
+    return first_page;
 }
 
-// iterate through page table and return first page, mark as present and return virt address
-uint32_t get_available_page(uint16_t page_directory_idx) {
-    
-}
 
 
  

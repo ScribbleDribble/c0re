@@ -46,27 +46,45 @@ TEST(PagingTests, TestPTECreate) {
 // maybe parametise test for any pd_index
 TEST_F(VMMTest, TestCreatePageTable) {
     vmm_init();
-    // get current tail so we can replay kalloc calls
-    uint32_t tail = pmm_get_bitmap_tail();
 
     // test creation of 2nd page directory entry
     int pd_index = 2;
     create_page_table(pd_index);
-    int expected_kalloc_addr = tail * ALIGN + PHYS_BASE;
 
     // point to third page table
     uint32_t* pt = (uint32_t *) PT_BASE_ADDR;
     pt += MAX_PTE_COUNT * pd_index;
 
     for(int i = 0; i < 1024; i++) {
-        EXPECT_EQ(pt[i], create_pte(1,1,0,0,0,0,0,0,0,0, expected_kalloc_addr));
-        expected_kalloc_addr += ALIGN;
+        EXPECT_EQ(pt[i], create_pte(0,1,0,0,0,0,0,0,0,0, 0));
+    }
+}
+
+TEST_F(VMMTest, TestPalloc) {
+    vmm_init();
+    // test creation of 2nd page directory entry with 3 allocations
+    int pd_index = 2;
+    int n_allocs = 3; 
+
+    create_page_table(pd_index);
+    palloc(pd_index, n_allocs);
+    // we have 0 kalloc calls at this point so its easy to track expected page frame address
+
+    // point to third page table
+    uint32_t* pt = (uint32_t *) PT_BASE_ADDR;
+    pt += MAX_PTE_COUNT * pd_index;
+    for(int i = 0; i < MAX_PTE_COUNT; i++) {
+        int expected_addr = ALIGN * i + PHYS_BASE;
+        if (i < n_allocs){
+            EXPECT_EQ(pt[i], create_pte(1,1,0,0,0,0,0,0,0,0, expected_addr));
+        } else {
+            EXPECT_EQ(pt[i], create_pte(0,1,0,0,0,0,0,0,0,0, 0));
+        } 
     }
 }
 
 // write test for kernel page table creation 
 int main(int argc, char **argv) {
-
     testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();
 }

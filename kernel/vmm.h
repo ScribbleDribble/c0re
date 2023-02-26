@@ -1,6 +1,11 @@
 #ifndef _VMM_H
 #define _VMM_H
 
+#include <stdint.h>
+#include "../kernel/string.h"
+#include <stdbool.h>
+#include "pmm.h"
+
 
 #define PAGE_DIRECTORY_ADDR 0xa0000000
 #define PAGE_SIZE 4096
@@ -15,15 +20,15 @@
 #define PT_BASE_ADDR 0x42000 // 100kb into free memory region of lower memory. 4kb aligned
 #define PD_BASE_ADDR 0x21000
 
+#define SET_ADDR(entry) (entry |= (uint32_t) pmm_kalloc())
+#define SET_PRESENT(entry) (entry |= 1)
+#define IS_PRESENT(entry) (entry & 1)
+
 #define KERNEL_PD_INDEX 1 
 
 #define VMM_PRESENT 1
 
 
-#include <stdint.h>
-#include "../kernel/string.h"
-#include <stdbool.h>
-#include "pmm.h"
 
 uint32_t create_pde(
     bool present,
@@ -55,6 +60,7 @@ void vmm_init(void);
 // only here for testing purposes 
 void init_page_directory(void);
 void create_page_table(uint16_t pd_index);
+void* palloc(uint16_t pd_index, int n_allocs);
 //
 
 #endif
