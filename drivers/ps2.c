@@ -73,7 +73,7 @@ void set_device_id(uint8_t prepend_id_data) {
     pauses irqs and writes from the device for non-disturbance.
     also tests to see if CONTROLLER functions as expected. 
  */
-void ps2_init() {
+uint8_t ps2_init() {
     // todo - break up into functions
 
     // disable devices so that incoming data overwrite data we request
@@ -114,9 +114,11 @@ void ps2_init() {
             break;
         case CONTROLLER_TEST_FAILURE:
             kputs(">PS/2 Controller Test failed!");
+            return -1;
             break;
         default:
             kputs(">PS/2 Unexpected response from controller test!");
+            return -1;
     }
 
     // seems like qemu doesnt support dual channels so just test the first port for now.
@@ -130,18 +132,23 @@ void ps2_init() {
             break;
         case PORT_CLOCK_LINE_STUCK_LOW:
             kputs(">PS/2 port failure: Data line stuck low");
+            return -1;
             break;
         case PORT_CLOCK_LINE_STUCK_HIGH:
             kputs(">PS/2 port failure: Clock line stuck high");
+            return -1;
             break;
         case PORT_DATA_LINE_STUCK_LOW:
             kputs(">PS/2 port failure: Data line stuck low");
+            return -1;
             break;
         case PORT_DATA_LINE_STUCK_HIGH:
             kputs(">PS/2 port failure: Data line stuck high");
+            return -1;
             break;
         default:
             kputs(">PS/2 Unhandled response to port test failure!");
+            return -1;
     }
 
     // enable devices
@@ -158,6 +165,7 @@ void ps2_init() {
 
     // add device irq handler 
     identify_devices();
+    return 1;
 }
 
 void test_device_connectivity() {

@@ -22,6 +22,7 @@
 #define PD_BASE_ADDR 0x21000
 
 #define SET_ADDR(entry) (entry |= (uint32_t) pmm_kalloc())
+#define GET_ADDR(entry) (entry & 0xfffff000)
 #define SET_PRESENT(entry) (entry |= 1)
 #define IS_PRESENT(entry) (entry & 1)
 
@@ -62,6 +63,8 @@ void vmm_init(void);
 void init_page_directory(void);
 void create_page_table(uint16_t pd_index);
 uint32_t palloc(uint16_t pd_index, int n_allocs);
+int mem_map(uint32_t);
+
 //
 
 #endif

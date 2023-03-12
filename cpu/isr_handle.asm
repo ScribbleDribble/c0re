@@ -30,10 +30,10 @@ _isr_common:
     pushad ; save extended registers
 
     mov ax, 0x10
+    call eax  ; special call to preserve eip
 
     call interrupt_handler
     ; now we have finished handling the interrupt, restore state.
-    call eax  ; speciak call to preserve eip
     popad
     popa
     add esp, 8  ; removes error codes and pushed isr number

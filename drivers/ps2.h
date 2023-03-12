@@ -70,7 +70,7 @@ void device_write_byte(uint8_t data);
 
 
 
-void ps2_init(void);
+uint8_t ps2_init(void);
 _Bool is_expecting_id_data(void);
 void device_id_processor(uint8_t id_byte);
 void set_device_id(uint8_t prepend_id_data);

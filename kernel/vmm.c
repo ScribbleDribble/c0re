@@ -119,9 +119,7 @@
 */
 #include "vmm.h"
 #include "string.h"
-#include "../drivers/vga.h"
 
-char buf[64];
 
 uint32_t* page_table;
 uint32_t* page_directory;
@@ -256,7 +254,6 @@ void create_page_table(uint16_t pd_index) {
     for (; i < end_offset; i++) {
         page_table[i] = create_pte(0,1,0,0,0,0,0,0,0,0, 0);
     }
-    // maybe call palloc for first pte
     page_directory[pd_index] |= VMM_PRESENT;
 }
 
@@ -270,7 +267,7 @@ uint32_t palloc(uint16_t pd_index, int n_allocs) {
     int end = (pd_index*MAX_PTE_COUNT)+MAX_PTE_COUNT;
     int i = start;
     int first_pte_index = -1;
-    
+
     while (i < end && n_allocs > 0) {
         if (!IS_PRESENT(page_table[i])) {
             SET_PRESENT(page_table[i]);
@@ -287,7 +284,33 @@ uint32_t palloc(uint16_t pd_index, int n_allocs) {
         kputs("err: Failed to alloc page within vmm:palloc!");
         return 0;
     }
-    return pd_index * PT_SIZE_BYTES + first_pte_index * PTE_SIZE_BYTES;
+    return pd_index * PT_SIZE_BYTES + first_pte_index * PAGE_SIZE;
+}
+
+// TODO: optimise this monstrocity
+int mem_map(uint32_t vaddr) {
+    int pd_index = 0;
+
+    for(; pd_index < 1024; pd_index++) {
+        if (vaddr > PT_SIZE_BYTES*pd_index && vaddr < PT_SIZE_BYTES*(pd_index+1)) {
+            int base_index = GET_ADDR(page_directory[pd_index]);
+            SET_PRESENT(page_directory[pd_index]);
+            int i;
+            for (i = base_index; i < base_index+MAX_PTE_COUNT; i++) {
+                if (pd_index * PT_SIZE_BYTES + i * PTE_SIZE_BYTES > vaddr)
+                if (!IS_PRESENT(page_table[i-1])) {
+                    SET_PRESENT(page_table[i-1]);
+                    SET_ADDR(page_table[i-1]);
+                    return pd_index;
+                }
+            }
+        }
+    }
+    return -1;
+}
+
+void handle_page_fault(uint32_t vaddr) {
+    
 }
 
 // getting the vaddr from a page table is only a matter of finding page's offset. e.g. vaddr = 0x401000

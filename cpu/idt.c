@@ -10,10 +10,34 @@ typedef struct interrupt_state_t {
 }interrupt_state_t;
 
 
-void interrupt_handler(unsigned int data) {
-    // int int_no = *(&data+16);
-    // int ec =  *(&data+17);
+// typedef struct register_state {
+//     uint32_t eax, esi, ebp;
+//     uint32_t esp, ebx, edx;
+//     uint32_t ecx, edi;
+
+// }register_state_t;
+
+typedef struct register_state {
+    uint32_t eax, esi;
+
+}register_state_t;
+
+uint32_t cr2_value = 0;
+extern _get_cr2_value();
+
+void interrupt_handler(int state) {
+
     kputs("Interrupt handler was called!");  
+
+    int int_no = *(&state+16);
+
+    _get_cr2_value();
+
+    // clean up late using func ptrs 
+    if (int_no == ISR14) {
+        mem_map(cr2_value);
+    }
+    
 }
 
 void init_idt() {

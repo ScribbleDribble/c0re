@@ -12,7 +12,7 @@ void reverse(char* str, int len) {
 	}
 }
 
-void memory_set(void* src, unsigned int c, int n) {
+void memory_set(void* src, unsigned int c, unsigned int n) {
 	int i;
 	char* ptr = (char*) src;
 	for (i = 0; i < n; ++i) {
@@ -29,6 +29,16 @@ void memory_copy(void* dest, void* src, int n) {
 	for (i = 0; i < n; ++i) {
 		to[i] = from[i];
 	}
+}
+
+char* strcpy(char* dest, const char *src) {
+	int i = 0;
+	while (src[i] != '\0') {
+		dest[i] = src[i];
+		i++;
+	}
+	dest[i] = '\0';
+	return dest;
 }
 
 void int_to_str(const int x, char* res, int len) {

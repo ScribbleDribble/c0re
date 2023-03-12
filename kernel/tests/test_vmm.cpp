@@ -21,6 +21,7 @@ class VMMTest : public ::testing::Test {
         } 
         // vmm init has already created two page tables. so test with a third one. 
     }
+
 };
 
 TEST(PagingTests, TestPDECreate) {
@@ -35,9 +36,6 @@ TEST(PagingTests, TestPDECreate) {
 TEST(PagingTests, TestPTECreate) {
 
     unsigned int pte = create_pte(1,0,0,0,0,0,0,0,0,0, 0x10000);
-    std::stringstream ss;
-    ss << std::hex << pte << std::endl;
-    std::string res(ss.str());
 
     EXPECT_EQ(pte, 0x10001);
 
@@ -58,6 +56,11 @@ TEST_F(VMMTest, TestCreatePageTable) {
     for(int i = 0; i < 1024; i++) {
         EXPECT_EQ(pt[i], create_pte(0,1,0,0,0,0,0,0,0,0, 0));
     }
+}
+
+TEST_F(VMMTest, TestIsPresent) {
+    EXPECT_TRUE(IS_PRESENT(create_pte(1,1,0,0,0,0,0,0,0,0, 0x1000)));
+    EXPECT_FALSE(IS_PRESENT(create_pte(0,1,0,0,0,0,0,0,0,0, 0x1000)));
 }
 
 TEST_F(VMMTest, TestPalloc) {
@@ -82,6 +85,49 @@ TEST_F(VMMTest, TestPalloc) {
         } 
     }
 }
+
+TEST_F(VMMTest, TestPallocAddresses) {
+    vmm_init();
+    // test creation of 2nd page directory entry with 3 allocations
+
+    int n_allocs = 1;
+    int pd_index = KERNEL_PD_INDEX;
+
+    create_page_table(KERNEL_PD_INDEX);
+    int allocated_vaddress = palloc(pd_index, n_allocs);
+    
+    EXPECT_EQ(allocated_vaddress, pd_index * PT_SIZE_BYTES);
+
+    n_allocs = 2;
+    allocated_vaddress = palloc(pd_index, n_allocs);
+    EXPECT_EQ(allocated_vaddress, pd_index*PT_SIZE_BYTES + PAGE_SIZE) 
+        << "Actual: " << std::hex << allocated_vaddress << "\nExpected " << std::hex << pd_index*PT_SIZE_BYTES + PAGE_SIZE;
+
+    allocated_vaddress = palloc(pd_index, n_allocs);
+
+    // three page frames have already been allocated, so expect to start at PAGES_SIZE*3
+    EXPECT_EQ( allocated_vaddress, pd_index*PT_SIZE_BYTES + PAGE_SIZE*3) 
+        << "Actual: " << std::hex << allocated_vaddress << "\nExpected " << std::hex << pd_index*PT_SIZE_BYTES + PAGE_SIZE*3;
+
+
+}
+
+
+
+TEST_F(VMMTest, TestMemMap) {
+    vmm_init();
+    
+    // -1 since we already have 
+    EXPECT_EQ(-1, mem_map(0x0));
+    EXPECT_EQ(-1, mem_map(0x200000));
+    EXPECT_EQ(-1, mem_map(0x400000));
+    EXPECT_EQ(1, mem_map(0x400001));
+    EXPECT_EQ(2, mem_map(0x800201));
+    EXPECT_EQ(3, mem_map(0xC00201));
+
+
+}
+
 
 // write test for kernel page table creation 
 int main(int argc, char **argv) {
