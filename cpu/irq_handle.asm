@@ -1,7 +1,7 @@
 global _irq0
 global _irq1
 
-extern irq_handler
+extern process_hardware_interrupt
 
 _irq0:
     cli
@@ -22,7 +22,7 @@ _irq_common_stub:
     ;pusha   ; regular register save
     ; pushad  ; ext reg save
     mov ax, 10
-    call irq_handler
+    call process_hardware_interrupt
 
     ;popa
     ;popad

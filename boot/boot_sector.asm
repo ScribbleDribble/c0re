@@ -26,7 +26,7 @@ load_kernel:
 	
 	; setup parameters for our disk_load function
 	mov bx, KERNEL_OFFSET ; value in bx implicitly used by BIOS to load disk data into an offset in memory
-	mov dh, 15		; read first 15 sectors - arg for disk_load
+	mov dh, 20		; read first n sectors - arg for disk_load
 	mov dl, [BOOT_DRIVE] ; specify which disk drive to read - arg for disk_load
 	call disk_load
 	ret
@@ -35,6 +35,7 @@ load_kernel:
 BEGIN_PM:
         mov ebx, MSG_INIT_PROTECTED_MODE
         call print_string_vga
+
 	call KERNEL_OFFSET
 	jmp $	
 

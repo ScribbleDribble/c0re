@@ -4,8 +4,40 @@
 idt_entry_t idt[256];
 idt_descriptor_t idt_descriptor;
 
-void interrupt_handler() {
-    kputs("Interrupt handler was called!");
+typedef struct interrupt_state_t {
+    int no;
+    int err_code;
+}interrupt_state_t;
+
+
+// typedef struct register_state {
+//     uint32_t eax, esi, ebp;
+//     uint32_t esp, ebx, edx;
+//     uint32_t ecx, edi;
+
+// }register_state_t;
+
+typedef struct register_state {
+    uint32_t eax, esi;
+
+}register_state_t;
+
+uint32_t cr2_value = 0;
+extern _get_cr2_value();
+
+void interrupt_handler(int state) {
+
+    kputs("Interrupt handler was called!");  
+
+    int int_no = *(&state+16);
+
+    _get_cr2_value();
+
+    // clean up late using func ptrs 
+    if (int_no == ISR14) {
+        mem_map(cr2_value);
+    }
+    
 }
 
 void init_idt() {
@@ -18,7 +50,26 @@ void init_idt() {
     // 0x8E typically used as flags - (present=1, dpl=0b00, type=0b1110 => flags=0b1000_1110=0x8E)
     // gdt_code_selector 0x08, remember each gdt segment is 8 bytes
     // first gdt segment is null and the second is our code segment.  
-    add_idt_gate(0, (unsigned) _isr0, IDT_GATE_FLAGS, 0x08);
+    add_idt_gate(ISR0, (unsigned) _isr0, IDT_GATE_FLAGS, 0x08);
+    add_idt_gate(ISR1, (unsigned) _isr1, IDT_GATE_FLAGS, 0x08);
+    add_idt_gate(ISR2, (unsigned) _isr2, IDT_GATE_FLAGS, 0x08);
+    add_idt_gate(ISR3, (unsigned) _isr3, IDT_GATE_FLAGS, 0x08);
+    add_idt_gate(ISR4, (unsigned) _isr4, IDT_GATE_FLAGS, 0x08);
+    add_idt_gate(ISR5, (unsigned) _isr5, IDT_GATE_FLAGS, 0x08);
+    add_idt_gate(ISR6, (unsigned) _isr6, IDT_GATE_FLAGS, 0x08);
+    add_idt_gate(ISR7, (unsigned) _isr7, IDT_GATE_FLAGS, 0x08);
+    add_idt_gate(ISR8, (unsigned) _isr8, IDT_GATE_FLAGS, 0x08);
+    add_idt_gate(ISR9, (unsigned) _isr9, IDT_GATE_FLAGS, 0x08);
+    add_idt_gate(ISR10, (unsigned) _isr10, IDT_GATE_FLAGS, 0x08);
+    add_idt_gate(ISR11, (unsigned) _isr11, IDT_GATE_FLAGS, 0x08);
+    add_idt_gate(ISR12, (unsigned) _isr12, IDT_GATE_FLAGS, 0x08);
+    add_idt_gate(ISR13, (unsigned) _isr13, IDT_GATE_FLAGS, 0x08);
+    add_idt_gate(ISR14, (unsigned) _isr14, IDT_GATE_FLAGS, 0x08);
+    add_idt_gate(ISR15, (unsigned) _isr15, IDT_GATE_FLAGS, 0x08);
+    add_idt_gate(ISR16, (unsigned) _isr16, IDT_GATE_FLAGS, 0x08);
+    add_idt_gate(ISR17, (unsigned) _isr17, IDT_GATE_FLAGS, 0x08);
+    add_idt_gate(ISR18, (unsigned) _isr18, IDT_GATE_FLAGS, 0x08);
+
     // ... to implement the other 31 idt gates for processor exceptions
 
     // hardware interrupts - TODO maybe put this in irq.c and call here
@@ -27,6 +78,10 @@ void init_idt() {
     add_idt_gate(IRQ1, (uint32_t) _irq1, IDT_GATE_FLAGS, 0x08);
 
     _idt_load();
+    kputs(">Initialised IDT");
+
+    __asm__ volatile ("sti");
+    kputs(">Enabled interrupts");
 }
 
 void add_idt_gate(uint8_t idx, uint32_t isr_offset, uint8_t flags, uint16_t gdt_code_selector) {

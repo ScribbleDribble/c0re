@@ -12,7 +12,6 @@ void keyboard_init() {
 
     // enable scanning
     device_write_byte(ENABLE_SCANNING);
-
     // get scan code set (either 1, 2 or 3)
 }
 

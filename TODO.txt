@@ -1,0 +1,32 @@
+
+vmm
+- ID map (<1MB) but dont call pmm_kalloc. wrap this inside a function
+- Setup kernel page table. wrap this inside a function
+- add tests for vmm functionality
+- Implement kmalloc 
+- *long term* Remap kernel to start at higher memory (0xC0000...) like linux
+- *long term* code to obtain memory map
+
+pmm 
+- Set PHYS_BASE as 0x1000000, ajust number of free blocks available
+- *long term* Increase available memory to 256MB
+- add tests. ensure initialisation, bitmap array, allocation and freeing are correct
+
+interrupts.c 
+- merge idt.c, isr.c, irq.c
+
+hashtable.h
+- dependent on kmalloc.h
+
+queue.h
+- dependent on kmalloc.h
+
+keyboard.h
+- dependent on hashtable.h queue.h
+
+cleaner Makefile
+
+Future: qemu e2e tests. Dump logs from qemu and read data using python testing script. 
+E.g. check state of registers from log file. Must use:
+
+qemu-system-x86 -d <option> -fda bin/os_image

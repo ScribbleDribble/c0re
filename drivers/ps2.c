@@ -5,15 +5,18 @@
 
 ps2_device_t device = {0};
 
+static void poll_write_buf_ready_status(void);
+static void identify_devices(void);
+
 // irq handler for ps2 devices. will call device driver specific code. 
 void ps2_device_callback() {
     uint8_t data = device_read_byte();
-    char buf[16];
-    int_to_hex_str(data, buf, 16);
+    char buf[32];
+    int_to_hex_str(data, buf, 32);
     kputs(buf);
     
     switch(data) {
-        case ACK:
+        case ACK: {
             if (!device.is_reset_success) {
                 device.is_reset_success = 1;
                 break;
@@ -26,15 +29,18 @@ void ps2_device_callback() {
                 device.id_flow.is_identifying = 1;
                 break;
             }
-        case DEVICE_RESET_FAILURE:
+            break;
+        }   
+        case DEVICE_RESET_FAILURE: {
             device.is_reset_success = 0;
             break;
-        default:
+        }
+        default: {
             if (is_expecting_id_data()) {
                 device_id_processor(data);
                 return;
             }
-            // kputs(">PS/2 Unhandled response to device!");
+        }       // kputs(">PS/2 Unhandled response to device!");
     }
 }
 
@@ -67,7 +73,7 @@ void set_device_id(uint8_t prepend_id_data) {
     pauses irqs and writes from the device for non-disturbance.
     also tests to see if CONTROLLER functions as expected. 
  */
-void ps2_init() {
+uint8_t ps2_init() {
     // todo - break up into functions
 
     // disable devices so that incoming data overwrite data we request
@@ -75,17 +81,15 @@ void ps2_init() {
     port_byte_write(CMD_PORT, DISABLE_PORT2);
 
     // flush buffer by performing read
-    uint8_t data = port_byte_read(DATA_PORT);
+    port_byte_read(DATA_PORT);
     uint8_t status_flag = port_byte_read(STATUS_PORT);
 
     // if first bit of status flag is set, then there is data to be consumed. 
     // keep on performing reads until buffer is flushed 
     while ((status_flag & 1)) {
         kputs(">Flushing ps/2 output port");
-        uint8_t data = port_byte_read(DATA_PORT);
+        port_byte_read(DATA_PORT);
     }
-    char str[32];
-    memory_set(str, 0, 32);
 
     port_byte_write(CMD_PORT, READ_CONTROLLER_CONFIG);
     uint8_t controller_config_flag = port_byte_read(DATA_PORT);
@@ -110,9 +114,11 @@ void ps2_init() {
             break;
         case CONTROLLER_TEST_FAILURE:
             kputs(">PS/2 Controller Test failed!");
+            return -1;
             break;
         default:
             kputs(">PS/2 Unexpected response from controller test!");
+            return -1;
     }
 
     // seems like qemu doesnt support dual channels so just test the first port for now.
@@ -126,18 +132,23 @@ void ps2_init() {
             break;
         case PORT_CLOCK_LINE_STUCK_LOW:
             kputs(">PS/2 port failure: Data line stuck low");
+            return -1;
             break;
         case PORT_CLOCK_LINE_STUCK_HIGH:
             kputs(">PS/2 port failure: Clock line stuck high");
+            return -1;
             break;
         case PORT_DATA_LINE_STUCK_LOW:
             kputs(">PS/2 port failure: Data line stuck low");
+            return -1;
             break;
         case PORT_DATA_LINE_STUCK_HIGH:
             kputs(">PS/2 port failure: Data line stuck high");
+            return -1;
             break;
         default:
             kputs(">PS/2 Unhandled response to port test failure!");
+            return -1;
     }
 
     // enable devices
@@ -154,6 +165,7 @@ void ps2_init() {
 
     // add device irq handler 
     identify_devices();
+    return 1;
 }
 
 void test_device_connectivity() {
@@ -167,19 +179,6 @@ void test_device_connectivity() {
         kputs(">PS/2 Waiting for device reset to be successful");
     }
     kputs(">PS/2 Device Reset successful!");
-}
-
-// read buffer from os perspective - data is ready to be read
-static void poll_read_buf_ready_status() {
-    const int is_ready = 1;
-    uint8_t status_flag = port_byte_read(STATUS_PORT);
-    char data[32];
-    while (!(status_flag & (uint8_t) is_ready)) {
-        status_flag = port_byte_read(STATUS_PORT);
-        kputs(">PS/2 driver: Polling read buffer...");
-        int_to_hex_str(status_flag, data, 32);
-        kputs(data);
-    }
 }
 
 // data is ready to be written
@@ -197,7 +196,6 @@ static void identify_devices() {
     // would be better to have timeout logic incase this isnt successful
 
     device_write_byte(DISABLE_SCANNING);
-
     while (!device.id_flow.is_scanning_disabled)
         kputs(">PS/2 Waiting for scanning to be disabled");
 

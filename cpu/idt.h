@@ -2,6 +2,7 @@
 #include "isr.h"
 #include "timer.h"
 #include "../kernel/string.h"
+#include "../drivers/vga.h"
 
 #define IDT_GATE_FLAGS 0x8E
 
@@ -23,8 +24,8 @@ typedef struct idt_descriptor {
 }__attribute__((packed))
 idt_descriptor_t;
 
-void init_idt();
-void _idt_load();
+void init_idt(void);
+void _idt_load(void);
 void add_idt_gate(uint8_t idx, uint32_t isr_offset, uint8_t flags, uint16_t gdt_code_selector);
 
 

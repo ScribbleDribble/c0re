@@ -1,3 +1,6 @@
+#ifndef _IRQ_H
+#define _IRQ_H
+
 #include "port_io.h"
 #include "../kernel/string.h"
 #include <stdint.h>
@@ -45,10 +48,11 @@
 // was a success.
 
 // used to declare an external function defined in irq.asm 
-extern void _irq0();
-extern void _irq1();
+extern void _irq0(void);
+extern void _irq1(void);
 
-void irq_remap();
-void irq0();
+void irq_remap(void);
 
-void register_interrupt_handler(uint8_t index, void (*handler));
+void register_interrupt_handler(uint8_t index, void (*handler) (void));
+
+#endif

@@ -1,5 +1,5 @@
 [bits 32]
-[extern main]   ; tell that we will be referencing this function defined elsewhere
-call main
+[extern kmain]   ; tell that we will be referencing this function defined elsewhere
+call kmain
 jmp $
 	

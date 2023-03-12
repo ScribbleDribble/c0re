@@ -1,4 +1,5 @@
 #include "../kernel/string.h"
+#include <stdbool.h>
 
 #ifndef _VGA_H
 #define _VGA_H
@@ -16,10 +17,8 @@ typedef struct position2D_t{
 }position2D_t;
 
 void kputs(const char* str);
-void putc(const char character);
-void clear_screen();
-static void handle_special_non_null_char(char c, position2D_t* pos);
-static void scroll_down_one_line();
-static _Bool is_special_non_null_char(const char c);
+void kputc(const char character);
+void clear_screen(void);
+
 
 #endif 
