@@ -24,6 +24,7 @@ void scroll_down_one_line(void) {
 				(char*) VIDEO_ADDRESS + (MAX_WIDTH*CHAR_SIZE), 
 				CHAR_SIZE*(MAX_HEIGHT*MAX_WIDTH) - CHAR_SIZE*MAX_WIDTH
 				);
+	memory_set(VIDEO_ADDRESS + CHAR_SIZE*((MAX_HEIGHT-1)*MAX_WIDTH), 0, MAX_WIDTH*CHAR_SIZE); 
 }
 
 static void handle_special_non_null_char(char c, position2D_t* pos) {
