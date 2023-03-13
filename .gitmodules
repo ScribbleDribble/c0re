@@ -1,0 +1,3 @@
+[submodule "kernel/kmalloc"]
+	path = kernel/kmalloc
+	url = https://github.com/ScribbleDribble/os_dev-kmalloc
