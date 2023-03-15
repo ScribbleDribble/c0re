@@ -19,7 +19,7 @@ static bool is_special_non_null_char(const char c) {
 }
 
 void scroll_down_one_line(void) {
-	memory_copy(
+	memcpy(
 				(char*) VIDEO_ADDRESS, 
 				(char*) VIDEO_ADDRESS + (MAX_WIDTH*CHAR_SIZE), 
 				CHAR_SIZE*(MAX_HEIGHT*MAX_WIDTH) - CHAR_SIZE*MAX_WIDTH

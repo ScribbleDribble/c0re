@@ -1,8 +1,12 @@
 #ifndef _STR_H // _STRING_H breaks build of "test_strings.cpp"!!
 #define _STR_H
 
-void memory_copy(void* src, void* dest, int n);
+#include <stddef.h>
+#include <limits.h> 
+
+void memcpy(void* src, void* dest, int n);
 void memory_set(void* src, unsigned int c, unsigned int n);
+size_t strlen(const char* s);
 char* strcpy(char* dest, const char* src);
 void reverse(char* str, int len);
 void int_to_str(int x, char* res, int len);

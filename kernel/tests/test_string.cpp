@@ -44,6 +44,11 @@ TEST(MemoryCopyParamTests, TestMemoryCopy) {
     // EXPECT_TRUE( 0 == memcmp( some_array1, some_array2, sizeof( some_array1 ) ) );
 }
 
+TEST(StringTests, TestStrlen) {
+    EXPECT_EQ(strlen("111"), 3);
+    EXPECT_EQ(strlen(""), 0);
+    EXPECT_EQ(strlen("1"), 1);
+}
 
 INSTANTIATE_TEST_CASE_P(
         tests,

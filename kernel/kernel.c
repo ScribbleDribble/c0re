@@ -19,18 +19,11 @@ void kmain(void) {
 	init_idt();
 	init_drivers();
 
+	char* s = kmalloc(6);
 
-	// terminal bug to fix 
-	// if something is printed 5 times in a row, it will then appear on each line
-	int i;
-	for (i = 0; i < 500; i++) {
-		kmalloc(i);
-	}
+	s = realloc(s, 4085);
 
-	// heap example
-	// int i;
-	// char* s;
-	// clear_screen();
+
 
 
 

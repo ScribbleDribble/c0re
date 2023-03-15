@@ -21,7 +21,7 @@ void memory_set(void* src, unsigned int c, unsigned int n) {
 }
 
 //todo: arbitrary blocks of memory copy (using void*)
-void memory_copy(void* dest, void* src, int n) {
+void memcpy(void* dest, void* src, int n) {
 	int i;
 
 	char* to = (char*) dest;
@@ -40,6 +40,16 @@ char* strcpy(char* dest, const char *src) {
 	dest[i] = '\0';
 	return dest;
 }
+
+size_t strlen(const char* s) {
+	size_t i = 0;
+	while (s[i] != '\0' || i == UINT_MAX-1) {
+		i++;
+	}
+	return i;
+}
+
+
 
 void int_to_str(const int x, char* res, int len) {
 	// we do not have dynamic memory allocation yet. so use fixed sized array for now
