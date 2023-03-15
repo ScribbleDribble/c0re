@@ -92,6 +92,10 @@ kernel/pmm.o: kernel/pmm.c
 kernel/kmalloc.o: kernel/kmalloc/kmalloc.c
 	i386-elf-gcc --freestanding -g -c $(CFLAGS) kernel/kmalloc/kmalloc.c -o kernel/kmalloc.o
 
+
+util/strmap.o: util/strmap.c
+	i386-elf-gcc --freestanding -g -c $(CFLAGS) util/strmap.c -o strmap.o
+
 kernel/enable_paging.o: kernel/enable_paging.asm
 	nasm kernel/enable_paging.asm -f elf -o kernel/enable_paging.o
 
@@ -101,8 +105,8 @@ kernel/enable_paging.o: kernel/enable_paging.asm
 # 	i386-elf-ld kernel/kernel.o kernel/kernel_entry.o kernel/string.o drivers/vga.o cpu/idt_load.o cpu/idt.o cpu/isr_handle.o cpu/irq.o cpu/port_io.o cpu/irq_handle.o cpu/timer.o drivers/ps2.o drivers/keyboard.o drivers/driver_entry.o kernel/vmm.o kernel/pmm.o kernel/enable_paging.o kernel/kmalloc.o -Ttext 0x1000 -o bin/kernel.bin --oformat binary
 
 
-bin/kernel.elf : kernel/kernel.o kernel/kernel_entry.o kernel/string.o drivers/vga.o cpu/idt_load.o cpu/idt.o cpu/isr_handle.o cpu/irq_handle.o cpu/irq.o cpu/port_io.o cpu/timer.o drivers/ps2.o drivers/keyboard.o drivers/driver_entry.o kernel/vmm.o kernel/pmm.o kernel/enable_paging.o kernel/kmalloc.o
-	 i386-elf-ld kernel/kernel.o kernel/kernel_entry.o kernel/string.o drivers/vga.o cpu/idt_load.o cpu/idt.o cpu/isr_handle.o cpu/irq.o cpu/port_io.o cpu/irq_handle.o cpu/timer.o drivers/ps2.o drivers/keyboard.o drivers/driver_entry.o kernel/vmm.o kernel/pmm.o kernel/enable_paging.o kernel/kmalloc.o -Ttext 0x1000 -o bin/kernel.elf
+bin/kernel.elf : kernel/kernel.o kernel/kernel_entry.o kernel/string.o drivers/vga.o cpu/idt_load.o cpu/idt.o cpu/isr_handle.o cpu/irq_handle.o cpu/irq.o cpu/port_io.o cpu/timer.o drivers/ps2.o drivers/keyboard.o drivers/driver_entry.o kernel/vmm.o kernel/pmm.o kernel/enable_paging.o kernel/kmalloc.o util/strmap.o
+	 i386-elf-ld kernel/kernel.o kernel/kernel_entry.o kernel/string.o drivers/vga.o cpu/idt_load.o cpu/idt.o cpu/isr_handle.o cpu/irq.o cpu/port_io.o cpu/irq_handle.o cpu/timer.o drivers/ps2.o drivers/keyboard.o drivers/driver_entry.o kernel/vmm.o kernel/pmm.o kernel/enable_paging.o kernel/kmalloc.o  util/strmap.o -Ttext 0x1000 -o bin/kernel.elf
 
 # bin/kernel.elf : kernel/kernel.o kernel/kernel_entry.o kernel/string.o drivers/vga.o cpu/idt_load.o cpu/idt.o cpu/isr_handle.o cpu/irq_handle.o cpu/irq.o cpu/port_io.o cpu/timer.o drivers/ps2.o drivers/keyboard.o drivers/driver_entry.o kernel/vmm.o kernel/pmm.o kernel/enable_paging.o
 # 	i386-elf-ld kernel/kernel.o kernel/kernel_entry.o kernel/string.o drivers/vga.o cpu/idt_load.o cpu/idt.o cpu/isr_handle.o cpu/irq.o cpu/port_io.o cpu/irq_handle.o cpu/timer.o drivers/ps2.o drivers/keyboard.o drivers/driver_entry.o kernel/vmm.o kernel/pmm.o kernel/enable_paging.o -Ttext 0x1000 -o bin/kernel.elf 

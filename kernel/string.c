@@ -21,7 +21,7 @@ void memory_set(void* src, unsigned int c, unsigned int n) {
 }
 
 //todo: arbitrary blocks of memory copy (using void*)
-void memcpy(void* dest, void* src, int n) {
+void* memory_copy(void* dest, void* src, int n) {
 	int i;
 
 	char* to = (char*) dest;
@@ -31,7 +31,7 @@ void memcpy(void* dest, void* src, int n) {
 	}
 }
 
-char* strcpy(char* dest, const char *src) {
+char* str_cpy(char* dest, const char *src) {
 	int i = 0;
 	while (src[i] != '\0') {
 		dest[i] = src[i];
@@ -41,12 +41,32 @@ char* strcpy(char* dest, const char *src) {
 	return dest;
 }
 
-size_t strlen(const char* s) {
+size_t str_len(const char* s) {
 	size_t i = 0;
-	while (s[i] != '\0' || i == UINT_MAX-1) {
+	while (s[i] != '\0' && i <= UINT_MAX-1) {
 		i++;
 	}
 	return i;
+}
+
+int str_cmp(const char* s1, const char* s2) {
+	size_t i = 0;
+	while ((s1[i] != '\0' && s2[i] != '\0') && i <= UINT_MAX-1) {
+		if (s1[i] != s2[i] && s1[i] > s2[i])
+			return 1;
+
+		else if (s1[i] != s2[i] && s1[i] < s2[i]) 
+			return -1;
+		i++;
+	}
+	if (s1[i] == s2[i]) {
+		return 0;
+	} 
+	if (s1[i] != s2[i] && s1[i] > s2[i]){
+		return 1;
+	} else {
+		return -1;
+	}
 }
 
 

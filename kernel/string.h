@@ -4,10 +4,11 @@
 #include <stddef.h>
 #include <limits.h> 
 
-void memcpy(void* src, void* dest, int n);
+void* memory_copy(void* src, void* dest, int n);
 void memory_set(void* src, unsigned int c, unsigned int n);
-size_t strlen(const char* s);
-char* strcpy(char* dest, const char* src);
+size_t str_len(const char* s);
+char* str_cpy(char* dest, const char* src);
+int str_cmp(const char* s1, const char* s2);
 void reverse(char* str, int len);
 void int_to_str(int x, char* res, int len);
 void int_to_hex_str(int x, char* res, int len);

@@ -2,7 +2,6 @@
 
 extern "C" {
     #include "../string.h"
-    #include <string.h>
 }
 
 class IntegerToStringParamTests : public ::testing::TestWithParam<int> {
@@ -36,18 +35,26 @@ TEST(MemoryCopyParamTests, TestMemoryCopy) {
     varA=(char*)malloc(32);
     varB=(char*)malloc(32);
     
-    memcpy(some_array2, some_array1, sizeof(some_array1));
+    memory_copy(some_array2, some_array1, sizeof(some_array1));
 
     // char* new_values = "Bye  ";
-    // memcpy(some_array1, new_values, 3);
+    // memory_copy(some_array1, new_values, 3);
     // memory_copy(some_array2, new_values, 3);
     // EXPECT_TRUE( 0 == memcmp( some_array1, some_array2, sizeof( some_array1 ) ) );
 }
 
-TEST(StringTests, TestStrlen) {
-    EXPECT_EQ(strlen("111"), 3);
-    EXPECT_EQ(strlen(""), 0);
-    EXPECT_EQ(strlen("1"), 1);
+TEST(StringTests, Teststr_len) {
+    EXPECT_EQ(str_len("111"), 3);
+    EXPECT_EQ(str_len(""), 0);
+    EXPECT_EQ(str_len("1"), 1);
+}
+
+TEST(StringTests, Teststr_cmp) {
+    EXPECT_EQ(str_cmp("111", "111"), 0);
+    EXPECT_EQ(str_cmp("122", "123"), -1);
+    EXPECT_EQ(str_cmp("111","1113"), -1);
+    EXPECT_EQ(str_cmp("111","1113"), -1);
+    EXPECT_EQ(str_cmp("abcd","abCd"), 1);
 }
 
 INSTANTIATE_TEST_CASE_P(

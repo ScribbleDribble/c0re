@@ -4,6 +4,7 @@
 #include "../drivers/driver_entry.h"
 #include "vmm.h"
 #include "kmalloc/kmalloc.h"
+#include "../util/strmap.h"
 
 
 extern void _enable_paging(void);
@@ -23,9 +24,28 @@ void kmain(void) {
 
 	s = realloc(s, 4085);
 
+	StrMap *sm;
+	char buf[255];
+	int result;
+
+	sm = sm_new(10);
 
 
+	if (sm == NULL) {
+		/* Handle allocation failure... */
+		kputs("Allocation failure...");
+	}
+	/* Insert a couple of string associations */
+	sm_put(sm, "application name", "Testing this map");
+	sm_put(sm, "application version", "1.0.0");
+	/* Retrieve a value */
 
+	result = sm_get(sm, "application name", buf, sizeof(buf));
 
+	kputs(buf);
+
+	if (result == 0) {
+		kputs("failed...");
+	}
 
 }
