@@ -66,8 +66,53 @@ static void kprint(const char* string, const unsigned char character_mode, posit
 	}
 }
 
+char* format_type(const char specifier, va_list* arg_list, char* buf) {
+	switch(specifier) {
+		case 'i':
+			int_to_str(va_arg(*arg_list, int), buf, 32);
+			return buf;
+		case 'x':
+			int_to_hex_str(va_arg(*arg_list, int), buf, 32);
+			return buf;
+		case 's':
+			return va_arg(*arg_list, char*);
+	}
+}
+
+// like printf but writes with a newline 
+void klog(const char* s, ...) {
+	// seems like this variable isnt used...
+
+	int arg_count = 100;
+	va_list arg_list;
+	va_start(arg_list, arg_count);
+	char tmp[32];
+	char* res = kmalloc(1);
+	int i;
+	int j = 0;
+	for (i = 0; s[i] != '\0'; i++) {
+		if (s[i] == '%') {
+			char* str = format_type(s[i+1], &arg_list, tmp);
+			int new_size = str_len(str) + j;
+			res = realloc(res, new_size + 2);
+			str_cpy(res + j, str);
+			j = new_size;
+			i += 1;
+		} else {
+			res[j] = s[i];
+			res = realloc(res, j+2);
+			j += 1;
+		}
+	}
+	res[j] = '\0';
+	
+	kputs(res);
+	free(res);
+	va_end(arg_list);
+}
+
+
 void kputs(const char* str) {
-	// maybe append \n to end, variable args -> string formatting e.g. kkputs("we have %i cookies", n_cookies)
 	line += 1;
 	position2D_t pos = {line, 0};
 	kprint(str, 0x0f, &pos);

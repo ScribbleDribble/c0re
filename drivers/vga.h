@@ -1,5 +1,7 @@
 #include "../kernel/string.h"
+#include "../kernel/kmalloc/kmalloc.h"
 #include <stdbool.h>
+#include <stdarg.h>
 
 #ifndef _VGA_H
 #define _VGA_H
@@ -16,6 +18,7 @@ typedef struct position2D_t{
     unsigned int col;
 }position2D_t;
 
+void klog(const char* s, ...);
 void kputs(const char* str);
 void kputc(const char character);
 void clear_screen(void);

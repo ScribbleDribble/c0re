@@ -20,16 +20,14 @@ void kmain(void) {
 	init_idt();
 	init_drivers();
 
-	char* s = kmalloc(6);
+    char* s = kmalloc(1);
 
-	s = realloc(s, 4085);
 
 	StrMap *sm;
 	char buf[255];
 	int result;
 
 	sm = sm_new(10);
-
 
 	if (sm == NULL) {
 		/* Handle allocation failure... */
@@ -42,10 +40,16 @@ void kmain(void) {
 
 	result = sm_get(sm, "application name", buf, sizeof(buf));
 
-	kputs(buf);
+	klog("%s hello %s %i %i", "another", "world", 2, 5000);
+	klog("result: %i, value: %s", result, buf);
+
 
 	if (result == 0) {
 		kputs("failed...");
 	}
+
+
+	
+
 
 }

@@ -29,6 +29,8 @@ void* memory_copy(void* dest, void* src, int n) {
 	for (i = 0; i < n; ++i) {
 		to[i] = from[i];
 	}
+
+	return to;
 }
 
 char* str_cpy(char* dest, const char *src) {
@@ -72,7 +74,6 @@ int str_cmp(const char* s1, const char* s2) {
 
 
 void int_to_str(const int x, char* res, int len) {
-	// we do not have dynamic memory allocation yet. so use fixed sized array for now
 	int i = 0;
 	int tmp = x;
 
@@ -94,8 +95,10 @@ void int_to_str(const int x, char* res, int len) {
 		res[i++] = '-';
 
 	reverse(res, i);
-	res[len-1] = '\0';
+	res[i] = '\0';
 
+	kputs(res);
+	return res;
 }
 
 void int_to_hex_str(int x, char* res, int len) {
