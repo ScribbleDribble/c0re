@@ -11,10 +11,7 @@ static void identify_devices(void);
 // irq handler for ps2 devices. will call device driver specific code. 
 void ps2_device_callback() {
     uint8_t data = device_read_byte();
-    char buf[32];
-    int_to_hex_str(data, buf, 32);
-    kputs(buf);
-    
+    klog("%x", data);
     switch(data) {
         case ACK: {
             if (!device.is_reset_success) {
@@ -42,6 +39,8 @@ void ps2_device_callback() {
             }
         }       // kputs(">PS/2 Unhandled response to device!");
     }
+
+    klog("here");
 }
 
 
@@ -213,10 +212,8 @@ static void identify_devices() {
         kputs(">PS/2 Waiting for id part2");
 
     device.id_flow.is_complete = 1;
-    int_to_hex_str(device.id, buf, 17);
 
-    kputs(">PS/2 Device identification complete - device id is: ");
-    kputs(buf);
+    klog(">PS/2 Device identification complete - device id is: 0x%x", device.id);
     
 }
 

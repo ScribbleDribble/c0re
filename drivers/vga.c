@@ -76,6 +76,9 @@ char* format_type(const char specifier, va_list* arg_list, char* buf) {
 			return buf;
 		case 's':
 			return va_arg(*arg_list, char*);
+
+		default:
+			return "INVALID_SPECIFIER";
 	}
 }
 

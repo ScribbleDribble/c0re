@@ -97,7 +97,6 @@ void int_to_str(const int x, char* res, int len) {
 	reverse(res, i);
 	res[i] = '\0';
 
-	kputs(res);
 	return res;
 }
 
