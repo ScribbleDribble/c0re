@@ -59,7 +59,7 @@ kernel/kernel.o : kernel/kernel.c
 	i386-elf-gcc --freestanding -g $(CFLAGS) -c kernel/kernel.c -o kernel/kernel.o
 
 kernel/kernel_entry.o : kernel/kernel_entry.asm
-	nasm kernel/kernel_entry.asm -f elf -o kernel/kernel_entry.o
+	nasm kernel/kernel_entry.asm -g -f elf -o kernel/kernel_entry.o
 
 cpu/irq.o : cpu/irq.c
 	i386-elf-gcc --freestanding -g -c $(CFLAGS) -mgeneral-regs-only cpu/irq.c -o cpu/irq.o
@@ -69,16 +69,16 @@ cpu/port_io.o: cpu/port_io.c
 
 
 cpu/idt_load.o : cpu/idt_load.asm cpu/idt.o
-	nasm cpu/idt_load.asm -f elf -o cpu/idt_load.o
+	nasm cpu/idt_load.asm -g -f elf -o cpu/idt_load.o
 
 cpu/timer.o : cpu/timer.c
 	i386-elf-gcc --freestanding -c $(CFLAGS) cpu/timer.c -o cpu/timer.o
 
 cpu/isr_handle.o : cpu/isr_handle.asm
-	nasm cpu/isr_handle.asm -f elf -o cpu/isr_handle.o
+	nasm cpu/isr_handle.asm -g -f elf -o cpu/isr_handle.o
 
 cpu/irq_handle.o : cpu/irq_handle.asm
-	nasm cpu/irq_handle.asm -f elf -o cpu/irq_handle.o
+	nasm cpu/irq_handle.asm -g -f elf -o cpu/irq_handle.o
 
 cpu/idt.o : cpu/idt.c cpu/irq.c
 	i386-elf-gcc --freestanding -g -c $(CFLAGS) cpu/idt.c -o cpu/idt.o
@@ -97,7 +97,7 @@ util/strmap.o: util/strmap.c
 	i386-elf-gcc --freestanding -g -c $(CFLAGS) util/strmap.c -o strmap.o
 
 kernel/enable_paging.o: kernel/enable_paging.asm
-	nasm kernel/enable_paging.asm -f elf -o kernel/enable_paging.o
+	nasm kernel/enable_paging.asm -g -f elf -o kernel/enable_paging.o
 
 # links ELF kernel_entry and kernel for direct access to main function of kernel. 
 # the binary will start at address 0x1000
@@ -112,7 +112,7 @@ bin/kernel.elf : kernel/kernel.o kernel/kernel_entry.o kernel/string.o drivers/v
 # 	i386-elf-ld kernel/kernel.o kernel/kernel_entry.o kernel/string.o drivers/vga.o cpu/idt_load.o cpu/idt.o cpu/isr_handle.o cpu/irq.o cpu/port_io.o cpu/irq_handle.o cpu/timer.o drivers/ps2.o drivers/keyboard.o drivers/driver_entry.o kernel/vmm.o kernel/pmm.o kernel/enable_paging.o -Ttext 0x1000 -o bin/kernel.elf 
 
 bin/boot_sector.bin : boot/boot_sector.asm
-	cd boot; nasm boot_sector.asm -f bin -o ../bin/boot_sector.bin
+	cd boot; nasm boot_sector.asm -g -f bin -o ../bin/boot_sector.bin
 
 clean : 
 	rm kernel/*.o

@@ -1,13 +1,15 @@
 #include "timer.h"
+#include "../drivers/vga.h"
 
 #define SUCCESS_CODE 0
 #define FAILURE_CODE 1
 
 
-static uint32_t tick = 0;
+uint32_t tick = 0;
 
 void timer_callback() {
     tick++;
+    // klog("Ticks %i", tick);
 }
 
 int configure_timer(unsigned int frequency) {

@@ -30,11 +30,7 @@ void create_scan_table() {
 	sm_put(code_table, "74", "6");
 	sm_put(code_table, "78", "F11");
 	sm_put(code_table, "58", "caps-lock");
-
-
-
-
-	/* Retrieve a value */
+    // implement the rest 
 
 	result = sm_get(code_table, "1C", buf, sizeof(buf));
 

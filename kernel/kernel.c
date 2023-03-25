@@ -10,14 +10,13 @@
 extern void _enable_paging(void);
 
 void kmain(void) {
-	clear_screen();
+
 
 	vmm_init();
 	_enable_paging();
+	clear_screen();
+	klog("Micah's OS");
 
-	kputs("Micah's OS");
-	
 	init_idt();
 	init_drivers();
-
 }

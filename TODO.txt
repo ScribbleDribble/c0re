@@ -1,14 +1,9 @@
 
 vmm
-- ID map (<1MB) but dont call pmm_kalloc. wrap this inside a function
-- Setup kernel page table. wrap this inside a function
-- add tests for vmm functionality
-- Implement kmalloc 
 - *long term* Remap kernel to start at higher memory (0xC0000...) like linux
 - *long term* code to obtain memory map
 
 pmm 
-- Set PHYS_BASE as 0x1000000, ajust number of free blocks available
 - *long term* Increase available memory to 256MB
 - add tests. ensure initialisation, bitmap array, allocation and freeing are correct
 

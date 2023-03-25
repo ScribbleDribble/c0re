@@ -11,7 +11,6 @@ We cannot set that bit directly on the register.
 We need to make sure that the we flush out cpu pipelining so that instruction/data for protected mode are not 
 decoded and executed in real mode due to prefetching instructions. to avoid this, we can do whats called a far jump.
 
-trxxshed - ivory 
 
 To issue a far jump: jmp <segment>:<address offset> - we must jump to a new segment
 We  update our cs register to the offset of the code segment descriptor inside our GDT.

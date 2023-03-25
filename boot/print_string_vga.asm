@@ -19,7 +19,7 @@ WHITE_ON_BLACK equ 0x0f
 
 ; ebx - base address of string to print
 print_string_vga:
-	pusha
+	pushad
 	mov edx, BASE_VIDEO_MEMORY_ADDR
 
 loop_start:
@@ -37,5 +37,5 @@ loop_start:
 	jmp loop_start
 
 print_end:
-	popa 
+	popad
 	ret

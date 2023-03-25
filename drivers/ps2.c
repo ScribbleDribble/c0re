@@ -11,7 +11,6 @@ static void identify_devices(void);
 // irq handler for ps2 devices. will call device driver specific code. 
 void ps2_device_callback() {
     uint8_t data = device_read_byte();
-    klog("%x", data);
     switch(data) {
         case ACK: {
             if (!device.is_reset_success) {
@@ -40,7 +39,10 @@ void ps2_device_callback() {
         }       // kputs(">PS/2 Unhandled response to device!");
     }
 
-    klog("here");
+    if (device.id_flow.is_complete) {
+        klog("%x", data);
+    }
+
 }
 
 
@@ -89,7 +91,6 @@ uint8_t ps2_init() {
         kputs(">Flushing ps/2 output port");
         port_byte_read(DATA_PORT);
     }
-
     port_byte_write(CMD_PORT, READ_CONTROLLER_CONFIG);
     uint8_t controller_config_flag = port_byte_read(DATA_PORT);
     // this flag configures our ps/2 devices.
@@ -113,11 +114,10 @@ uint8_t ps2_init() {
             break;
         case CONTROLLER_TEST_FAILURE:
             kputs(">PS/2 Controller Test failed!");
-            return -1;
             break;
         default:
             kputs(">PS/2 Unexpected response from controller test!");
-            return -1;
+            
     }
 
     // seems like qemu doesnt support dual channels so just test the first port for now.
@@ -131,23 +131,17 @@ uint8_t ps2_init() {
             break;
         case PORT_CLOCK_LINE_STUCK_LOW:
             kputs(">PS/2 port failure: Data line stuck low");
-            return -1;
             break;
         case PORT_CLOCK_LINE_STUCK_HIGH:
             kputs(">PS/2 port failure: Clock line stuck high");
-            return -1;
             break;
         case PORT_DATA_LINE_STUCK_LOW:
-            kputs(">PS/2 port failure: Data line stuck low");
-            return -1;
-            break;
+            kputs(">PS/2 port failure: Data line stuck low");            break;
         case PORT_DATA_LINE_STUCK_HIGH:
             kputs(">PS/2 port failure: Data line stuck high");
-            return -1;
             break;
         default:
             kputs(">PS/2 Unhandled response to port test failure!");
-            return -1;
     }
 
     // enable devices
@@ -170,8 +164,6 @@ uint8_t ps2_init() {
 void test_device_connectivity() {
     // test device connected to port 1
     // TODO generalise for both ports;
-    char str[32];
-    memory_set(str, 0, 32);
 
     device_write_byte(RESET_DEVICE);
     while (!device.is_reset_success) {
@@ -193,7 +185,6 @@ static void poll_write_buf_ready_status() {
 // ONLY IDENTIFIES DEVICE ON PORT 1 atm!
 static void identify_devices() {
     // would be better to have timeout logic incase this isnt successful
-
     device_write_byte(DISABLE_SCANNING);
     while (!device.id_flow.is_scanning_disabled)
         kputs(">PS/2 Waiting for scanning to be disabled");
@@ -201,20 +192,20 @@ static void identify_devices() {
     kputs(">PS/2 Received ACK for disabling scanning");
 
     device_write_byte(IDENTIFY_DEVICE);
-    while (!device.id_flow.is_identifying)
+    while (!device.id_flow.is_identifying){
         kputs(">PS/2 Waiting for Ack for device identification");
+    }
     kputs(">PS/2 Received ack for identifying device");
-    char buf[17];
 
     while(!device.id_flow.has_received_id1)
         kputs(">PS/2 Waiting for id part1");
     while(!device.id_flow.has_received_id2)
         kputs(">PS/2 Waiting for id part2");
 
-    device.id_flow.is_complete = 1;
 
     klog(">PS/2 Device identification complete - device id is: 0x%x", device.id);
-    
+    device.id_flow.is_complete = 1;
+
 }
 
 _Bool is_expecting_id_data() {

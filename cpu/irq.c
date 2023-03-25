@@ -45,9 +45,12 @@ typedef struct interrupt_state_t {
     int err_code;
 }interrupt_state_t;
 
-// handler for all irqs. calls handler specific to irq
-void process_hardware_interrupt(interrupt_state_t int_state) {
+typedef struct registers_t {
+    int AX, CX, DX, BX, SP, BP, SI, DI;
+}registers_t;
 
+// handler for all irqs. calls handler specific to irq
+void process_hardware_interrupt(registers_t regs, interrupt_state_t int_state) {
     if (int_state.no >= PIC_SECONDARY_START_INDEX)
     {
         port_byte_write(PIC_SECONDARY_CMD_PORT, PIC_SUCCESS_CODE); // send signal to secondary pic that we have handled irq

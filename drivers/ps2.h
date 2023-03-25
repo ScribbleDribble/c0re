@@ -6,7 +6,8 @@
 #include "../cpu/port_io.h"
 #include "../kernel/string.h"
 #include "../drivers/vga.h" // kputs
-#include "../cpu/irq.h"     
+#include "../cpu/irq.h"   
+#include "../cpu/timer.h"  
 
 
 #define CMD_PORT 0x64

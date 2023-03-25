@@ -23,7 +23,7 @@ jmp $
 load_kernel:
 	mov bx, MSG_LOAD_KERNEL
 	call print_string
-	
+
 	; setup parameters for our disk_load function
 	mov bx, KERNEL_OFFSET ; value in bx implicitly used by BIOS to load disk data into an offset in memory
 	mov dh, SECTOR_READ_COUNT		; read first n sectors - arg for disk_load
@@ -33,15 +33,16 @@ load_kernel:
 
 [bits 32]
 BEGIN_PM:
-        mov ebx, MSG_INIT_PROTECTED_MODE
-        call print_string_vga
+	mov ebx, MSG_INIT_PROTECTED_MODE
+	call print_string_vga
 
 	call KERNEL_OFFSET
 	jmp $	
 
 BOOT_DRIVE db 0
-SECTOR_READ_COUNT db 30
+SECTOR_READ_COUNT db 25
 MSG_LOAD_KERNEL db "Loading kernel", 0
+MSG_DEBUG db "HERE", 0
 MSG_REAL_MODE db "Started up 16-bit real mode", 0
 MSG_INIT_PROTECTED_MODE db "Booted up 32-bit Protected Mode", 0
 

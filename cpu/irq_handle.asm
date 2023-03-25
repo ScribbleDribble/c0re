@@ -19,13 +19,14 @@ _irq1:
 ; TODO implement the other irqs
 
 _irq_common_stub:
-    ;pusha   ; regular register save
+    pusha   ; regular register save
     ; pushad  ; ext reg save
-    mov ax, 10
+    ; mov ax, 10
+    ; call eax
     call process_hardware_interrupt
 
-    ;popa
-    ;popad
+    popa
+    ; popad
 
     add esp, 8
     sti

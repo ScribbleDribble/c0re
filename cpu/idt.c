@@ -27,9 +27,9 @@ extern _get_cr2_value();
 
 void interrupt_handler(int state) {
 
-    kputs("Interrupt handler was called!");  
 
     int int_no = *(&state+16);
+    klog("Interrupt handler was called! Err no: 0x%x", int_no);  
 
     _get_cr2_value();
 
@@ -78,10 +78,10 @@ void init_idt() {
     add_idt_gate(IRQ1, (uint32_t) _irq1, IDT_GATE_FLAGS, 0x08);
 
     _idt_load();
-    kputs(">Initialised IDT");
+    klog(">Initialised IDT");
 
     __asm__ volatile ("sti");
-    kputs(">Enabled interrupts");
+    klog(">Enabled interrupts");
 }
 
 void add_idt_gate(uint8_t idx, uint32_t isr_offset, uint8_t flags, uint16_t gdt_code_selector) {
