@@ -121,3 +121,8 @@ void int_to_hex_str(int x, char* res, int len) {
 	reverse(res, i);
 }
 
+void some_test() {
+	while (1) {
+		kputs("here");
+	}
+}

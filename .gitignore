@@ -18,3 +18,6 @@ drivers/tests/CMakeFiles/*
 logs.txt
 bx_enh_dbg.ini
 bochsout.txt
+*.out
+isodir/*
+

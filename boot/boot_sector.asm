@@ -40,7 +40,7 @@ BEGIN_PM:
 	jmp $	
 
 BOOT_DRIVE db 0
-SECTOR_READ_COUNT db 25
+SECTOR_READ_COUNT db 35
 MSG_LOAD_KERNEL db "Loading kernel", 0
 MSG_DEBUG db "HERE", 0
 MSG_REAL_MODE db "Started up 16-bit real mode", 0

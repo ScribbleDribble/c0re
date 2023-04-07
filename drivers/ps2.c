@@ -34,7 +34,7 @@ void ps2_device_callback() {
         default: {
             if (is_expecting_id_data()) {
                 device_id_processor(data);
-                return;
+                break;
             }
         }       // kputs(">PS/2 Unhandled response to device!");
     }

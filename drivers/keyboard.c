@@ -1,7 +1,6 @@
 #include "keyboard.h"
 
 
-// ideally have a hash table that maps a series of 
 static StrMap* code_table;
 
 void create_scan_table() {
@@ -47,9 +46,12 @@ void keyboard_init() {
         kputs("Keyboard detected!");
     } else {
         kputs("Keyboard not detected on PS/2 port 1.");
+		return;
     }
     // enable scanning
-    device_write_byte(ENABLE_SCANNING);
+	device_write_byte(ENABLE_SCANNING);
+
+	klog(">[Keyboard] Scanning enabled");
     create_scan_table();
     // get scan code set (either 1, 2 or 3)
 }

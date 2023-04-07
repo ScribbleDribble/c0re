@@ -1,3 +1,0 @@
-break realloc
-break /home/m1cah/projects/os_dev/kernel/kmalloc/kmalloc.c:244
-break /home/m1cah/projects/os_dev/kernel/kmalloc/kmalloc.c:252

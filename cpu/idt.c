@@ -34,9 +34,9 @@ void interrupt_handler(int state) {
     _get_cr2_value();
 
     // clean up late using func ptrs 
-    if (int_no == ISR14) {
-        mem_map(cr2_value);
-    }
+    // if (int_no == ISR14) {
+    //     mem_map(cr2_value);
+    // }
     
 }
 
@@ -48,8 +48,7 @@ void init_idt() {
     // maybe put in isr.c and call here. 
 
     // 0x8E typically used as flags - (present=1, dpl=0b00, type=0b1110 => flags=0b1000_1110=0x8E)
-    // gdt_code_selector 0x08, remember each gdt segment is 8 bytes
-    // first gdt segment is null and the second is our code segment.  
+
     add_idt_gate(ISR0, (unsigned) _isr0, IDT_GATE_FLAGS, 0x08);
     add_idt_gate(ISR1, (unsigned) _isr1, IDT_GATE_FLAGS, 0x08);
     add_idt_gate(ISR2, (unsigned) _isr2, IDT_GATE_FLAGS, 0x08);
@@ -78,7 +77,7 @@ void init_idt() {
     add_idt_gate(IRQ1, (uint32_t) _irq1, IDT_GATE_FLAGS, 0x08);
 
     _idt_load();
-    klog(">Initialised IDT");
+    klog(">Initialised IDT, IDTR = %x", &idt_descriptor);
 
     __asm__ volatile ("sti");
     klog(">Enabled interrupts");
@@ -86,8 +85,8 @@ void init_idt() {
 
 void add_idt_gate(uint8_t idx, uint32_t isr_offset, uint8_t flags, uint16_t gdt_code_selector) {
     int mask = 0x0000ffff;
-    idt[idx].isr_low_offset = mask & isr_offset;
-    idt[idx].isr_high_offset = (isr_offset >> 16) & mask;
+    idt[idx].isr_low_offset = 0xffff & isr_offset;
+    idt[idx].isr_high_offset = (isr_offset >> 16) & 0xffff;
     idt[idx].flags = flags;
     idt[idx].gdt_code_selector = gdt_code_selector;
 }

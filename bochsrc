@@ -1,8 +1,13 @@
 # Tell bochs to use our boot sector code as though it were
 # a floppy disk inserted into a computer at boot time .
+ata0: enabled=1, ioaddr1=0x1f0, ioaddr2=0x3f0, irq=14
+
+#ata0-master: type=cdrom, path="bin/myos.iso", status=inserted
+#boot: cdrom
+
 floppya : 1 _44=bin/os_image, status=inserted
-boot: a
 megs: 32
 mouse: enabled=0
-clock: sync=realtime
+clock: sync=slowdown, time0=local
 cpu: ips=10000000
+magic_break: enabled=1

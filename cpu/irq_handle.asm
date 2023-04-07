@@ -21,8 +21,9 @@ _irq1:
 _irq_common_stub:
     pusha   ; regular register save
     ; pushad  ; ext reg save
-    ; mov ax, 10
+    mov ax, 10
     ; call eax
+
     call process_hardware_interrupt
 
     popa
