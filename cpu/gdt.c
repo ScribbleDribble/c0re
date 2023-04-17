@@ -4,16 +4,15 @@
 
 gdt_entry_t create_gdt_entry(uint32_t, uint32_t, uint8_t, uint8_t);
 
-gdt_entry_t gdt_entries[5]; 
+gdt_entry_t gdt_entries[6]; 
 gdt_descriptor_t gdt_descriptor;
 
-extern tss_t* tss_entry;
 extern _gdt_load(void);
+extern _tss_load(void);
 
 void init_gdt() {
 
     memory_set((void*) gdt_entries, 0, sizeof(gdt_entries));
-
     gdt_entries[0] = create_gdt_entry(0,0,0,0);
     gdt_entries[1] = create_gdt_entry(0, 0xfffff, 0x9a, 0xc);
     gdt_entries[2] = create_gdt_entry(0, 0xfffff, 0x92, 0xc);
@@ -21,10 +20,9 @@ void init_gdt() {
     gdt_entries[4] = create_gdt_entry(0, 0xfffff, 0xf2, 0xc);
 
     create_tss();
+    gdt_entries[5] = create_gdt_entry(&tss_entry, sizeof(tss_entry)-1, 0x89, 0x0);
 
-    gdt_entries[5] = create_gdt_entry(tss_entry, sizeof(*tss_entry), 0x89, 0x0);
-
-    gdt_descriptor.size = (sizeof(gdt_entry_t)*5)-1;
+    gdt_descriptor.size = (sizeof(gdt_entry_t)*6)-1;
     gdt_descriptor.start = (uint32_t) &gdt_entries;
 
     _gdt_load();

@@ -1,12 +1,11 @@
 global switch_to_userspace
-global _load_tss
+global _tss_load
 
-extern some_test
-
-extern tss_descriptor
+extern userspace_test
 
 
-_load_tss:
+
+_tss_load:
 	mov ax, 5*8
 	ltr ax
 	ret
@@ -25,6 +24,6 @@ switch_to_userspace:
 	push eax ; current esp
 	pushf ; eflags
 	push (3 * 8) | 3 ; code selector (ring 3 code with bottom 2 bits set for ring 3)
-	push some_test ; instruction address to return to
+	push userspace_test ; instruction address to return to
 	iret
 

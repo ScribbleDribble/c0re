@@ -27,14 +27,11 @@ global _isr18
 ; save cpu state
 _isr_common:
     pusha ; save gp registers
-    pushad ; save extended registers
 
     mov ax, 0x10
-    call eax  ; special call to preserve eip
 
     call interrupt_handler
     ; now we have finished handling the interrupt, restore state.
-    popad
     popa
     add esp, 8  ; removes error codes and pushed isr number
     sti     ; set interrupts flag

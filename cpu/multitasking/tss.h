@@ -23,12 +23,18 @@ typedef struct tss_descriptor {
 }__attribute__((packed)) tss_descriptor_t;
 
 typedef struct tss_t {
-    uint32_t esp0;
-    uint32_t ss0;
+    
+	uint16_t prev_tss_selector;
+	uint16_t reserved1;
+	uint32_t esp0;
+    uint16_t ss0;
+    uint16_t reserved2;
     uint32_t esp1;
-    uint32_t ss1;
+    uint16_t ss1;
+	uint16_t reserved3;
     uint32_t esp2;
-    uint32_t ss2;
+    uint16_t ss2;
+	uint16_t reserved4;
     uint32_t cr3;
     uint32_t eip;
     uint32_t eflags;
@@ -40,18 +46,27 @@ typedef struct tss_t {
     uint32_t ebp;
     uint32_t esi;
     uint32_t edi;
-    uint32_t es;
-    uint32_t cs;
-    uint32_t ss;
-    uint32_t ds;
-    uint32_t fs;
-    uint32_t gs;
-    uint32_t ldtr;
-    uint32_t iopb;
+    uint16_t es;
+	uint16_t reserved5;
+    uint16_t cs;
+	uint16_t reserved6;
+    uint16_t ss;
+	uint16_t reserved7;
+    uint16_t ds;
+	uint16_t reserved8;
+    uint16_t fs;
+	uint16_t reserved9;
+    uint16_t gs;
+	uint16_t reserved10;
+    uint16_t ldtr;
+	uint16_t reserved11;
+	uint16_t reserved12;
+    uint16_t iopb;
     uint32_t ssp;
 }__attribute__((packed)) tss_t;
 
 tss_descriptor_t tss_descriptor;
+tss_t tss_entry;
 
 void _load_tss(void);
 

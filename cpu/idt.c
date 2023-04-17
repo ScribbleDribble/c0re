@@ -4,11 +4,6 @@
 idt_entry_t idt[256];
 idt_descriptor_t idt_descriptor;
 
-typedef struct interrupt_state_t {
-    int no;
-    int err_code;
-}interrupt_state_t;
-
 
 // typedef struct register_state {
 //     uint32_t eax, esi, ebp;
@@ -17,19 +12,25 @@ typedef struct interrupt_state_t {
 
 // }register_state_t;
 
-typedef struct register_state {
-    uint32_t eax, esi;
-
-}register_state_t;
 
 uint32_t cr2_value = 0;
 extern _get_cr2_value();
 
-void interrupt_handler(int state) {
+
+typedef struct interrupt_state_t {
+    int no;
+    int err_code;
+}interrupt_state_t;
+
+typedef struct registers_t {
+    int AX, CX, DX, BX, SP, BP, SI, DI;
+}registers_t;
+
+void interrupt_handler(registers_t regs, interrupt_state_t int_state) {
 
 
-    int int_no = *(&state+16);
-    klog("Interrupt handler was called! Err no: 0x%x", int_no);  
+    
+    klog("Interrupt handler was called! Err no: 0x%x", int_state.no);  
 
     _get_cr2_value();
 

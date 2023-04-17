@@ -223,14 +223,14 @@ void init_paging_structures() {
     int i;     
     for (i = 0; i < MAX_PTE_COUNT; i++) {
         if (PAGE_SIZE*i < PHYS_BASE) {
-            page_table[i] = create_pte(1,1,0,0,0,0,0,0,0,0, i*PAGE_SIZE);
+            page_table[i] = create_pte(1,1,1,0,0,0,0,0,0,0, i*PAGE_SIZE);
         } else { 
             page_table[i] = create_pte(0,1,1,0,0,0,0,0,0,0, 0);
         }
     }
     for (i = 0; i < MAX_PD_COUNT; i++) {
         if (i == 0) {
-            page_directory[i] = create_pde(1,1,0,0,0,0,0,0, (uint32_t) page_table);
+            page_directory[i] = create_pde(1,1,1,0,0,0,0,0, (uint32_t) page_table);
         } else {
             page_directory[i] = create_pde(0,1,1,0,0,0,0,0, (uint32_t) PT_BASE_ADDR + MAX_PTE_COUNT*i*4);
         }

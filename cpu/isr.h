@@ -1,24 +1,24 @@
 #include <stdint.h>
 
-#define ISR0 0
-#define ISR1 1
-#define ISR2 2
-#define ISR3 3
-#define ISR4 4
-#define ISR5 5
-#define ISR6 6
-#define ISR7 7
-#define ISR8 8
-#define ISR9 9
-#define ISR10 10
-#define ISR11 11
-#define ISR12 12
-#define ISR13 13
-#define ISR14 14
-#define ISR15 15
-#define ISR16 16
-#define ISR17 17
-#define ISR18 18
+#define ISR0 0 // div by 0
+#define ISR1 1  // debug
+#define ISR2 2  // non maskable interrupt
+#define ISR3 3  // breakpoint
+#define ISR4 4  // overflow
+#define ISR5 5  // bound range exceeded
+#define ISR6 6  // invalid opcode
+#define ISR7 7  // device not available
+#define ISR8 8  // double fault
+#define ISR9 9  // coprocessor segment overrun
+#define ISR10 10    // invalid TSS
+#define ISR11 11    // segment not present
+#define ISR12 12    // stack segment fault
+#define ISR13 13    // GPF
+#define ISR14 14    // page fault
+#define ISR15 15    // reserved
+#define ISR16 16    // x87 floating-point exception
+#define ISR17 17    // alignment check
+#define ISR18 18    // machine check    
 
 extern void _isr0(void);
 extern void _isr1(void);

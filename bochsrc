@@ -2,12 +2,12 @@
 # a floppy disk inserted into a computer at boot time .
 ata0: enabled=1, ioaddr1=0x1f0, ioaddr2=0x3f0, irq=14
 
-#ata0-master: type=cdrom, path="bin/myos.iso", status=inserted
-#boot: cdrom
+ata0-master: type=cdrom, path="bin/myos.iso", status=inserted
+boot: cdrom
 
-floppya : 1 _44=bin/os_image, status=inserted
+#floppya : 1 _44=bin/os_image, status=inserted
 megs: 32
 mouse: enabled=0
 clock: sync=slowdown, time0=local
-cpu: ips=10000000
+cpu: ips=100000000
 magic_break: enabled=1

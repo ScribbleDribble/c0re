@@ -197,6 +197,7 @@ static void* first_fit(uint32_t size){
         i++;
     }
 
+    kputs("[sys]: allocating new 4kb to kernel heap");
     // allocate additional memory
     void* addr = palloc(KERNEL_PD_INDEX, 1);
     // kputs(buf);

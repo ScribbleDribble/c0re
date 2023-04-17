@@ -115,14 +115,18 @@ kernel/enable_paging.o: kernel/enable_paging.asm
 cpu/gdt.o : cpu/gdt.c 
 	i386-elf-gcc --freestanding -g -c $(CFLAGS) cpu/gdt.c -o cpu/gdt.o
 
+user/surface.o : user/surface.c 
+	i386-elf-gcc --freestanding -g -c $(CFLAGS) user/surface.c -o user/surface.o
+
+
 # links ELF kernel_entry and kernel for direct access to main function of kernel. 
 # the binary will start at address 0x1000
 # bin/kernel.bin : kernel/kernel.o kernel/kernel_entry.o kernel/string.o drivers/vga.o cpu/descriptor_table_load.o cpu/idt.o cpu/isr_handle.o cpu/irq_handle.o cpu/irq.o cpu/port_io.o cpu/timer.o drivers/ps2.o drivers/keyboard.o drivers/driver_entry.o kernel/vmm.o kernel/pmm.o kernel/enable_paging.o kernel/kmalloc.o
 # 	i386-elf-ld kernel/kernel.o kernel/kernel_entry.o kernel/string.o drivers/vga.o cpu/descriptor_table_load.o cpu/idt.o cpu/isr_handle.o cpu/irq.o cpu/port_io.o cpu/irq_handle.o cpu/timer.o drivers/ps2.o drivers/keyboard.o drivers/driver_entry.o kernel/vmm.o kernel/pmm.o kernel/enable_paging.o kernel/kmalloc.o -Ttext 0x1000 -o bin/kernel.bin --oformat binary
 
 
-bin/kernel.elf : kernel/kernel.o kernel/kernel_entry.o kernel/string.o drivers/vga.o cpu/descriptor_table_load.o cpu/idt.o cpu/isr_handle.o cpu/irq_handle.o cpu/irq.o cpu/port_io.o cpu/timer.o drivers/ps2.o drivers/keyboard.o drivers/driver_entry.o kernel/vmm.o kernel/pmm.o kernel/enable_paging.o kernel/kmalloc.o util/strmap.o cpu/gdt.o cpu/multitasking/load_tss.o cpu/multitasking/tss.o
-	 i386-elf-ld kernel/kernel.o kernel/kernel_entry.o kernel/string.o drivers/vga.o cpu/descriptor_table_load.o cpu/idt.o cpu/isr_handle.o cpu/irq.o cpu/port_io.o cpu/irq_handle.o cpu/timer.o drivers/ps2.o drivers/keyboard.o drivers/driver_entry.o kernel/vmm.o kernel/pmm.o kernel/enable_paging.o kernel/kmalloc.o  util/strmap.o cpu/gdt.o cpu/multitasking/load_tss.o cpu/multitasking/tss.o -Ttext 0x1000 -o bin/kernel.elf
+bin/kernel.elf : kernel/kernel.o kernel/kernel_entry.o kernel/string.o drivers/vga.o cpu/descriptor_table_load.o cpu/idt.o cpu/isr_handle.o cpu/irq_handle.o cpu/irq.o cpu/port_io.o cpu/timer.o drivers/ps2.o drivers/keyboard.o drivers/driver_entry.o kernel/vmm.o kernel/pmm.o kernel/enable_paging.o kernel/kmalloc.o util/strmap.o cpu/gdt.o cpu/multitasking/load_tss.o cpu/multitasking/tss.o user/surface.o 
+	 i386-elf-ld kernel/kernel.o kernel/kernel_entry.o kernel/string.o drivers/vga.o cpu/descriptor_table_load.o cpu/idt.o cpu/isr_handle.o cpu/irq.o cpu/port_io.o cpu/irq_handle.o cpu/timer.o drivers/ps2.o drivers/keyboard.o drivers/driver_entry.o kernel/vmm.o kernel/pmm.o kernel/enable_paging.o kernel/kmalloc.o  util/strmap.o cpu/gdt.o cpu/multitasking/load_tss.o cpu/multitasking/tss.o  user/surface.o -Ttext 0x1000 -o bin/kernel.elf
 
 # bin/kernel.elf : ${OBJ} ${ASM_OBJ}
 # 	 i386-elf-ld ${OBJ} ${ASM_OBJ} -Ttext 0x1000 -o bin/kernel.elf
@@ -130,8 +134,8 @@ bin/kernel.elf : kernel/kernel.o kernel/kernel_entry.o kernel/string.o drivers/v
 boot/boot.o: boot/boot.s
 	i386-elf-as boot/boot.s -o boot/boot.o
 
-bin/myos.bin : boot/boot.o kernel/kernel.o kernel/string.o drivers/vga.o cpu/descriptor_table_load.o cpu/idt.o cpu/isr_handle.o cpu/irq_handle.o cpu/irq.o cpu/port_io.o cpu/timer.o drivers/ps2.o drivers/keyboard.o drivers/driver_entry.o kernel/vmm.o kernel/pmm.o kernel/enable_paging.o kernel/kmalloc.o util/strmap.o cpu/multitasking/load_tss.o cpu/multitasking/tss.o cpu/gdt.o
-	 i386-elf-gcc -T boot/linker.ld -ffreestanding -O2 -nostdlib -o bin/myos.bin boot/boot.o kernel/kernel.o kernel/string.o drivers/vga.o cpu/descriptor_table_load.o cpu/idt.o cpu/isr_handle.o cpu/irq.o cpu/port_io.o cpu/irq_handle.o cpu/timer.o drivers/ps2.o drivers/keyboard.o drivers/driver_entry.o kernel/vmm.o kernel/pmm.o kernel/enable_paging.o util/strmap.o kernel/kmalloc.o cpu/gdt.o  cpu/multitasking/load_tss.o cpu/multitasking/tss.o -lgcc
+bin/myos.bin : boot/boot.o kernel/kernel.o kernel/string.o drivers/vga.o cpu/descriptor_table_load.o cpu/idt.o cpu/isr_handle.o cpu/irq_handle.o cpu/irq.o cpu/port_io.o cpu/timer.o drivers/ps2.o drivers/keyboard.o drivers/driver_entry.o kernel/vmm.o kernel/pmm.o kernel/enable_paging.o kernel/kmalloc.o util/strmap.o cpu/multitasking/load_tss.o cpu/multitasking/tss.o cpu/gdt.o user/surface.o
+	 i386-elf-gcc -T boot/linker.ld -ffreestanding -O2 -nostdlib -o bin/myos.bin boot/boot.o kernel/kernel.o kernel/string.o drivers/vga.o cpu/descriptor_table_load.o cpu/idt.o cpu/isr_handle.o cpu/irq.o cpu/port_io.o cpu/irq_handle.o cpu/timer.o drivers/ps2.o drivers/keyboard.o drivers/driver_entry.o kernel/vmm.o kernel/pmm.o kernel/enable_paging.o util/strmap.o kernel/kmalloc.o cpu/gdt.o user/surface.o cpu/multitasking/load_tss.o cpu/multitasking/tss.o -lgcc
 
 bin/boot_sector.bin : boot/boot_sector.asm
 	cd boot; nasm boot_sector.asm -f bin -o ../bin/boot_sector.bin
