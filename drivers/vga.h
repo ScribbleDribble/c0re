@@ -2,6 +2,7 @@
 #include "../kernel/kmalloc/kmalloc.h"
 #include <stdbool.h>
 #include <stdarg.h>
+#include <stdatomic.h>
 
 #ifndef _VGA_H
 #define _VGA_H

@@ -1,8 +1,13 @@
+#ifndef _IDT_H
+#define _IDT_H
+
 #include "irq.h"
 #include "isr.h"
 #include "timer.h"
+#include "../common/types.h"
 #include "../kernel/string.h"
 #include "../drivers/vga.h"
+#include "../kernel/scheduler.h"
 
 #define IDT_GATE_FLAGS 0x8E
 
@@ -29,4 +34,4 @@ void _idt_load(void);
 void add_idt_gate(uint8_t idx, uint32_t isr_offset, uint8_t flags, uint16_t gdt_code_selector);
 
 
-
+#endif

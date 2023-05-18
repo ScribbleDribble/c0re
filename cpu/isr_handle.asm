@@ -28,7 +28,6 @@ global _isr18
 _isr_common:
     pusha ; save gp registers
 
-    mov ax, 0x10
 
     call interrupt_handler
     ; now we have finished handling the interrupt, restore state.

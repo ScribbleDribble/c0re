@@ -1,6 +1,8 @@
 
 // will be used to help us return to ring 0 from user mode. stores kernel stack segment, allowing us to execute kernel code
-// as we are doing software multitasking, we are only interested in esp0 and ss0.
+// as we are doing software multitasking, we are only interested in esp0 and ss0. 
+// when an interrupt occurs, the cpu will set the stack segment and esp to what was set in the TSS. 
+
 // when a system call is made, we retrieve ss0 and set the stack pointer to be esp0. esp = ss0:esp0
 #ifndef _TSS_H
 #define _TSS_H

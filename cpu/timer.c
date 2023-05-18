@@ -1,5 +1,5 @@
 #include "timer.h"
-#include "../drivers/vga.h"
+
 
 #define SUCCESS_CODE 0
 #define FAILURE_CODE 1
@@ -7,9 +7,22 @@
 
 uint32_t tick = 0;
 
-void timer_callback() {
+extern line;
+
+static uint16_t get_gs() {
+	uint32_t gs;
+	__asm__("mov %%gs, %%eax" : "=eax" (gs));
+	return gs;
+}
+
+
+void timer_callback(registers_t* regs) {
     tick++;
-    // klog("Ticks %i", tick);
+    if (get_gs() == 0x23)
+    {
+        pcb_t* cur_process = schedule(regs);
+        klog("Process id: %i, esp0: 0x%x, tss->esp0: 0x%x", cur_process->pid, cur_process->esp0, tss_entry.esp0);
+    }
 }
 
 int configure_timer(unsigned int frequency) {

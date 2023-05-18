@@ -22,17 +22,10 @@ typedef struct interrupt_state_t {
     int err_code;
 }interrupt_state_t;
 
-typedef struct registers_t {
-    int AX, CX, DX, BX, SP, BP, SI, DI;
-}registers_t;
 
 void interrupt_handler(registers_t regs, interrupt_state_t int_state) {
 
-
-    
-    klog("Interrupt handler was called! Err no: 0x%x", int_state.no);  
-
-    _get_cr2_value();
+    // klog("Interrupt handler was called! Err no: 0x%x", int_state.no); 
 
     // clean up late using func ptrs 
     // if (int_no == ISR14) {
@@ -49,7 +42,7 @@ void init_idt() {
     // maybe put in isr.c and call here. 
 
     // 0x8E typically used as flags - (present=1, dpl=0b00, type=0b1110 => flags=0b1000_1110=0x8E)
-
+    // set gdt selector as 0x08 so interrupts can run kernel code segment 
     add_idt_gate(ISR0, (unsigned) _isr0, IDT_GATE_FLAGS, 0x08);
     add_idt_gate(ISR1, (unsigned) _isr1, IDT_GATE_FLAGS, 0x08);
     add_idt_gate(ISR2, (unsigned) _isr2, IDT_GATE_FLAGS, 0x08);

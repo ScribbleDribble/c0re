@@ -30,12 +30,12 @@ void irq_remap() {
 
 }
 
-typedef void (*irq_handler_func_t) (void); // type of func ptr is just irq_handler
+typedef void (*irq_handler_func_t) (registers_t*); // type of func ptr is just irq_handler
 
 irq_handler_func_t interrupt_handlers[256];
 
 
-void register_interrupt_handler(uint8_t index, void (*handler) (void)) {
+void register_interrupt_handler(uint8_t index, void (*handler) (registers_t*)) {
     interrupt_handlers[index] = handler;
 }
 
@@ -45,9 +45,6 @@ typedef struct interrupt_state_t {
     int err_code;
 }interrupt_state_t;
 
-typedef struct registers_t {
-    int AX, CX, DX, BX, SP, BP, SI, DI;
-}registers_t;
 
 // handler for all irqs. calls handler specific to irq
 void process_hardware_interrupt(registers_t regs, interrupt_state_t int_state) {
@@ -60,6 +57,6 @@ void process_hardware_interrupt(registers_t regs, interrupt_state_t int_state) {
     if (interrupt_handlers[int_state.no] != 0) {
         irq_handler_func_t handler;
         handler = interrupt_handlers[int_state.no];
-        handler();
+        handler(&regs);
     }
 }

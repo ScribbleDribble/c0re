@@ -6,11 +6,11 @@
 #include "kmalloc/kmalloc.h"
 #include "../cpu/gdt.h"
 #include "../cpu/multitasking/tss.h"
+#include "../util/spinlock.h"
 
 
 extern void _enable_paging(void);
 extern void switch_to_userspace(void);
-extern void _simulate_gpf(void);
 extern void _tss_load(void);
 
 
@@ -33,5 +33,4 @@ void kmain(void) {
 	switch_to_userspace();
 
 	while (1);
-
 }

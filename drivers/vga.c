@@ -115,7 +115,7 @@ void klog(const char* s, ...) {
 }
 
 
-void kputs(const char* str) {
+void kputs(const char* str) {	
 	line += 1;
 	position2D_t pos = {line, 0};
 	kprint(str, 0x0f, &pos);
