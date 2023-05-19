@@ -10,6 +10,7 @@
 
 
 extern void _enable_paging(void);
+extern void _enable_syscall(void);
 extern void switch_to_userspace(void);
 extern void _tss_load(void);
 
@@ -29,6 +30,8 @@ void kmain(void) {
 	init_drivers();
 
 	_tss_load();
+
+	_enable_syscall();
 
 	switch_to_userspace();
 

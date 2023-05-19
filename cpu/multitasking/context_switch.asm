@@ -8,14 +8,14 @@ extern userspace_test
 
 
 ctx_switch:
-    xchg bx, bx
+    ; xchg bx, bx
     ; save state of cur process
     pusha  
 
     push esp 
     call kstack_save
     pop esp
-    xchg bx, bx
+    ; xchg bx, bx
 
     ; switch stacks - target_esp0 will point to the top of all saved registers
     mov esp, [target_esp0]
@@ -24,7 +24,7 @@ ctx_switch:
     popa 
 
     ; make sure we have eflags, cs, eip in stack respectively 
-    xchg bx, bx
+    ; xchg bx, bx
 
     sti 
     iret 
@@ -46,4 +46,4 @@ switch_to_userspace:
 	push userspace_test ; instruction address to return to
 	iret
     
-    
+

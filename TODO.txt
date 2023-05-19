@@ -1,5 +1,22 @@
 
+process management: 
+- separate kernel and user stacks
+- swap out process address space on context switch 
+- implement proper scheduler 
+- testing for an arbitrary amount processes
+- fix kernel stack from gradually falling in address space due to context switching  
+- will need to reload MSR ESP0 on each context switch, so that process can execute on its own kernel stack on each system call
+- refactor
+
+system calls:
+- set up correct kernel stack pointer
+- return to user stack and resume execution
+- ability to pass in parameters to system call functions 
+- complete stdio interface (low priority)
+- cleaner interface - look into other kernel designs 
+
 vmm
+- stricter permissions for kernel code segments 
 - *long term* Remap kernel to start at higher memory (0xC0000...) like linux
 - *long term* code to obtain memory map
 
@@ -10,13 +27,8 @@ pmm
 interrupts.c 
 - merge idt.c, isr.c, irq.c
 
-stdio interface
-
-keyboard driver
 
 cleaner Makefile
 
 Future: qemu e2e tests. Dump logs from qemu and read data using python testing script. 
 E.g. check state of registers from log file. Must use:
-
-qemu-system-x86 -d <option> -fda bin/os_image

@@ -5,14 +5,13 @@ extern switch_to_kernelspace(void);
 // TODO stdio interface used to write to console
 void userspace_test() { 
 
-    char buf[32];
+    // char buf[32];
     clear_screen();
     kputs("hello");
     
     int i = 0;
     while (1) {
         i += 1;
-
         
         // if (i % 66 == 0) {
         //     int_to_str(1, buf, 10);
@@ -35,13 +34,7 @@ void userspace_test2() {
     int x, y, z = 100;
     int i = 0;
     while (1) {
-        i += 1;
-        a += 2;
-
-        if (a % 100 == 0){
-            // int_to_str(1, buf, 32);
-            // kputs(buf);
-        }
+        puts("a");
     }
 }
 

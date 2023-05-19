@@ -8,24 +8,12 @@ pcb_t* init_process_management(const registers) {
     return create_pcb_from_context(0, registers);
 }
 
-static uint32_t get_esp() {
-	uint32_t sp;
-	__asm__("mov %%esp, %%eax" : "=eax" (sp));
-	return sp;
-}
-
-
 // switches processes by saving state of currently executing process, swapping in the new kernel stack
 uint32_t context_switch(pcb_t* src_pcb, pcb_t* dest_pcb) {
-    // save_state(src_pcb);
     
     tss_entry.esp0 = dest_pcb->esp0;
     dest_pcb->state = RUNNING;
     src_pcb->state = WAITING;
-
-    // set_esp0(dest_pcb->esp0);
-
-    // asm volatile ("xchg %bx, %bx");
 
 }
 

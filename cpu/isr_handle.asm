@@ -34,6 +34,7 @@ _isr_common:
     popa
     add esp, 8  ; removes error codes and pushed isr number
     sti     ; set interrupts flag
+    xchg bx, bx
     iret    ; pops cs, eip, eflags, ss, and esp.
 
     ; mov ax, 0x10

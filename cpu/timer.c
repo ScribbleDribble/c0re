@@ -21,7 +21,7 @@ void timer_callback(registers_t* regs) {
     if (get_gs() == 0x23)
     {
         pcb_t* cur_process = schedule(regs);
-        klog("Process id: %i, esp0: 0x%x, tss->esp0: 0x%x", cur_process->pid, cur_process->esp0, tss_entry.esp0);
+        // klog("Process id: %i, esp0: 0x%x, tss->esp0: 0x%x", cur_process->pid, cur_process->esp0, tss_entry.esp0);
     }
 }
 

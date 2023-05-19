@@ -8,7 +8,6 @@ static uint16_t current_pid = 0;
 
 static uint16_t n_procs = 0;
 
-
 uint32_t target_esp0 = 0;
 
 pcb_t* procs[250];
@@ -17,10 +16,8 @@ pcb_t* procs[250];
 pcb_t* schedule(registers_t* context) {
 
     if (n_procs == 0) {
-        // procs = kmalloc(sizeof(pcb_t));
         procs[n_procs++] = init_process_management(context);
         procs[n_procs++] = process_clone(procs[0], n_procs, userspace_test2);
-        // procs = realloc(procs, n_procs);
     }
 
     current_pid = !current_pid;

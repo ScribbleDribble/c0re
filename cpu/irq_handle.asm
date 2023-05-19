@@ -2,7 +2,7 @@ global _irq0
 global _irq1
 
 extern process_hardware_interrupt
-extern target_eip 
+extern target_esp0
 extern userspace_test2
 extern ctx_switch
 
@@ -22,7 +22,7 @@ _irq1:
 ; TODO implement the other irqs
 
 _irq_common_stub:
-	xchg bx, bx
+	; xchg bx, bx
 
     push esp
     pusha   ; regular register save
@@ -30,7 +30,7 @@ _irq_common_stub:
     mov ax, 10
 
     call process_hardware_interrupt
-    xchg bx, bx
+    ; xchg bx, bx
 
     popa  
     pop esp
@@ -38,14 +38,12 @@ _irq_common_stub:
 
 
     push eax 
-    mov ax, gs
-    cmp ax, 0x23
-
+    mov eax, [target_esp0]
+    cmp eax, 0
     ; clean up stack for iret 
     pop eax
     
-
-    je _finalise_context_switch
+    jne _finalise_context_switch
     add esp, 8
 
     sti
