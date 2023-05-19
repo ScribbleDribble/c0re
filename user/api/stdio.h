@@ -1,5 +1,5 @@
-#ifndef _IO_H
-#define _IO_H
+#ifndef _STDIO_H
+#define _STDIO_H
 
 
 extern void _puts(const char* s);

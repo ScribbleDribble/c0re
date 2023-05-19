@@ -1,4 +1,4 @@
-#include "io.h"
+#include "stdio.h"
 
 
 void puts(const char* s) {

@@ -1,4 +1,6 @@
 global _enable_syscall
+global KPUTS_SYSCALL_ID
+
 extern kputs
 
 ; sets up 3 registers required for syscalls
@@ -20,7 +22,7 @@ _enable_syscall:
 
     wrmsr   ; write to msr
 
-    mov eax, syscall_router
+    mov eax, _syscall_router
     mov edx, 0x0
     mov ecx, IA32_SYSENTER_EIP
     
@@ -36,21 +38,30 @@ _enable_syscall:
 
     ret
 
-syscall_router:
-    pusha 
 
-    push SYSCALL_TEST_STR
-    call kputs 
+
+_syscall_router:
+    
+    cmp eax, KPUTS_SYSCALL_ID
+    je _kputs
+
     xchg bx, bx
-    popa
 
     iret 
 
+; args:
+; const char* str: ebx
+_kputs:
+    push ebx
+    call kputs
+    ret
 
-CPUID: db 0
+
+
 
 KERNEL_CODE_SELECTOR equ 0x8
 IA32_SYSENTER_CS equ 0x174
 IA32_SYSENTER_EIP equ 0x176
 IA32_SYSENTER_ESP equ 0x175 
-SYSCALL_TEST_STR db "SYSCALL TEST", 0
+
+KPUTS_SYSCALL_ID equ 0

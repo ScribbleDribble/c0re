@@ -65,8 +65,6 @@ kernel/string.o : kernel/string.c
 kernel/kernel.o : kernel/kernel.c
 	i386-elf-gcc $(CFLAGS) kernel/kernel.c -o kernel/kernel.o
 
-# kernel/kernel_entry.o : kernel/kernel_entry.asm
-# 	nasm kernel/kernel_entry.asm -o kernel/kernel_entry.o -f elf
 
 cpu/irq.o : cpu/irq.c
 	i386-elf-gcc  $(CFLAGS) -mgeneral-regs-only cpu/irq.c -o cpu/irq.o
@@ -112,8 +110,8 @@ util/strmap.o: util/strmap.c
 kernel/enable_paging.o: kernel/enable_paging.asm
 	nasm kernel/enable_paging.asm $(ASMFLAGS) -o kernel/enable_paging.o
 
-kernel/enable_syscall.o: kernel/enable_syscall.asm
-	nasm kernel/enable_syscall.asm $(ASMFLAGS) -o kernel/enable_syscall.o
+kernel/syscall_handler.o: kernel/syscall_handler.asm
+	nasm kernel/syscall_handler.asm $(ASMFLAGS) -o kernel/syscall_handler.o
 
 kernel/process.o: kernel/process.c 
 	i386-elf-gcc  $(CFLAGS) kernel/process.c -o kernel/process.o
@@ -124,8 +122,8 @@ kernel/scheduler.o: kernel/scheduler.c
 kernel/api/io.o: kernel/api/io.c
 	i386-elf-gcc  $(CFLAGS) kernel/api/io.c -o kernel/api/io.o
 
-kernel/api/syscall.o: kernel/api/syscall.asm
-	nasm kernel/api/syscall.asm $(ASMFLAGS) -o kernel/api/syscall.o
+user/api/syscall.o: user/api/syscall.asm
+	nasm user/api/syscall.asm $(ASMFLAGS) -o user/api/syscall.o
 
 cpu/multitasking/context_switch.o: cpu/multitasking/context_switch.asm
 	nasm cpu/multitasking/context_switch.asm $(ASMFLAGS) -o cpu/multitasking/context_switch.o
@@ -139,11 +137,11 @@ user/surface.o : user/surface.c
 boot/boot.o: boot/boot.s
 	i386-elf-as boot/boot.s -o boot/boot.o
 
-bin/myos.bin : boot/boot.o kernel/kernel.o kernel/string.o drivers/vga.o cpu/descriptor_table_load.o cpu/idt.o cpu/isr_handle.o cpu/irq_handle.o cpu/irq.o cpu/port_io.o cpu/timer.o drivers/ps2.o drivers/keyboard.o drivers/driver_entry.o kernel/vmm.o kernel/pmm.o kernel/enable_paging.o kernel/kmalloc.o util/strmap.o cpu/multitasking/load_tss.o cpu/multitasking/tss.o cpu/gdt.o user/surface.o kernel/process.o kernel/scheduler.o cpu/multitasking/context_switch.o kernel/api/syscall.o kernel/api/io.o kernel/enable_syscall.o
-	 i386-elf-gcc -T boot/linker.ld -ffreestanding -O2 -nostdlib -o bin/myos.bin boot/boot.o kernel/kernel.o kernel/string.o drivers/vga.o cpu/descriptor_table_load.o cpu/idt.o cpu/isr_handle.o cpu/irq.o cpu/port_io.o cpu/irq_handle.o cpu/timer.o drivers/ps2.o drivers/keyboard.o drivers/driver_entry.o kernel/vmm.o kernel/pmm.o kernel/enable_paging.o util/strmap.o kernel/kmalloc.o cpu/gdt.o user/surface.o cpu/multitasking/load_tss.o cpu/multitasking/tss.o kernel/process.o kernel/scheduler.o cpu/multitasking/context_switch.o kernel/api/syscall.o kernel/api/io.o kernel/enable_syscall.o -lgcc
+bin/myos.bin : boot/boot.o kernel/kernel.o kernel/string.o drivers/vga.o cpu/descriptor_table_load.o cpu/idt.o cpu/isr_handle.o cpu/irq_handle.o cpu/irq.o cpu/port_io.o cpu/timer.o drivers/ps2.o drivers/keyboard.o drivers/driver_entry.o kernel/vmm.o kernel/pmm.o kernel/enable_paging.o kernel/kmalloc.o util/strmap.o cpu/multitasking/load_tss.o cpu/multitasking/tss.o cpu/gdt.o user/surface.o kernel/process.o kernel/scheduler.o cpu/multitasking/context_switch.o user/api/syscall.o user/api/io.o kernel/syscall_handler.o
+	 i386-elf-gcc -T boot/linker.ld -ffreestanding -O2 -nostdlib -o bin/myos.bin boot/boot.o kernel/kernel.o kernel/string.o drivers/vga.o cpu/descriptor_table_load.o cpu/idt.o cpu/isr_handle.o cpu/irq.o cpu/port_io.o cpu/irq_handle.o cpu/timer.o drivers/ps2.o drivers/keyboard.o drivers/driver_entry.o kernel/vmm.o kernel/pmm.o kernel/enable_paging.o util/strmap.o kernel/kmalloc.o cpu/gdt.o user/surface.o cpu/multitasking/load_tss.o cpu/multitasking/tss.o kernel/process.o kernel/scheduler.o cpu/multitasking/context_switch.o user/api/syscall.o user/api/io.o kernel/syscall_handler.o -lgcc
 
-bin/kernel.elf : boot/boot.o kernel/kernel.o kernel/string.o drivers/vga.o cpu/descriptor_table_load.o cpu/idt.o cpu/isr_handle.o cpu/irq_handle.o cpu/irq.o cpu/port_io.o cpu/timer.o drivers/ps2.o drivers/keyboard.o drivers/driver_entry.o kernel/vmm.o kernel/pmm.o kernel/enable_paging.o kernel/kmalloc.o util/strmap.o cpu/multitasking/load_tss.o cpu/multitasking/tss.o cpu/gdt.o user/surface.o kernel/process.o kernel/scheduler.o cpu/multitasking/context_switch.o kernel/api/syscall.o kernel/api/io.o kernel/enable_syscall.o
-	 i386-elf-gcc -T boot/linker.ld -ffreestanding -O2 -nostdlib -o bin/kernel.elf boot/boot.o kernel/kernel.o kernel/string.o drivers/vga.o cpu/descriptor_table_load.o cpu/idt.o cpu/isr_handle.o cpu/irq.o cpu/port_io.o cpu/irq_handle.o cpu/timer.o drivers/ps2.o drivers/keyboard.o drivers/driver_entry.o kernel/vmm.o kernel/pmm.o kernel/enable_paging.o util/strmap.o kernel/kmalloc.o cpu/gdt.o user/surface.o cpu/multitasking/load_tss.o cpu/multitasking/tss.o kernel/process.o kernel/scheduler.o cpu/multitasking/context_switch.o kernel/api/syscall.o kernel/api/io.o kernel/enable_syscall.o -lgcc
+bin/kernel.elf : boot/boot.o kernel/kernel.o kernel/string.o drivers/vga.o cpu/descriptor_table_load.o cpu/idt.o cpu/isr_handle.o cpu/irq_handle.o cpu/irq.o cpu/port_io.o cpu/timer.o drivers/ps2.o drivers/keyboard.o drivers/driver_entry.o kernel/vmm.o kernel/pmm.o kernel/enable_paging.o kernel/kmalloc.o util/strmap.o cpu/multitasking/load_tss.o cpu/multitasking/tss.o cpu/gdt.o user/surface.o kernel/process.o kernel/scheduler.o cpu/multitasking/context_switch.o user/api/syscall.o user/api/io.o kernel/syscall_handler.o
+	 i386-elf-gcc -T boot/linker.ld -ffreestanding -O2 -nostdlib -o bin/kernel.elf boot/boot.o kernel/kernel.o kernel/string.o drivers/vga.o cpu/descriptor_table_load.o cpu/idt.o cpu/isr_handle.o cpu/irq.o cpu/port_io.o cpu/irq_handle.o cpu/timer.o drivers/ps2.o drivers/keyboard.o drivers/driver_entry.o kernel/vmm.o kernel/pmm.o kernel/enable_paging.o util/strmap.o kernel/kmalloc.o cpu/gdt.o user/surface.o cpu/multitasking/load_tss.o cpu/multitasking/tss.o kernel/process.o kernel/scheduler.o cpu/multitasking/context_switch.o user/api/syscall.o user/api/io.o kernel/syscall_handler.o -lgcc
 
 
 bin/boot_sector.bin : boot/boot_sector.asm
