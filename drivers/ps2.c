@@ -136,7 +136,8 @@ uint8_t ps2_init() {
             kputs(">PS/2 port failure: Clock line stuck high");
             break;
         case PORT_DATA_LINE_STUCK_LOW:
-            kputs(">PS/2 port failure: Data line stuck low");            break;
+            kputs(">PS/2 port failure: Data line stuck low");            
+            break;
         case PORT_DATA_LINE_STUCK_HIGH:
             kputs(">PS/2 port failure: Data line stuck high");
             break;

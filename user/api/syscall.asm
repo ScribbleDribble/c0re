@@ -3,9 +3,13 @@ extern KPUTS_SYSCALL_ID
 
 ; eax stores syscall id
 ; ebx: arg1, ecx: arg2, edx: arg3
+; saves ESP3 in esi and EIP
+
+
 _puts:
-    xchg bx, bx
     mov eax, KPUTS_SYSCALL_ID
     mov ebx, [esp + 4]
+    mov edi, [esp] ; get EIP which is always at the top of the stack
+    mov esi, esp
+    add esi, 4
     sysenter
-    ret

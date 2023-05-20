@@ -7,7 +7,6 @@
 #include "../common/types.h"
 #include "string.h"
 
-#define KSTACK_BASE 0x70000
 #define MAX_PROCESSES_COUNT 256
 // each process to have 
 // - 4kb kernel and user stack

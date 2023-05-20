@@ -22,7 +22,7 @@ _irq1:
 ; TODO implement the other irqs
 
 _irq_common_stub:
-	; xchg bx, bx
+	xchg bx, bx
 
     push esp
     pusha   ; regular register save

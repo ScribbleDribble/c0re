@@ -21,15 +21,19 @@ pcb_t* schedule(registers_t* context) {
     }
 
     current_pid = !current_pid;
-    context_switch(procs[!current_pid], procs[current_pid]);
+    update_pcb_and_tss_for_ctx_switch(procs[!current_pid], procs[current_pid]);
     target_esp0 = procs[current_pid]->esp0;
-    klog("target esp0 0x%x PCB phased out: 0x%x", target_esp0, procs[!current_pid]);
+    klog("source esp0: 0x%x | target esp0 0x%x |", procs[!current_pid]->esp0, target_esp0);
     // __asm__ volatile("xchg %bx, %bx");
     return procs[current_pid];
 }   
 
 // save kernel stack of the source process
 void kstack_save(uint32_t new_esp0) {
+    if (procs[!current_pid]->state == RUNNING) {
+        klog("[Process] Should not perform ESP0 save on a running process!");
+    }
+    klog("Saving stack for process pid: %i", procs[!current_pid]->pid);
     update_esp0(procs[!current_pid], new_esp0);
 }
 

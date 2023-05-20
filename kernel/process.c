@@ -1,15 +1,16 @@
 #include "process.h"
 
+const int KSTACK_BASE = 0x70000;
 
-bool kstack_bitmap[MAX_PROCESSES_COUNT];
+static bool kstack_bitmap[MAX_PROCESSES_COUNT];
 
 pcb_t* init_process_management(const registers) {
     memory_set(kstack_bitmap, false, sizeof(kstack_bitmap));
     return create_pcb_from_context(0, registers);
 }
 
-// switches processes by saving state of currently executing process, swapping in the new kernel stack
-uint32_t context_switch(pcb_t* src_pcb, pcb_t* dest_pcb) {
+
+uint32_t update_pcb_and_tss_for_ctx_switch(pcb_t* src_pcb, pcb_t* dest_pcb) {
     
     tss_entry.esp0 = dest_pcb->esp0;
     dest_pcb->state = RUNNING;

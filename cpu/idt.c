@@ -24,14 +24,7 @@ typedef struct interrupt_state_t {
 
 
 void interrupt_handler(registers_t regs, interrupt_state_t int_state) {
-
-    // klog("Interrupt handler was called! Err no: 0x%x", int_state.no); 
-
-    // clean up late using func ptrs 
-    // if (int_no == ISR14) {
-    //     mem_map(cr2_value);
-    // }
-    
+    klog("Interrupt handler was called! Err no: 0x%x", int_state.no);  
 }
 
 void init_idt() {

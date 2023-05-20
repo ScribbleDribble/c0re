@@ -27,8 +27,7 @@ global _isr18
 ; save cpu state
 _isr_common:
     pusha ; save gp registers
-
-
+    
     call interrupt_handler
     ; now we have finished handling the interrupt, restore state.
     popa
@@ -37,7 +36,6 @@ _isr_common:
     xchg bx, bx
     iret    ; pops cs, eip, eflags, ss, and esp.
 
-    ; mov ax, 0x10
 
 ; // Processor Exceptions // - occurs when the cpu can no longer resume normal execution
 

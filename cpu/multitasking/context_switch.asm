@@ -5,24 +5,27 @@ global update_esp0
 extern kstack_save
 extern target_esp0
 extern userspace_test
+extern _set_sysenter_esp
 
 
 ctx_switch:
-    ; xchg bx, bx
+    xchg bx, bx
     ; save state of cur process
     pusha  
 
     push esp 
     call kstack_save
     pop esp
-    ; xchg bx, bx
+    xchg bx, bx
 
     ; switch stacks - target_esp0 will point to the top of all saved registers
     mov esp, [target_esp0]
-
     ; restore state
     popa 
 
+    push esp
+    call _set_sysenter_esp ; ensure that syscalls will execute in process' kernel stack
+    pop esp
     ; make sure we have eflags, cs, eip in stack respectively 
     ; xchg bx, bx
 
