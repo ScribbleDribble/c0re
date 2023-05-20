@@ -19,7 +19,6 @@ void kmain(void) {
 	clear_screen();
 
 	init_gdt();
-	// asm volatile ("xchg %bx, %bx");
 
 	vmm_init();
 	_enable_paging();
@@ -36,6 +35,6 @@ void kmain(void) {
 	switch_to_userspace();
 
 
-	
+
 	while (1);
 }

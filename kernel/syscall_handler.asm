@@ -14,7 +14,7 @@ extern kputs
 ; ring0 code segment, ring0 data segment, ring3 code segment, ring3 data segment are continguous in that order
 
 _enable_syscall:
-    xchg bx, bx 
+    ; xchg bx, bx 
     pusha
     
     
@@ -43,14 +43,16 @@ _enable_syscall:
 ; sets kernel stack for syscall. must be the kernel stack for the process
 ; ESP0 - eax 
 _set_sysenter_esp
-    xchg bx, bx
-    mov eax, [esp + 4]
+    xchg bx, bx 
+    pusha 
+    mov eax, [esp + 32 + 4] ; go up the stack, past saved registers, to retrieve argument 1
     
     ; TODO bounds checking for esp addresses. Should be between (hopefully configurable) start and end kernel stack addresses
     mov edx, 0x0
     mov ecx, IA32_SYSENTER_ESP
     wrmsr 
 
+    popa
     ret 
 
 

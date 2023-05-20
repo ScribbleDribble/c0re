@@ -2,6 +2,8 @@
 global ctx_switch
 global switch_to_userspace
 global update_esp0
+
+extern USTACK_BASE
 extern kstack_save
 extern target_esp0
 extern userspace_test
@@ -41,9 +43,9 @@ switch_to_userspace:
 	mov gs, ax ; SS is handled by iret
  
 	; set up the stack frame iret expects
-	mov eax, esp
+	mov eax, [USTACK_BASE]
 	push (4 * 8) | 3 ; data selector
-	push eax ; current esp // todo - change so that userspace can have a separate stack 
+	push eax ; current esp 
 	pushf ; eflags
 	push (3 * 8) | 3 ; code selector (ring 3 code with bottom 2 bits set for ring 3)
 	push userspace_test ; instruction address to return to

@@ -22,7 +22,7 @@ typedef struct pcb_t {
 
 }__attribute__((packed)) pcb_t;
 
-extern _setup_task(uint32_t);
+extern _setup_task(uint32_t esp3, uint32_t esp0);
 
 uint32_t context_switch(pcb_t* src_pcb, pcb_t* dest_pcb);
 pcb_t* create_pcb_from_context(const uint8_t pid, const registers_t* context);

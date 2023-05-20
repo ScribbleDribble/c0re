@@ -1,11 +1,14 @@
 #include "process.h"
 
-const int KSTACK_BASE = 0x70000;
+// todo make these configurable at compile time. need to have completely separate regions of memory and page level protections of kernel stacks 
+const int KSTACK_BASE = 0x90000;
+const int USTACK_BASE = 0x60000;
 
-static bool kstack_bitmap[MAX_PROCESSES_COUNT];
+static bool stack_bitmap[MAX_PROCESSES_COUNT];
+
 
 pcb_t* init_process_management(const registers) {
-    memory_set(kstack_bitmap, false, sizeof(kstack_bitmap));
+    memory_set(stack_bitmap, false, sizeof(stack_bitmap));
     return create_pcb_from_context(0, registers);
 }
 
@@ -24,12 +27,12 @@ pcb_t* create_pcb_from_context(const uint8_t pid, const registers_t* context) {
     pcb->state = RUNNING;
     pcb->pid = pid;
     pcb->esp0 = KSTACK_BASE;
-    kstack_bitmap[0] = true;
+    stack_bitmap[0] = true;
 
     return pcb;
 }
 
-pcb_t* process_clone(pcb_t* src_pcb, int n_procs, uint32_t func) {
+pcb_t* process_clone(pcb_t* src_pcb, int n_procs, uint32_t eip) {
 
     pcb_t* new_pcb = (pcb_t*) kmalloc(sizeof(pcb_t));
     memory_set(new_pcb, 0, sizeof(new_pcb));
@@ -37,23 +40,22 @@ pcb_t* process_clone(pcb_t* src_pcb, int n_procs, uint32_t func) {
 
     int i;
     for(i = 0; i < MAX_PROCESSES_COUNT; i++) {
-        if (kstack_bitmap[i] == false)
+        if (stack_bitmap[i] == false)
         {
-            kstack_bitmap[i] = true;
+            stack_bitmap[i] = true;
             new_pcb->esp0 = KSTACK_BASE + i * 0x1000;
             break;
         }
     }
 
     if (new_pcb->esp0 == 0) {
-        klog("[sys-process]: Could not allocate kernel stack for process with pid: %i", n_procs);
+        klog("[sys-process]: Could not allocate kernel and user stack for process with pid: %i", n_procs);
         while(1);
     }
     new_pcb->esp0 = n_procs*0x1000 + src_pcb->esp0;
 
-
     new_pcb->pid = n_procs;
-    _setup_task(new_pcb->esp0);
+    _setup_task(USTACK_BASE + i * 0x1000, new_pcb->esp0); // TODO use EIP for custom entry point
     new_pcb->esp0 -= (20 + 32); // account for pusha command 
     return new_pcb;
 
