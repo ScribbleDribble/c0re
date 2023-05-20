@@ -26,14 +26,15 @@ global _isr18
 
 ; save cpu state
 _isr_common:
+    xchg bx, bx
+
     pusha ; save gp registers
-    
+
     call interrupt_handler
     ; now we have finished handling the interrupt, restore state.
     popa
     add esp, 8  ; removes error codes and pushed isr number
     sti     ; set interrupts flag
-    xchg bx, bx
     iret    ; pops cs, eip, eflags, ss, and esp.
 
 

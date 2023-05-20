@@ -14,6 +14,7 @@ _irq0:
 
 _irq1:
     cli 
+    xchg bx, bx
     push byte 0
     push byte 33
     jmp _irq_common_stub
@@ -22,7 +23,7 @@ _irq1:
 ; TODO implement the other irqs
 
 _irq_common_stub:
-	xchg bx, bx
+	; xchg bx, bx
 
     push esp
     pusha   ; regular register save
@@ -43,7 +44,20 @@ _irq_common_stub:
     ; clean up stack for iret 
     pop eax
     
-    jne _finalise_context_switch
+    je _irq_return
+    xchg bx, bx 
+    push eax 
+    mov eax, [esp + 4]
+    cmp eax, 32
+    pop eax 
+
+    je _begin_context_switch
+
+    jmp _irq_return
+
+    
+
+_irq_return:
     add esp, 8
 
     sti
@@ -51,7 +65,7 @@ _irq_common_stub:
 
 
 ; sets eip to newly running process 
-_finalise_context_switch:
+_begin_context_switch:
     add esp, 8
     jmp ctx_switch
     
