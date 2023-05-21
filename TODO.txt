@@ -5,14 +5,10 @@ process management:
 - implement proper scheduler 
 - testing for an arbitrary amount processes
 - fix kernel stack from gradually falling in address space due to context switching  
-- will need to reload MSR ESP0 on each context switch, so that process can execute on its own kernel stack on each system call
 - refactor
 
 system calls:
-- set up correct kernel stack pointer
-- return to user stack and resume execution
-- ability to pass in parameters to system call functions 
-- complete stdio interface (low priority)
+- complete stdio interface 
 - cleaner interface - look into other kernel designs 
 
 vmm

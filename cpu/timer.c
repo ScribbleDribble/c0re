@@ -18,18 +18,18 @@ static uint16_t get_gs() {
 
 void timer_callback(registers_t* regs) {
     tick++;
-    if (get_gs() == 0x23)
+    if (get_gs() == USER_DATA_SEGMENT)
     {
         pcb_t* cur_process = schedule(regs);
-        // klog("Process id: %i, esp0: 0x%x, tss->esp0: 0x%x", cur_process->pid, cur_process->esp0, tss_entry.esp0);
+        klog("Process id: %i, esp0: 0x%x, tss->esp0: 0x%x", cur_process->pid, cur_process->esp0, tss_entry.esp0);
     }
 }
 
 int configure_timer(unsigned int frequency) {
 
     if (frequency == 0) {
-        kputs("Cannot divide input clock by zero. Halting OS!");
-        return FAILURE_CODE;
+        kputs("[sys-timer]: Cannot divide input clock by zero. Halting OS!");
+        while (1);
     }
     
     register_interrupt_handler(IRQ0, &timer_callback);

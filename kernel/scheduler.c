@@ -3,26 +3,36 @@
 
 // prototype code to test multitasking 
 
-static uint16_t current_pid = 0;
+uint16_t current_pid = 0;
+
+uint16_t prev_pid = 0;
 
 static uint16_t n_procs = 0;
 
 uint32_t target_esp0 = 0;
 
 pcb_t* procs[250];
-// uint16_t procs[250]; 
 
 pcb_t* schedule(registers_t* context) {
 
     if (n_procs == 0) {
         procs[n_procs++] = init_process_management(context);
-        procs[n_procs++] = process_clone(procs[0], n_procs, 0);
+        procs[n_procs++] = process_clone(procs[0], n_procs, userspace_test2);
+        procs[n_procs++] = process_clone(procs[0], n_procs, userspace_test2);
+        procs[n_procs++] = process_clone(procs[0], n_procs, userspace_test2);
     }
 
-    current_pid = !current_pid;
-    update_pcb_and_tss_for_ctx_switch(procs[!current_pid], procs[current_pid]);
+    current_pid++;
+    if (current_pid == n_procs) {
+        current_pid = 0;
+        prev_pid = n_procs-1;
+    } else {
+        prev_pid = current_pid-1;
+    }
+
+    update_pcb_and_tss_for_ctx_switch(procs[prev_pid], procs[current_pid]);
     target_esp0 = procs[current_pid]->esp0;
-    klog("source esp0: 0x%x | target esp0 0x%x |", procs[!current_pid]->esp0, target_esp0);
+    klog("source esp0: 0x%x | target esp0 0x%x |\ncurrent pid: %i", procs[prev_pid]->esp0, procs[current_pid]->esp0, current_pid);
     return procs[current_pid];
 }   
 
@@ -31,7 +41,7 @@ void kstack_save(uint32_t new_esp0) {
     if (procs[!current_pid]->state == RUNNING) {
         klog("[Process] Should not perform ESP0 save on a running process!");
     }
-    klog("Saving stack for process pid: %i", procs[!current_pid]->pid);
+    klog("Saving stack for process pid: %i", procs[current_pid]->pid);
     update_esp0(procs[!current_pid], new_esp0);
 }
 

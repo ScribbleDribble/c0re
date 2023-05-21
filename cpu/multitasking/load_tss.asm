@@ -9,7 +9,7 @@ _tss_load:
 	ret
 
 ; sets up stack for new task (to be used by iret)
-; takes new ESP3 as parameter
+; takes new ESP3, ESP0, and EIP as args
 ; DS -> ESP (this should be user stack value) -> EFLAGS -> CS -> code entry point
 
 _setup_task:

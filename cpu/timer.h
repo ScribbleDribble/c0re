@@ -14,6 +14,7 @@
 #define PIT_CMD_PORT 0x43
 #define PIT_DATA_PORT 0x40
 #define REPEAT_CMD 0x36
+#define USER_DATA_SEGMENT 0x23
 
 int configure_timer(unsigned int frequency);
 #endif

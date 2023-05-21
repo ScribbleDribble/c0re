@@ -11,5 +11,7 @@ _puts:
     mov ebx, [esp + 4]
     mov edi, [esp] ; get EIP which is always at the top of the stack
     mov esi, esp
-    add esi, 4
+    add esi, RET_POP_SIZE  ; simulate ret instruction for when we call sysret
     sysenter
+
+RET_POP_SIZE equ 4

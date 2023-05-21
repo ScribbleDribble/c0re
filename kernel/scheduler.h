@@ -4,6 +4,7 @@
 
 #include <stdbool.h>
 #include "process.h"
+#include "../user/surface.h"
 
 
 pcb_t* schedule(registers_t* context);
