@@ -3,7 +3,7 @@
 
 // prototype code to test multitasking 
 
-uint16_t current_pid = 0;
+uint8_t current_pid = 0;
 
 uint16_t prev_pid = 0;
 
@@ -18,8 +18,8 @@ pcb_t* schedule(registers_t* context) {
     if (n_procs == 0) {
         procs[n_procs++] = init_process_management(context);
         procs[n_procs++] = process_clone(procs[0], n_procs, userspace_test2);
-        procs[n_procs++] = process_clone(procs[0], n_procs, userspace_test2);
-        procs[n_procs++] = process_clone(procs[0], n_procs, userspace_test2);
+        // procs[n_procs++] = process_clone(procs[0], n_procs, userspace_test2);
+        // procs[n_procs++] = process_clone(procs[0], n_procs, userspace_test2);
     }
 
     current_pid++;

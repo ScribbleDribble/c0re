@@ -1,6 +1,5 @@
 
 process management: 
-- separate kernel and user stacks
 - swap out process address space on context switch 
 - implement proper scheduler 
 - testing for an arbitrary amount processes
@@ -20,7 +19,7 @@ pmm
 - *long term* Increase available memory to 256MB
 - add tests. ensure initialisation, bitmap array, allocation and freeing are correct
 
-interrupts.c 
+trap.c 
 - merge idt.c, isr.c, irq.c
 
 

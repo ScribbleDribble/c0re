@@ -5,17 +5,17 @@ idt_entry_t idt[256];
 idt_descriptor_t idt_descriptor;
 
 
-// typedef struct register_state {
-//     uint32_t eax, esi, ebp;
-//     uint32_t esp, ebx, edx;
-//     uint32_t ecx, edi;
-
-// }register_state_t;
-
 
 uint32_t cr2_value = 0;
 extern _get_cr2_value();
 
+char** exception_desc[] = {   
+                        "Division Error", "Debug", "Non-maskable Interrupt", 
+                        "Breakpoint", "Overflow", "Bound Range Exceeded", "Invalid Opcode",
+                        "Device Not Available", "Double Fault", "Coprocessor Segment Overrun",
+                        "Invalid TSS", "Segment Not Present", "Stack-Segment Fault",
+                        "General Protection Fault", "Page Fault", "Reserved"
+};
 
 typedef struct interrupt_state_t {
     int no;
@@ -24,7 +24,7 @@ typedef struct interrupt_state_t {
 
 
 void interrupt_handler(registers_t regs, interrupt_state_t int_state) {
-    klog("Interrupt handler was called! Err no: 0x%x", int_state.no);  
+    klog("ISR 0x%x: %s", int_state.no, exception_desc[int_state.no]);  
 }
 
 void init_idt() {

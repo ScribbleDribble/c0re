@@ -120,6 +120,9 @@
 #include "vmm.h"
 #include "string.h"
 
+uint32_t** page_dirs;
+uint32_t** page_tables;
+
 
 uint32_t* page_table;
 uint32_t* page_directory;
@@ -217,7 +220,7 @@ uint32_t
     
 }
 
-// links page directories to expected address of page tables
+// links page directories to expected address of page tables. sets up first page table.
 // identity maps lower addressable memory (<1MB) within the root page table - also built here
 void init_paging_structures() {
     int i;     
@@ -228,7 +231,7 @@ void init_paging_structures() {
             page_table[i] = create_pte(0,1,1,0,0,0,0,0,0,0, 0);
         }
     }
-    for (i = 0; i < MAX_PD_COUNT; i++) {
+    for (i = 0; i < MAX_PDE_COUNT; i++) {
         if (i == 0) {
             page_directory[i] = create_pde(1,1,1,0,0,0,0,0, (uint32_t) page_table);
         } else {
@@ -246,7 +249,7 @@ void vmm_init() {
     create_page_table(KERNEL_PD_INDEX);
 }
 
-void create_page_table(uint16_t pd_index) {
+void create_page_table(uint16_t pd_index) {    
     // since every page table is continguous, find offset to page table start
     int i = MAX_PTE_COUNT*pd_index;
     // calculate end of page table address and iterate till then
