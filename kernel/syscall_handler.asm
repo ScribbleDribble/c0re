@@ -43,7 +43,6 @@ _enable_syscall:
 ; sets kernel stack for syscall. must be the kernel stack for the process
 ; ESP0 - eax 
 _set_sysenter_esp
-    xchg bx, bx 
     pusha 
     mov eax, [esp + 32 + 4] ; go up the stack, past saved registers, to retrieve argument 1
     

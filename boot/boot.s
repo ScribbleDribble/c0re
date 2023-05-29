@@ -17,6 +17,8 @@ forced to be within the first 8 KiB of the kernel file.
 .long MAGIC
 .long FLAGS
 .long CHECKSUM
+
+
  
 /*
 The multiboot standard does not define the value of the stack pointer register
@@ -76,7 +78,63 @@ _start:
 	C++ features such as global constructors and exceptions will require
 	runtime support to work as well.
 	*/
- 
+
+	_init_page_table:
+	mov $(0x42000), %eax 
+	mov $0, %ecx 
+	mov $0, %ebx 
+
+	_fill_page_table:
+		cmp $(1024), %ecx
+		je _init_page_directory
+
+		mov %ebx, (%eax)
+		
+		or $7, (%eax) 
+
+		_next_iter:
+		add $(0x1000), %ebx
+		add $4, %eax
+		inc %ecx
+		jmp _fill_page_table
+
+
+	_init_page_directory:	
+	mov $(0), %ecx
+	mov $(0x21000), %eax	
+	mov $(0x42000), %ebx	
+
+	_fill_page_directory:
+		cmp $(1024), %ecx
+		je _finalise_page_table
+
+		cmp $(0), %ecx
+		je _set_present_page_table_entries
+			mov %ebx, (%eax)
+			inc %ecx
+			add $(1024*4), %ebx
+			add $(4), %eax
+			jmp _fill_page_directory
+		
+		_set_present_page_table_entries:
+			or $(7), %ebx
+			mov %ebx, (%eax)
+			xor $(7), %ebx 
+			inc %ecx
+			add $(1024*4), %ebx
+			add $4, %eax
+			jmp _fill_page_directory
+
+
+	_finalise_page_table:
+		mov $(0x21000), %eax
+		mov %eax, %cr3
+		mov %cr0, %eax 
+		or $(0x80000001), %eax
+		mov %eax, %cr0 
+
+	
+
 	/*
 	Enter the high-level kernel. The ABI requires the stack is 16-byte
 	aligned at the time of the call instruction (which afterwards pushes
@@ -108,3 +166,4 @@ Set the size of the _start symbol to the current location '.' minus its start.
 This is useful when debugging or when you implement call tracing.
 */
 .size _start, . - _start
+

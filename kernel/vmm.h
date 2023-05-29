@@ -30,6 +30,9 @@
 
 #define VMM_PRESENT 1
 
+#define KERNEL_BASE 0x3BA00000 // 1GB mark
+
+
 
 uint32_t create_pde(
     bool present,

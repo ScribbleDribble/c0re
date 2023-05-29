@@ -235,7 +235,7 @@ void init_paging_structures() {
         if (i == 0) {
             page_directory[i] = create_pde(1,1,1,0,0,0,0,0, (uint32_t) page_table);
         } else {
-            page_directory[i] = create_pde(0,1,1,0,0,0,0,0, (uint32_t) PT_BASE_ADDR + MAX_PTE_COUNT*i*4);
+            page_directory[i] = create_pde(0,1,1,0,0,0,0,0, (uint32_t) PT_BASE_ADDR + MAX_PTE_COUNT*i*PTE_SIZE_BYTES);
         }
     }
 }
@@ -245,8 +245,7 @@ void vmm_init() {
     pmm_init();
     page_table = (uint32_t*) PT_BASE_ADDR;
     page_directory = (uint32_t*) PD_BASE_ADDR;
-    init_paging_structures();
-    create_page_table(KERNEL_PD_INDEX);
+    create_page_table(KERNEL_PD_INDEX);   
 }
 
 void create_page_table(uint16_t pd_index) {    
