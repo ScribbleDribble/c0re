@@ -15,13 +15,12 @@ extern void switch_to_userspace(void);
 extern void _tss_load(void);
 extern void _invalidate_pde0(void);
 
-void kmain(void) {
+void kmain(uint32_t* boot_page_dir, uint32_t* boot_page_table) {
 
 	init_gdt();
 
 
-	// vmm_init();
-	// // _enable_paging();
+	vmm_init(boot_page_dir, boot_page_table);
 	// klog("Micah's OS");
 
 	// init_idt();

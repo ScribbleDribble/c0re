@@ -91,9 +91,9 @@ TEST_F(VMMTest, TestPallocAddresses) {
     // test creation of 2nd page directory entry with 3 allocations
 
     int n_allocs = 1;
-    int pd_index = KERNEL_PD_INDEX;
+    int pd_index = KERNEL_HEAP_PD_IDX;
 
-    create_page_table(KERNEL_PD_INDEX);
+    create_page_table(KERNEL_HEAP_PD_IDX);
     int allocated_vaddress = palloc(pd_index, n_allocs);
     
     EXPECT_EQ(allocated_vaddress, pd_index * PT_SIZE_BYTES);

@@ -41,7 +41,6 @@ stack_top:
  
 .section .bss, "aw", @nobits
 
-.global boot_page_dir
 .align 0x1000
 boot_page_dir:
 	.skip 0x1000
@@ -198,7 +197,9 @@ _start:
 	mov %cr3, %ecx
 	mov %ecx, %cr3
 	
-	
+	push $(boot_page_table)
+	push $(boot_page_dir)
+
 	call kmain
  
 	/*

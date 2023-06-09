@@ -26,11 +26,12 @@
 #define SET_PRESENT(entry) (entry |= 1)
 #define IS_PRESENT(entry) (entry & 1)
 
-#define KERNEL_PD_INDEX 1 
+#define KERNEL_BINARY_PD_IDX 0xC0 // 0xC0 is PDE containing 
+#define KERNEL_HEAP_PD_IDX KERNEL_BINARY_PD_IDX + 1
 
 #define VMM_PRESENT 1
 
-#define KERNEL_BASE 0x3BA00000 // 1GB mark
+#define KERNEL_VIRT_BASE 0x30000000 // 1GB mark
 
 
 
@@ -59,7 +60,7 @@ uint32_t create_pte(
     const uint32_t page_frame_addr
 );
 
-void vmm_init(void);
+void vmm_init(uint32_t* boot_page_dir, uint32_t* boot_page_table);
 
 void init_page_directory(void);
 void create_page_table(uint16_t pd_index);

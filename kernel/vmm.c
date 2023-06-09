@@ -241,11 +241,11 @@ void init_paging_structures() {
 }
 
 
-void vmm_init() {
+void vmm_init(uint32_t* boot_page_dir, uint32_t* boot_page_table) {
     pmm_init();
-    page_table = (uint32_t*) PT_BASE_ADDR;
-    page_directory = (uint32_t*) PD_BASE_ADDR;
-    create_page_table(KERNEL_PD_INDEX);   
+    page_table = boot_page_table;
+    page_directory = boot_page_dir;
+    create_page_table(KERNEL_HEAP_PD_IDX);   
 }
 
 void create_page_table(uint16_t pd_index) {    
