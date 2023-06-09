@@ -41,6 +41,7 @@ stack_top:
  
 .section .bss, "aw", @nobits
 
+.global boot_page_dir
 .align 0x1000
 boot_page_dir:
 	.skip 0x1000
@@ -78,7 +79,7 @@ _start:
 	stack (as it grows downwards on x86 systems). This is necessarily done
 	in assembly as languages such as C cannot function without a stack.
 	*/
-	mov $(0x90000), %esp
+	mov $(0x30150000), %esp
 
 
 	/*
@@ -97,7 +98,7 @@ _start:
 	mov $0, %ecx 
 	mov $0, %ebx /* cur page frame offset */
 	mov $0, %edx /** offset index **/
-	mov $((boot_page_table + 0x30100*4) - 0x30000000), %edi /** kernel offset **/
+	mov $((boot_page_table + 0x30000*4) - 0x30000000), %edi /** kernel offset **/
 
 	/* point to start of kernel offset in page table */
 	/* add %eax, %edi */
@@ -106,21 +107,11 @@ _start:
 		cmp $(1024), %ecx
 		je _init_page_directory
 
-		cmp $(0x100000), %ebx /* kernel binary range */
-		jl _non_kernel_binary
 		cmp $(0x200000), %ebx
 		jge _init_page_directory
 
 		jmp _kernel_higher_half_and_identity_mapping
 
-		_non_kernel_binary:
-		mov %ebx, (%eax) 	/* set page frame address */
-		or $7, (%eax) 	/* set page flags */
-
-		add $(0x1000), %ebx 	/* increment page frame offset*/
-		add $4, %eax 	/* point eax to next PTE */
-		inc %ecx		/* increment loop counter */
-		jmp _fill_page_table
 
 		_kernel_higher_half_and_identity_mapping:
 		/* higher half mapping */
@@ -199,11 +190,15 @@ _start:
 	preserved and the call is well defined.
 	*/
 
-	/*
-	; mov $(boot_page_dir), %eax
-	; mov $(0), %ebx
-	; mov %ebx, (%eax)
-*/
+	
+	mov $(boot_page_dir), %eax
+	mov $(0), %ebx
+	mov %ebx, (%eax)
+
+	mov %cr3, %ecx
+	mov %ecx, %cr3
+	
+	
 	call kmain
  
 	/*

@@ -13,13 +13,12 @@ extern void _enable_paging(void);
 extern void _enable_syscall(void);
 extern void switch_to_userspace(void);
 extern void _tss_load(void);
-
+extern void _invalidate_pde0(void);
 
 void kmain(void) {
-	// kputs("yo?");
-	// clear_screen();
 
-	// init_gdt();
+	init_gdt();
+
 
 	// vmm_init();
 	// // _enable_paging();

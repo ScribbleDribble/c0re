@@ -2,10 +2,13 @@
 extern vmm_init
 extern page_directory
 extern cr2_value
+extern boot_page_dir
 
 global _enable_paging
 global _get_cr2_value
 global _simulate_gpf
+global _invalidate_pde0
+
 
 ; _enable_paging:
 ;     xchg bx, bx
