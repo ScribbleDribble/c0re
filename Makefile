@@ -7,7 +7,6 @@ ASM_OBJ = $(ASM_SOURCES:.asm=.o)
 
 all : bin/kernel.elf bin/boot_sector.bin bin/myos.bin
 	objcopy -O binary bin/kernel.elf bin/kernel.bin
-	cat bin/boot_sector.bin bin/kernel.bin > bin/os_image
 	cp bin/myos.bin isodir/boot/myos.bin
 	cp boot/grub.cfg isodir/boot/grub/grub.cfg
 	grub-mkrescue -o bin/myos.iso isodir
@@ -18,8 +17,6 @@ run : bin/myos.bin
 
 run-iso : bin/myos.iso 
 	qemu-system-x86_64 -cdrom bin/myos.iso
-
-
 
 debug: bin/kernel.elf bin/boot_sector.bin
 	qemu-system-x86_64 -s -S --kernel bin/kernel.elf &

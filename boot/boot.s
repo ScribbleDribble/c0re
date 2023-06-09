@@ -4,7 +4,7 @@
 .set FLAGS,    ALIGN | MEMINFO  /* this is the Multiboot 'flag' field */
 .set MAGIC,    0x1BADB002       /* 'magic number' lets bootloader find the header */
 .set CHECKSUM, -(MAGIC + FLAGS) /* checksum of above, to prove we are multiboot */
- 
+
 /* 
 Declare a multiboot header that marks the program as a kernel. These are magic
 values that are documented in the multiboot standard. The bootloader will
@@ -17,6 +17,7 @@ forced to be within the first 8 KiB of the kernel file.
 .long MAGIC
 .long FLAGS
 .long CHECKSUM
+
 
 
  
@@ -38,6 +39,18 @@ stack_bottom:
 .skip 16384 # 16 KiB
 stack_top:
  
+.section .bss, "aw", @nobits
+
+.align 0x1000
+boot_page_dir:
+	.skip 0x1000
+.align 0x1000
+boot_page_table:
+	.skip 0x1000
+
+# map page table when
+
+
 /*
 The linker script specifies _start as the entry point to the kernel and the
 bootloader will jump to this position once the kernel has been loaded. It
@@ -80,29 +93,54 @@ _start:
 	*/
 
 	_init_page_table:
-	mov $(0x42000), %eax 
+	mov $(boot_page_table - 0x30000000), %eax 
 	mov $0, %ecx 
-	mov $0, %ebx 
+	mov $0, %ebx /* cur page frame offset */
+	mov $0, %edx /** offset index **/
+	mov $((boot_page_table + 0x30100*4) - 0x30000000), %edi /** kernel offset **/
+
+	/* point to start of kernel offset in page table */
+	/* add %eax, %edi */
 
 	_fill_page_table:
 		cmp $(1024), %ecx
 		je _init_page_directory
 
-		mov %ebx, (%eax)
-		
-		or $7, (%eax) 
+		cmp $(0x100000), %ebx /* kernel binary range */
+		jl _non_kernel_binary
+		cmp $(0x200000), %ebx
+		jge _init_page_directory
 
-		_next_iter:
-		add $(0x1000), %ebx
-		add $4, %eax
-		inc %ecx
+		jmp _kernel_higher_half_and_identity_mapping
+
+		_non_kernel_binary:
+		mov %ebx, (%eax) 	/* set page frame address */
+		or $7, (%eax) 	/* set page flags */
+
+		add $(0x1000), %ebx 	/* increment page frame offset*/
+		add $4, %eax 	/* point eax to next PTE */
+		inc %ecx		/* increment loop counter */
 		jmp _fill_page_table
 
+		_kernel_higher_half_and_identity_mapping:
+		/* higher half mapping */
+		mov %ebx, (%edi) 
+		or $7, (%edi)
+
+		/* ID mapping */
+		mov %ebx, (%eax) 
+		or $7, (%eax)	
+
+		add $(0x1000), %ebx
+		add $4, %edi
+		add $4, %eax
+		inc %ecx 
+		jmp _fill_page_table
 
 	_init_page_directory:	
 	mov $(0), %ecx
-	mov $(0x21000), %eax	
-	mov $(0x42000), %ebx	
+	mov $(boot_page_dir-0x30000000), %eax	
+	mov $(boot_page_table-0x30000000), %ebx	
 
 	_fill_page_directory:
 		cmp $(1024), %ecx
@@ -110,6 +148,10 @@ _start:
 
 		cmp $(0), %ecx
 		je _set_present_page_table_entries
+		
+		cmp $(0xC0), %ecx
+		je _set_present_page_table_entries
+
 			mov %ebx, (%eax)
 			inc %ecx
 			add $(1024*4), %ebx
@@ -127,14 +169,27 @@ _start:
 
 
 	_finalise_page_table:
-		mov $(0x21000), %eax
+		mov $(boot_page_dir-0x30000000), %eax
 		mov %eax, %cr3
 		mov %cr0, %eax 
 		or $(0x80000001), %eax
 		mov %eax, %cr0 
-
+		
+/* 	
+	store address of start of text section using the lea instruction which loads the address of a label. 
+	In our linker script, we defined the base address of .section .text as (0x30100000)
 	
+	now we get to the reason why we identity mapped our kernel earlier. 
+	We are still executing instructions in lower addressable memory (because we haven't jumped yet and you wouldn't jump before enabling paging)
+	This is why we needed to ID map the kernel
 
+*/  
+	xchg %bx, %bx
+	lea 4f, %ecx 
+	jmp *%ecx  
+
+.section .text
+4:
 	/*
 	Enter the high-level kernel. The ABI requires the stack is 16-byte
 	aligned at the time of the call instruction (which afterwards pushes
@@ -143,6 +198,12 @@ _start:
 	stack since (pushed 0 bytes so far), so the alignment has thus been
 	preserved and the call is well defined.
 	*/
+
+	/*
+	; mov $(boot_page_dir), %eax
+	; mov $(0), %ebx
+	; mov %ebx, (%eax)
+*/
 	call kmain
  
 	/*
