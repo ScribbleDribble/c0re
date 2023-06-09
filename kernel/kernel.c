@@ -16,34 +16,21 @@ extern void _tss_load(void);
 extern void _invalidate_pde0(void);
 
 void kmain(uint32_t* boot_page_dir, uint32_t* boot_page_table) {
-
+	clear_screen();
 	init_gdt();
-
-
 	vmm_init(boot_page_dir, boot_page_table);
-	// klog("Micah's OS");
+	klog("Micah's OS");
 
-	// init_idt();
+	init_idt();
 
-	// init_drivers(); 
+	init_drivers(); 
 	// // asm ("xchg %bx, %bx");
 
-	// _tss_load();
+	_tss_load();
 
-	// _enable_syscall();
+	_enable_syscall();
 
-	// int a = 10;
-
-	// klog("The address is: %i", (uint32_t) &a);
-
-	// int i;
-	// uint32_t* pd = (uint32_t*) PD_BASE_ADDR;
-
-	// for (i = 0; i < 10; i++) {
-	// 	klog("pde index %i with address: 0x%x with contents 0x%x", i, (uint32_t) (pd + i), pd[i]);
-	// }
-
-	// switch_to_userspace();
+	switch_to_userspace();
 
 
 
