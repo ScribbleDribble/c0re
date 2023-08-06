@@ -174,7 +174,6 @@ _start:
 	This is why we needed to ID map the kernel
 
 */  
-	xchg %bx, %bx
 	lea 4f, %ecx 
 	jmp *%ecx  
 
@@ -189,11 +188,10 @@ _start:
 	preserved and the call is well defined.
 	*/
 
-	
+	/* remove ID mapped kernel as we no longer need it */
 	mov $(boot_page_dir), %eax
 	mov $(0), %ebx
 	mov %ebx, (%eax)
-
 	mov %cr3, %ecx
 	mov %ecx, %cr3
 	

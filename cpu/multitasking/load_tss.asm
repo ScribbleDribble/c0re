@@ -13,7 +13,7 @@ _tss_load:
 ; DS -> ESP (this should be user stack value) -> EFLAGS -> CS -> code entry point
 
 _setup_task:
-
+	; xchg bx, bx 
 	mov eax, esp
 	mov esi, [esp + 4]
 	mov esp, [esp + 8] ; esp is now set to new task's ESP0

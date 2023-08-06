@@ -4,10 +4,10 @@
 #include "irq.h"
 #include "isr.h"
 #include "timer.h"
-#include "../common/types.h"
 #include "../kernel/string.h"
 #include "../drivers/vga.h"
 #include "../kernel/scheduler.h"
+#include "../kernel/vmm.h"
 
 #define IDT_GATE_FLAGS 0x8E
 

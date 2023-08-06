@@ -7,6 +7,6 @@
 #include "../user/surface.h"
 
 
-pcb_t* schedule(registers_t* context);
+pcb_t* schedule(irq_registers_t* context);
 
 #endif 

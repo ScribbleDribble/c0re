@@ -3,8 +3,12 @@
 
 #include "port_io.h"
 #include "../kernel/string.h"
-#include "../common/types.h"
+#include "../drivers/vga.h"
 #include <stdint.h>
+
+typedef struct irq_registers_t {
+    int EAX, ECX, EDX, EBX, ESP, EBP, ESI, EDI, EIP;
+}irq_registers_t;
 
 #define PIC_MAIN_START_INDEX 32
 #define IRQ0 32
@@ -54,6 +58,6 @@ extern void _irq1(void);
 
 void irq_remap(void);
 
-void register_interrupt_handler(uint8_t index, void (*handler) (registers_t*));
+void register_interrupt_handler(uint8_t index, void (*handler) (irq_registers_t*));
 
 #endif

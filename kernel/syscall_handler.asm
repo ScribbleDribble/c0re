@@ -30,7 +30,7 @@ _enable_syscall:
     
     wrmsr
 
-    mov eax, [KSTACK_BASE] ; TODO pls use kernel stack pointer for the initial process
+    mov eax, [KSTACK_BASE] 
     mov edx, 0x0
     mov ecx, IA32_SYSENTER_ESP
 

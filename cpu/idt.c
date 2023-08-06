@@ -9,7 +9,7 @@ idt_descriptor_t idt_descriptor;
 uint32_t cr2_value = 0;
 extern _get_cr2_value();
 
-char** exception_desc[] = {   
+const char* exception_desc[] = {   
                         "Division Error", "Debug", "Non-maskable Interrupt", 
                         "Breakpoint", "Overflow", "Bound Range Exceeded", "Invalid Opcode",
                         "Device Not Available", "Double Fault", "Coprocessor Segment Overrun",

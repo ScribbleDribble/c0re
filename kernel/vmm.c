@@ -119,9 +119,10 @@
 */
 #include "vmm.h"
 #include "string.h"
+#include "../common/debug.h"
 
-uint32_t** page_dirs;
-uint32_t** page_tables;
+uint32_t* page_dirs[250];
+uint32_t* page_tables[250];
 
 
 uint32_t* page_table;
@@ -220,31 +221,12 @@ uint32_t
     
 }
 
-// links page directories to expected address of page tables. sets up first page table.
-// identity maps lower addressable memory (<1MB) within the root page table - also built here
-void init_paging_structures() {
-    int i;     
-    for (i = 0; i < MAX_PTE_COUNT; i++) {
-        if (PAGE_SIZE*i < PHYS_BASE) {
-            page_table[i] = create_pte(1,1,1,0,0,0,0,0,0,0, i*PAGE_SIZE);
-        } else { 
-            page_table[i] = create_pte(0,1,1,0,0,0,0,0,0,0, 0);
-        }
-    }
-    for (i = 0; i < MAX_PDE_COUNT; i++) {
-        if (i == 0) {
-            page_directory[i] = create_pde(1,1,1,0,0,0,0,0, (uint32_t) page_table);
-        } else {
-            page_directory[i] = create_pde(0,1,1,0,0,0,0,0, (uint32_t) PT_BASE_ADDR + MAX_PTE_COUNT*i*PTE_SIZE_BYTES);
-        }
-    }
-}
-
-
 void vmm_init(uint32_t* boot_page_dir, uint32_t* boot_page_table) {
     pmm_init();
     page_table = boot_page_table;
     page_directory = boot_page_dir;
+    page_tables[0] = page_table;
+    page_dirs[0] = page_directory;
     create_page_table(KERNEL_HEAP_PD_IDX);   
 }
 
@@ -254,9 +236,35 @@ void create_page_table(uint16_t pd_index) {
     // calculate end of page table address and iterate till then
     int end_offset = (pd_index*MAX_PTE_COUNT)+MAX_PTE_COUNT;
     for (; i < end_offset; i++) {
-        page_table[i] = create_pte(0,1,0,0,0,0,0,0,0,0, 0);
+        page_table[i] = create_pte(0,0,0,0,0,0,0,0,0,0, 0);
     }
-    page_directory[pd_index] |= VMM_PRESENT;
+    page_directory[pd_index] |= 0x3;
+}
+
+// returns the page directory of new process
+uint32_t* clone_page_structures(uint16_t src_pid, uint16_t dest_pid) {
+    // verify new pd starts at 4MB + 4kb from prev pt
+    uint32_t* dest_pd = page_dirs[0] + (MAX_PDE_COUNT*4 + MAX_PTE_COUNT*4*1024) * dest_pid;
+    uint32_t* src_pd = page_dirs[src_pid];
+
+    klog("src_pd: 0x%x", (uint32_t) src_pd);
+
+    BREAKPOINT;
+
+    uint32_t* dest_page_table = page_tables[0] + (PT_SIZE_BYTES * MAX_PDE_COUNT) * dest_pid;
+    uint32_t* src_page_table = page_tables[src_pid];
+
+    // if src = 0 and dest = 1 then it should be an additional 0x400,000
+    klog("dest_page_table: 0x%x", (uint32_t) dest_page_table);
+
+    page_dirs[dest_pid] = dest_pd;
+    page_tables[dest_pid] = dest_page_table;
+
+
+    memory_copy(dest_pd, src_pd, MAX_PDE_COUNT*4);
+    memory_copy(dest_page_table, src_page_table, PT_SIZE_BYTES*MAX_PDE_COUNT);
+
+    return dest_pd;
 }
 
 // returns first vaddress of contingous n page allocation
@@ -274,6 +282,7 @@ uint32_t palloc(uint16_t pd_index, int n_allocs) {
         if (!IS_PRESENT(page_table[i])) {
             SET_PRESENT(page_table[i]);
             SET_ADDR(page_table[i]);
+            page_table[i] |= 0x2;
             n_allocs -= 1;
             if (first_pte_index == -1) {
                 first_pte_index = i - start;
@@ -311,9 +320,7 @@ int mem_map(uint32_t vaddr) {
     return -1;
 }
 
-void handle_page_fault(uint32_t vaddr) {
-    
-}
+
 
 // getting the vaddr from a page table is only a matter of finding page's offset. e.g. vaddr = 0x401000
 // to find its page, PT 1 ends at 0x400000 (4MB) so its in the second offset of PT 2 (1000-2000)

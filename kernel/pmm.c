@@ -50,7 +50,3 @@ void pmm_init() {
         bitmap[i] = FREE;
     }
 }
-
-uint32_t pmm_get_bitmap_tail() {
-    return tail;
-}

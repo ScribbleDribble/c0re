@@ -14,7 +14,6 @@ _irq0:
 
 _irq1:
     cli 
-    xchg bx, bx
     push byte 0
     push byte 33
     jmp _irq_common_stub
@@ -22,12 +21,10 @@ _irq1:
 
 ; TODO implement the other irqs
 
-_irq_common_stub:
-	; xchg bx, bx
-
+_irq_common_stub:    
+    ; push dword [esp+8]
     push esp
     pusha   ; regular register save
-    ; pushad  ; ext reg save
     mov ax, 10
 
     call process_hardware_interrupt
@@ -35,8 +32,7 @@ _irq_common_stub:
 
     popa  
     pop esp
-    ; popad
-
+    ; add esp, 4
 
     push eax 
     mov eax, [target_esp0]

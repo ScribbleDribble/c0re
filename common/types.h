@@ -4,7 +4,7 @@
 #include <stdint.h>
 
 typedef struct registers_t {
-    int AX, CX, DX, BX, SP, BP, SI, DI, ESP;
+    int AX, CX, DX, BX, SP, BP, SI, DI;
 }registers_t;
 
 

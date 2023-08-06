@@ -13,11 +13,11 @@ uint32_t target_esp0 = 0;
 
 pcb_t* procs[250];
 
-pcb_t* schedule(registers_t* context) {
+pcb_t* schedule(irq_registers_t* context) {
 
     if (n_procs == 0) {
         procs[n_procs++] = init_process_management(context);
-        procs[n_procs++] = process_clone(procs[0], n_procs, userspace_test2);
+        procs[n_procs++] = process_clone(procs[0], n_procs, context);
         // procs[n_procs++] = process_clone(procs[0], n_procs, userspace_test2);
         // procs[n_procs++] = process_clone(procs[0], n_procs, userspace_test2);
     }
@@ -41,8 +41,8 @@ void kstack_save(uint32_t new_esp0) {
     if (procs[!current_pid]->state == RUNNING) {
         klog("[Process] Should not perform ESP0 save on a running process!");
     }
-    klog("Saving stack for process pid: %i", procs[current_pid]->pid);
-    update_esp0(procs[!current_pid], new_esp0);
+    klog("Saving stack for process pid: %i", procs[prev_pid]->pid);
+    pcb_update_esp0(procs[prev_pid], new_esp0);
 }
 
 
