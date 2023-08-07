@@ -27,8 +27,8 @@ typedef struct pcb_t {
 extern _setup_task(uint32_t esp3, uint32_t esp0, uint32_t eip);
 
 uint32_t context_switch(pcb_t* src_pcb, pcb_t* dest_pcb);
-pcb_t* create_pcb_from_context(const uint8_t pid, const irq_registers_t* context);
-pcb_t* process_clone(pcb_t* src_pcb, int n_procs, irq_registers_t* context, interrupt_state_t* int_state);
+pcb_t* create_pcb_from_context(const uint8_t pid, const registers_t* context);
+pcb_t* process_clone(pcb_t* src_pcb, int n_procs, const registers_t* context, interrupt_state_t* int_state);
 void pcb_update_esp0(pcb_t* pcb, uint32_t new_esp0);
 
 #endif 

@@ -9,7 +9,7 @@ const int USTACK_BASE = 0x30160000;
 
 
 
-pcb_t* init_process_management(const irq_registers_t* registers) {
+pcb_t* init_process_management(const registers_t* registers) {
     return create_pcb_from_context(0, registers);
 }
 
@@ -21,7 +21,7 @@ uint32_t update_pcb_and_tss_for_ctx_switch(pcb_t* src_pcb, pcb_t* dest_pcb) {
 }
 
 // to be called for the first process
-pcb_t* create_pcb_from_context(const uint8_t pid, const irq_registers_t* context) {
+pcb_t* create_pcb_from_context(const uint8_t pid, const registers_t* context) {
     pcb_t* pcb = (pcb_t*)kmalloc(sizeof(pcb_t));
     pcb->state = RUNNING;
     pcb->pid = pid;
@@ -30,7 +30,7 @@ pcb_t* create_pcb_from_context(const uint8_t pid, const irq_registers_t* context
     return pcb;
 }
 
-pcb_t* process_clone(pcb_t* src_pcb, int n_procs, irq_registers_t* context, interrupt_state_t* int_state) {
+pcb_t* process_clone(pcb_t* src_pcb, int n_procs, const registers_t* context, interrupt_state_t* int_state) {
 
     pcb_t* new_pcb = (pcb_t*) kmalloc(sizeof(pcb_t));    
     memory_set(new_pcb, 0, sizeof(new_pcb));
@@ -44,7 +44,7 @@ pcb_t* process_clone(pcb_t* src_pcb, int n_procs, irq_registers_t* context, inte
 
 // helper function to create stack with the following entries for iret (interrupt return)
 // DS -> ESP (this should be user stack value) -> EFLAGS -> CS -> code entry point
-void setup_kernel_stack(uint32_t kstack_base, irq_registers_t* context, interrupt_state_t* int_state, uint32_t user_stack_base) {
+void setup_kernel_stack(uint32_t kstack_base, const registers_t* context, interrupt_state_t* int_state, uint32_t user_stack_base) {
     const int n_pusha_regs = 8;
     const int context_offset_bytes = 5 * sizeof(uint32_t);
     uint32_t upper_stack_setup[] = {int_state->eip, int_state->cs, 0x202, user_stack_base, 0x10};

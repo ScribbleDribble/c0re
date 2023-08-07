@@ -13,7 +13,7 @@ uint32_t target_esp0 = 0;
 
 pcb_t* procs[250];
 
-pcb_t* schedule(irq_registers_t* context, interrupt_state_t* int_state) {
+pcb_t* schedule(const registers_t* context, interrupt_state_t* int_state) {
     if (n_procs == 0) {
         procs[n_procs++] = init_process_management(context);
         procs[n_procs++] = process_clone(procs[0], n_procs, context, int_state);

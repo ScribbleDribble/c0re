@@ -24,14 +24,12 @@ _irq1:
 _irq_common_stub: 
     xchg bx, bx
 
-    push dword [esp+8]
     pusha   ; regular register save
     mov ax, 10
 
     call process_hardware_interrupt
 
     popa  
-    add esp, 4
 
     push eax 
     mov eax, [target_esp0]
