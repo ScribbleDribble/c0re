@@ -55,10 +55,7 @@ void process_hardware_interrupt(irq_registers_t regs, interrupt_state_t int_stat
         port_byte_write(PIC_SECONDARY_CMD_PORT, PIC_SUCCESS_CODE); // send signal to secondary pic that we have handled irq
     }
     port_byte_write(PIC_MAIN_CMD_PORT, PIC_SUCCESS_CODE);
-    char buf[32];
-    // int_to_str(int_state.no, buf, 32);
-    // kputs(buf);
-    // asm("xchg %bx, %bx");
+    
     if (interrupt_handlers[int_state.no] != 0) {
         irq_handler_func_t handler;
         handler = interrupt_handlers[int_state.no];

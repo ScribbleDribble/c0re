@@ -6,6 +6,7 @@
 #include "kmalloc/kmalloc.h"
 #include "../cpu/irq.h"
 #include "string.h"
+#include "memory_defs.h"
 
 #define MAX_PROCESSES_COUNT 256
 // each process to have 
@@ -23,7 +24,7 @@ typedef struct pcb_t {
 
 }__attribute__((packed)) pcb_t;
 
-extern _setup_task(uint32_t esp3, uint32_t esp0);
+extern _setup_task(uint32_t esp3, uint32_t esp0, irq_registers_t* context);
 
 uint32_t context_switch(pcb_t* src_pcb, pcb_t* dest_pcb);
 pcb_t* create_pcb_from_context(const uint8_t pid, const irq_registers_t* context);

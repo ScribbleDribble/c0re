@@ -21,18 +21,17 @@ _irq1:
 
 ; TODO implement the other irqs
 
-_irq_common_stub:    
-    ; push dword [esp+8]
-    push esp
+_irq_common_stub: 
+    xchg bx, bx
+
+    push dword [esp+8]
     pusha   ; regular register save
     mov ax, 10
 
     call process_hardware_interrupt
-    ; xchg bx, bx
 
     popa  
-    pop esp
-    ; add esp, 4
+    add esp, 4
 
     push eax 
     mov eax, [target_esp0]

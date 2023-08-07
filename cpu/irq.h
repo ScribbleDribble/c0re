@@ -5,6 +5,7 @@
 #include "../kernel/string.h"
 #include "../drivers/vga.h"
 #include <stdint.h>
+#include "../common/types.h"
 
 typedef struct irq_registers_t {
     int EAX, ECX, EDX, EBX, ESP, EBP, ESI, EDI, EIP;
