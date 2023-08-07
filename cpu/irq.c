@@ -30,35 +30,28 @@ void irq_remap() {
 
 }
 
-typedef void (*irq_handler_func_t) (irq_registers_t*); // type of func ptr is just irq_handler
+typedef void (*irq_handler_func_t) (irq_registers_t*, interrupt_state_t*); // type of func ptr is just irq_handler
 
 irq_handler_func_t interrupt_handlers[256];
 
 
-void register_interrupt_handler(uint8_t index, void (*handler) (irq_registers_t*)) {
+void register_interrupt_handler(uint8_t index, void (*handler) (irq_registers_t*, interrupt_state_t*)) {
     interrupt_handlers[index] = handler;
 }
 
-// maybe push more registers to the stack if we need the data
-typedef struct interrupt_state_t {
-    int no;
-    int err_code;
-}interrupt_state_t;
 
 
 // handler for all irqs. calls handler specific to irq
 void process_hardware_interrupt(irq_registers_t regs, interrupt_state_t int_state) {
-    // klog("ax: 0x%x, dx: 0x%x, int_state: %i", regs.AX, regs.DX ,int_state); // remove for temporary debugging until we have process synchronisation
-
     if (int_state.no >= PIC_SECONDARY_START_INDEX)
     {
         port_byte_write(PIC_SECONDARY_CMD_PORT, PIC_SUCCESS_CODE); // send signal to secondary pic that we have handled irq
     }
     port_byte_write(PIC_MAIN_CMD_PORT, PIC_SUCCESS_CODE);
-    
+
     if (interrupt_handlers[int_state.no] != 0) {
         irq_handler_func_t handler;
         handler = interrupt_handlers[int_state.no];
-        handler(&regs);
+        handler(&regs, &int_state);
     }   
 }

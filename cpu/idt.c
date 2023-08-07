@@ -17,11 +17,6 @@ const char* exception_desc[] = {
                         "General Protection Fault", "Page Fault", "Reserved"
 };
 
-typedef struct interrupt_state_t {
-    int no;
-    int err_code;
-}interrupt_state_t;
-
 
 void interrupt_handler(registers_t regs, interrupt_state_t int_state) {
     klog("ISR 0x%x: %s", int_state.no, exception_desc[int_state.no]);  

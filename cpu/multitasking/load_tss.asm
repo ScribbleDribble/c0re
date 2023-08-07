@@ -8,13 +8,13 @@ _tss_load:
 	ltr ax
 	ret
 
+
+; deprecated
 ; sets up stack for new task (to be used by iret)
 ; takes new ESP3, ESP0, and EIP as args
 ; DS -> ESP (this should be user stack value) -> EFLAGS -> CS -> code entry point
-
 ; TODO - use data and code selector from parent process
 _setup_task:
-	xchg bx, bx 
 	mov eax, esp
 	mov edi, [esp + 12]
 	mov esi, [esp + 4]

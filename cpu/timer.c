@@ -16,11 +16,11 @@ static uint16_t get_gs() {
 }
 
 
-void timer_callback(registers_t* regs) {
+void timer_callback(registers_t* regs, interrupt_state_t* int_state) {
     tick++;
     if (get_gs() == USER_DATA_SEGMENT)
     {
-        pcb_t* cur_process = schedule(regs);
+        pcb_t* cur_process = schedule(regs, int_state);
         klog("Process id: %i, esp0: 0x%x, tss->esp0: 0x%x", cur_process->pid, cur_process->esp0, tss_entry.esp0);
     }
 }
