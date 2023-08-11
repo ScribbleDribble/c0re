@@ -175,6 +175,7 @@ _start:
 
 */  
 	lea 4f, %ecx 
+	xchg %bx, %bx
 	jmp *%ecx  
 
 .section .text
@@ -190,11 +191,12 @@ _start:
 
 	/* remove ID mapped kernel as we no longer need it */
 	mov $(boot_page_dir), %eax
-	mov $(0), %ebx
-	mov %ebx, (%eax)
+	mov (%eax), %edx
+	and $(0xfffff000), %edx
+	mov %edx, (%eax)
 	mov %cr3, %ecx
 	mov %ecx, %cr3
-	
+
 	push $(boot_page_table)
 	push $(boot_page_dir)
 

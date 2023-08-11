@@ -28,13 +28,17 @@ void kmain(uint32_t* boot_page_dir, uint32_t* boot_page_table) {
 
 	_enable_syscall();
 
-	// switch_to_userspace();	
-	klog("boot_page_dir: 0x%x - boot_page_table: 0x%x", boot_page_dir, boot_page_table);
+	klog("boot_page_dir 0x%x contains 0x%x", (uint32_t)boot_page_dir, (uint32_t)*(boot_page_dir));
+	klog("boot_page_dir 0x%x contains 0x%x", (uint32_t)boot_page_dir+4, (uint32_t)*(boot_page_dir+4));
 
-	clone_page_structures(0, 1);
-	clone_page_structures(1, 2);
-	clone_page_structures(1, 4);
-	clone_page_structures(4, 3);
+	switch_to_userspace();	
+
+
+
+	// clone_page_structures(0, 1);
+	// clone_page_structures(1, 2);
+	// clone_page_structures(1, 4);
+	// clone_page_structures(4, 3);
 
 	while (1);
 }

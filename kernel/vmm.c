@@ -227,10 +227,10 @@ void vmm_init(uint32_t* boot_page_dir, uint32_t* boot_page_table) {
     page_directory = boot_page_dir;
     page_tables[0] = page_table;
     page_dirs[0] = page_directory;
-    create_page_table(KERNEL_HEAP_PD_IDX);   
+    create_page_table(KERNEL_HEAP_PD_IDX, 0x3);   
 }
 
-void create_page_table(uint16_t pd_index) { 
+void create_page_table(uint16_t pd_index, uint16_t perms) { 
   
     // since every page table is continguous, find offset to page table start
     int i = MAX_PTE_COUNT*pd_index;
@@ -239,7 +239,7 @@ void create_page_table(uint16_t pd_index) {
     for (; i < end_offset; i++) {
         page_table[i] = create_pte(0,0,0,0,0,0,0,0,0,0, 0);
     }
-    page_directory[pd_index] |= 0x3;
+    page_directory[pd_index] |= perms;
 }
 
 
@@ -251,57 +251,33 @@ uint32_t* clone_page_structures(uint16_t src_pid, uint16_t dest_pid) {
     uint32_t* src_pd = page_dirs[src_pid];
 
     page_dirs[dest_pid] = dest_pd;
-    // klog("src_pd: 0x%x", (uint32_t) src_pd);
-    // klog("src end: 0x%x", (uint32_t) src_pd + 0x401000);
 
-    // klog("dest_pd: 0x%x", (uint32_t) dest_pd);
-    // klog("calc: 0x%x", (uint32_t) MAX_PDE_COUNT*4 + MAX_PTE_COUNT*4*1024);
-    // klog("dest_pd expected 0x%x", (uint32_t) src_pd + 0x401000 );
-    // klog("end 0x%x:", (uint32_t)dest_pd + 0x401000);
-    
+    uint16_t perms = 0x3;
     // allocate page to cover all of src_pid's page table, as we may not have done so already
     palloc(KERNEL_BINARY_PD_IDX + src_pid, MAX_PTE_COUNT);
     
     // create/reuse next page table to cover all of 0x401000 required memory for copy 
-    create_page_table(KERNEL_BINARY_PD_IDX + src_pid+1);
+    create_page_table(KERNEL_BINARY_PD_IDX + src_pid+1, perms);
     palloc(KERNEL_BINARY_PD_IDX + src_pid + 1, MAX_PTE_COUNT);
 
     // create page table for next PD+PT pair. again this will only cover 0x400,000 of the required 0x401000 copy
-    create_page_table(KERNEL_BINARY_PD_IDX + dest_pid);
+    create_page_table(KERNEL_BINARY_PD_IDX + dest_pid, perms);
     palloc(KERNEL_BINARY_PD_IDX + dest_pid, MAX_PTE_COUNT);
 
-    create_page_table(KERNEL_BINARY_PD_IDX + dest_pid+1);
+    create_page_table(KERNEL_BINARY_PD_IDX + dest_pid+1, perms);
     palloc(KERNEL_BINARY_PD_IDX + dest_pid+1, MAX_PTE_COUNT);
 
     // another page table for the remaining 0x1000. allocating the full page table is overkill but accounts for any offsets
-    
-
-
-    
-    // palloc_result_t res = palloc(KERNEL_BINARY_PD_IDX, 1024);
-    // if (res.rem_allocs > 0) {
-    //     create_page_table(KERNEL_BINARY_PD_IDX+1 + dest_pid);
-    //     palloc_result_t final_res = palloc(KERNEL_BINARY_PD_IDX+1, res.rem_allocs);
-    // }
-    // palloc(KERNEL_BINARY_PD_IDX+1, 100);
-
-    // int* p = 0x30D10000;
-    // *p = 1;
-
-    // BREAKPOINT;
-    // uint32_t* dest_page_table = page_tables[0] + (PT_SIZE_BYTES * MAX_PDE_COUNT) * dest_pid;
-    // uint32_t* src_page_table = page_tables[src_pid];
-    // // if src = 0 and dest = 1 then it should be an additional 0x400,000
-    klog("size in bytes: 0x%x", 0x401000);
-
-    // page_dirs[dest_pid] = dest_pd;
-    // page_tables[dest_pid] = dest_page_table;
 
 
     memory_copy(dest_pd, src_pd, 0x401000);
-    // memory_copy(dest_page_table, src_page_table, PT_SIZE_BYTES*MAX_PDE_COUNT);
 
     return dest_pd;
+}
+
+void diverge_physical_mappings() {
+    // go through all PTEs and call kalloc
+
 }
 
 

@@ -10,6 +10,13 @@ const int USTACK_BASE = 0x30160000;
 
 
 pcb_t* init_process_management(const registers_t* registers) {
+    // create page for initial U space program
+    // create_page_table(0);
+    // palloc(0, 1024);
+    // // int*p = 0x1000;
+    // // *p = 1;
+    // BREAKPOINT;
+    // while(1);
     return create_pcb_from_context(0, registers);
 }
 
