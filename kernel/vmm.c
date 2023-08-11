@@ -230,7 +230,8 @@ void vmm_init(uint32_t* boot_page_dir, uint32_t* boot_page_table) {
     create_page_table(KERNEL_HEAP_PD_IDX);   
 }
 
-void create_page_table(uint16_t pd_index) {    
+void create_page_table(uint16_t pd_index) { 
+  
     // since every page table is continguous, find offset to page table start
     int i = MAX_PTE_COUNT*pd_index;
     // calculate end of page table address and iterate till then
@@ -241,38 +242,78 @@ void create_page_table(uint16_t pd_index) {
     page_directory[pd_index] |= 0x3;
 }
 
+
 // returns the page directory of new process
 uint32_t* clone_page_structures(uint16_t src_pid, uint16_t dest_pid) {
     // verify new pd starts at 4MB + 4kb from prev pt
-    uint32_t* dest_pd = page_dirs[0] + (MAX_PDE_COUNT*4 + MAX_PTE_COUNT*4*1024) * dest_pid;
+    // new pd will be at PTs + pd = 4MB + 4kb = 0x401000
+    uint32_t* dest_pd = (uint32_t) page_dirs[0] + 0x401000 * dest_pid;
     uint32_t* src_pd = page_dirs[src_pid];
 
-    klog("src_pd: 0x%x", (uint32_t) src_pd);
-
-    BREAKPOINT;
-
-    uint32_t* dest_page_table = page_tables[0] + (PT_SIZE_BYTES * MAX_PDE_COUNT) * dest_pid;
-    uint32_t* src_page_table = page_tables[src_pid];
-
-    // if src = 0 and dest = 1 then it should be an additional 0x400,000
-    klog("dest_page_table: 0x%x", (uint32_t) dest_page_table);
-
     page_dirs[dest_pid] = dest_pd;
-    page_tables[dest_pid] = dest_page_table;
+    // klog("src_pd: 0x%x", (uint32_t) src_pd);
+    // klog("src end: 0x%x", (uint32_t) src_pd + 0x401000);
+
+    // klog("dest_pd: 0x%x", (uint32_t) dest_pd);
+    // klog("calc: 0x%x", (uint32_t) MAX_PDE_COUNT*4 + MAX_PTE_COUNT*4*1024);
+    // klog("dest_pd expected 0x%x", (uint32_t) src_pd + 0x401000 );
+    // klog("end 0x%x:", (uint32_t)dest_pd + 0x401000);
+    
+    // allocate page to cover all of src_pid's page table, as we may not have done so already
+    palloc(KERNEL_BINARY_PD_IDX + src_pid, MAX_PTE_COUNT);
+    
+    // create/reuse next page table to cover all of 0x401000 required memory for copy 
+    create_page_table(KERNEL_BINARY_PD_IDX + src_pid+1);
+    palloc(KERNEL_BINARY_PD_IDX + src_pid + 1, MAX_PTE_COUNT);
+
+    // create page table for next PD+PT pair. again this will only cover 0x400,000 of the required 0x401000 copy
+    create_page_table(KERNEL_BINARY_PD_IDX + dest_pid);
+    palloc(KERNEL_BINARY_PD_IDX + dest_pid, MAX_PTE_COUNT);
+
+    create_page_table(KERNEL_BINARY_PD_IDX + dest_pid+1);
+    palloc(KERNEL_BINARY_PD_IDX + dest_pid+1, MAX_PTE_COUNT);
+
+    // another page table for the remaining 0x1000. allocating the full page table is overkill but accounts for any offsets
+    
 
 
-    memory_copy(dest_pd, src_pd, MAX_PDE_COUNT*4);
-    memory_copy(dest_page_table, src_page_table, PT_SIZE_BYTES*MAX_PDE_COUNT);
+    
+    // palloc_result_t res = palloc(KERNEL_BINARY_PD_IDX, 1024);
+    // if (res.rem_allocs > 0) {
+    //     create_page_table(KERNEL_BINARY_PD_IDX+1 + dest_pid);
+    //     palloc_result_t final_res = palloc(KERNEL_BINARY_PD_IDX+1, res.rem_allocs);
+    // }
+    // palloc(KERNEL_BINARY_PD_IDX+1, 100);
+
+    // int* p = 0x30D10000;
+    // *p = 1;
+
+    // BREAKPOINT;
+    // uint32_t* dest_page_table = page_tables[0] + (PT_SIZE_BYTES * MAX_PDE_COUNT) * dest_pid;
+    // uint32_t* src_page_table = page_tables[src_pid];
+    // // if src = 0 and dest = 1 then it should be an additional 0x400,000
+    klog("size in bytes: 0x%x", 0x401000);
+
+    // page_dirs[dest_pid] = dest_pd;
+    // page_tables[dest_pid] = dest_page_table;
+
+
+    memory_copy(dest_pd, src_pd, 0x401000);
+    // memory_copy(dest_page_table, src_page_table, PT_SIZE_BYTES*MAX_PDE_COUNT);
 
     return dest_pd;
 }
 
+
 // returns first vaddress of contingous n page allocation
-uint32_t palloc(uint16_t pd_index, int n_allocs) {
-    if (n_allocs <= 0 || n_allocs >= MAX_PTE_COUNT) {
+palloc_result_t palloc(uint16_t pd_index, int n_allocs) {
+    if (n_allocs <= 0 || n_allocs > MAX_PTE_COUNT) {
         kputs("err: Invalid allocation amount");
-        return 0;
+        palloc_result_t res = {0, 0};
     }
+
+    page_directory[pd_index] |= 0x3;
+
     int start = MAX_PTE_COUNT*pd_index;
     int end = (pd_index*MAX_PTE_COUNT)+MAX_PTE_COUNT;
     int i = start;
@@ -292,10 +333,12 @@ uint32_t palloc(uint16_t pd_index, int n_allocs) {
     }
 
     if (first_pte_index == -1 || n_allocs > 0){
-        kputs("err: Failed to alloc page within vmm:palloc!");
-        return 0;
+        kputs("warn: Failed to alloc page within vmm:palloc!");
+        palloc_result_t res = {n_allocs, pd_index * PT_SIZE_BYTES + first_pte_index * PAGE_SIZE};
+        return res;
     }
-    return pd_index * PT_SIZE_BYTES + first_pte_index * PAGE_SIZE;
+    palloc_result_t res = {0, pd_index * PT_SIZE_BYTES + first_pte_index * PAGE_SIZE};
+    return res;
 }
 
 // TODO: optimise this monstrocity

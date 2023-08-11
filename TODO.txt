@@ -17,9 +17,12 @@ vmm
 - stricter permissions for kernel code segments 
 - *long term* Remap kernel to start at higher memory (0xC0000...) like linux
 - *long term* code to obtain memory map
+- palloc option for heap to go downwards
+- set kernel binary permissions as non writable. make sure kernel stack is outside of this region. need to set THAT bit in cr0 again
+    - the above two points are important because we could override kernel code section if we allocate >4kb of memory atm
 
 pmm 
-- *long term* Increase available memory to 256MB
+- Increase available heap memory to 256MB
 - add tests. ensure initialisation, bitmap array, allocation and freeing are correct
 
 trap.c 

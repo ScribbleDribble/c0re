@@ -54,11 +54,16 @@ uint32_t create_pte(
     const uint32_t page_frame_addr
 );
 
+typedef struct palloc_result_t {
+    int rem_allocs;
+    uint32_t base_vaddress;
+}palloc_result_t;
+
 void vmm_init(uint32_t* boot_page_dir, uint32_t* boot_page_table);
 
 void init_page_directory(void);
 void create_page_table(uint16_t pd_index);
-uint32_t palloc(uint16_t pd_index, int n_allocs);
+palloc_result_t palloc(uint16_t pd_index, int n_allocs);
 int mem_map(uint32_t);
 void handle_page_fault(uint32_t ec);
 
