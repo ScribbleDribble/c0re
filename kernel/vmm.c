@@ -252,20 +252,21 @@ uint32_t* clone_page_structures(uint16_t src_pid, uint16_t dest_pid) {
 
     page_dirs[dest_pid] = dest_pd;
 
-    uint16_t perms = 0x3;
+    // this is higher-half/kernel memory and quite sensitive - only kernel should r/w
+    uint16_t pte_perms = 0x3;
     // allocate page to cover all of src_pid's page table, as we may not have done so already
-    palloc(KERNEL_BINARY_PD_IDX + src_pid, MAX_PTE_COUNT);
+    palloc(KERNEL_BINARY_PD_IDX + src_pid, MAX_PTE_COUNT, pte_perms);
     
     // create/reuse next page table to cover all of 0x401000 required memory for copy 
-    create_page_table(KERNEL_BINARY_PD_IDX + src_pid+1, perms);
-    palloc(KERNEL_BINARY_PD_IDX + src_pid + 1, MAX_PTE_COUNT);
+    create_page_table(KERNEL_BINARY_PD_IDX + src_pid+1, pte_perms);
+    palloc(KERNEL_BINARY_PD_IDX + src_pid + 1, MAX_PTE_COUNT, pte_perms);
 
     // create page table for next PD+PT pair. again this will only cover 0x400,000 of the required 0x401000 copy
-    create_page_table(KERNEL_BINARY_PD_IDX + dest_pid, perms);
-    palloc(KERNEL_BINARY_PD_IDX + dest_pid, MAX_PTE_COUNT);
+    create_page_table(KERNEL_BINARY_PD_IDX + dest_pid, pte_perms);
+    palloc(KERNEL_BINARY_PD_IDX + dest_pid, MAX_PTE_COUNT, pte_perms);
 
-    create_page_table(KERNEL_BINARY_PD_IDX + dest_pid+1, perms);
-    palloc(KERNEL_BINARY_PD_IDX + dest_pid+1, MAX_PTE_COUNT);
+    create_page_table(KERNEL_BINARY_PD_IDX + dest_pid+1, pte_perms);
+    palloc(KERNEL_BINARY_PD_IDX + dest_pid+1, MAX_PTE_COUNT, pte_perms);
 
     // another page table for the remaining 0x1000. allocating the full page table is overkill but accounts for any offsets
 
@@ -280,15 +281,19 @@ void diverge_physical_mappings() {
 
 }
 
+void set_pde_perms(uint16_t pd_index, uint16_t perms) {
+    page_directory[pd_index] |= perms;
+}
+
 
 // returns first vaddress of contingous n page allocation
-palloc_result_t palloc(uint16_t pd_index, int n_allocs) {
+palloc_result_t palloc(uint16_t pd_index, int n_allocs, uint16_t pte_perms) {
     if (n_allocs <= 0 || n_allocs > MAX_PTE_COUNT) {
         kputs("err: Invalid allocation amount");
         palloc_result_t res = {0, 0};
     }
 
-    page_directory[pd_index] |= 0x3;
+    page_directory[pd_index] |= 0x3; // todo remove and test
 
     int start = MAX_PTE_COUNT*pd_index;
     int end = (pd_index*MAX_PTE_COUNT)+MAX_PTE_COUNT;
@@ -299,7 +304,7 @@ palloc_result_t palloc(uint16_t pd_index, int n_allocs) {
         if (!IS_PRESENT(page_table[i])) {
             SET_PRESENT(page_table[i]);
             SET_ADDR(page_table[i]);
-            page_table[i] |= 0x2;
+            page_table[i] |= pte_perms;
             n_allocs -= 1;
             if (first_pte_index == -1) {
                 first_pte_index = i - start;

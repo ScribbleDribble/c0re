@@ -63,7 +63,7 @@ void vmm_init(uint32_t* boot_page_dir, uint32_t* boot_page_table);
 
 void init_page_directory(void);
 void create_page_table(uint16_t pd_index, uint16_t perms);
-palloc_result_t palloc(uint16_t pd_index, int n_allocs);
+palloc_result_t palloc(uint16_t pd_index, int n_allocs, uint16_t pte_perms);
 int mem_map(uint32_t);
 void handle_page_fault(uint32_t ec);
 

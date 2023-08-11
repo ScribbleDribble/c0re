@@ -26,7 +26,7 @@ debug: bin/kernel.elf bin/boot_sector.bin
 # logs interrupts and register state to logs.txt
 log-run : bin/myos.bin
 	echo "" > logs.txt
-	qemu-system-x86_64 -d int -D logs.txt -kernel bin/myos.bin > logs.txt 
+	qemu-system-x86_64 -no-reboot -d int -D logs.txt -kernel bin/myos.bin > logs.txt 
 
 # kernel runs with debug msgs
 	

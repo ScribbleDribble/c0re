@@ -4,19 +4,11 @@
 
 // todo make these configurable at compile time. need to have completely separate regions of memory and page level protections of kernel stacks 
 const int KSTACK_BASE = 0x30190000;
-// const int USTACK_BASE = 0x90000;
-const int USTACK_BASE = 0x30160000;
+const int USTACK_BASE = 0x90000;
 
 
 
 pcb_t* init_process_management(const registers_t* registers) {
-    // create page for initial U space program
-    // create_page_table(0);
-    // palloc(0, 1024);
-    // // int*p = 0x1000;
-    // // *p = 1;
-    // BREAKPOINT;
-    // while(1);
     return create_pcb_from_context(0, registers);
 }
 
