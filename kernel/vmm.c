@@ -270,21 +270,43 @@ uint32_t* clone_page_structures(uint16_t src_pid, uint16_t dest_pid) {
 
     // another page table for the remaining 0x1000. allocating the full page table is overkill but accounts for any offsets
 
-
-    memory_copy(dest_pd, src_pd, 0x401000);
-
+    memory_copy(dest_pd, src_pd, 0x2000); // any copy above 4098 bytes does not work...
+    klog("%i", dest_pd[0] == src_pd[0]);
     return dest_pd;
 }
 
-void diverge_physical_mappings() {
+// address space sharding will require these steps
+/*
+    1. copy the page table/ page directory of the parent process
+    2. diverge the physical address mappings in newly copied tables
+    3. switch address by reloading cr3 value with the PHYSICAL address of the new page directory (v addr-0x30,000,000) 
+
+*/
+
+void diverge_physical_mappings(uint32_t pid) {
     // go through all PTEs and call kalloc
+    uint32_t* new_pt = (uint32_t) page_dirs[0] + 0x401000 * pid + 0x1000;
+
+     // since every page table is continguous, find offset to page table start
+    int i = 0;
+    // calculate end of page table address and iterate till then
+    int end_offset = MAX_PTE_COUNT*MAX_PDE_COUNT;
+    klog("new_pt 0x%x, content: 0x%x", new_pt, new_pt[i]);
+    for (; i < end_offset; i++) {
+        if (IS_PRESENT(new_pt[i])) {
+            uint32_t old_mapping = GET_ADDR(new_pt[i]);
+            new_pt[i] |= (uint32_t) pmm_kalloc();
+            klog("old phys: 0x%x ---> new phys: 0x%x", old_mapping, GET_ADDR(new_pt[i]));
+        }
+    }
 
 }
 
-void set_pde_perms(uint16_t pd_index, uint16_t perms) {
-    page_directory[pd_index] |= perms;
+void user_space_vmm_init() {
+    uint16_t user_perms = PAGE_W | PAGE_U | PAGE_P;
+    palloc(USER_BASE_PD_IDX, MAX_PTE_COUNT, user_perms);
+	page_directory[USER_BASE_PD_IDX] |= user_perms;
 }
-
 
 // returns first vaddress of contingous n page allocation
 palloc_result_t palloc(uint16_t pd_index, int n_allocs, uint16_t pte_perms) {

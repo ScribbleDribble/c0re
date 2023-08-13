@@ -11,5 +11,6 @@ mouse: enabled=0
 clock: sync=slowdown, time0=local
 cpu: ips=100000000
 magic_break: enabled=1
+com1: enabled=1, mode=file, dev=serial.txt
 display_library: x, options="gui_debug"
 

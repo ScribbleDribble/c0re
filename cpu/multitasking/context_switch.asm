@@ -27,8 +27,6 @@ ctx_switch:
     call _set_sysenter_esp ; ensure that syscalls will execute in process' kernel stack
     pop esp
     ; make sure we have eflags, cs, eip in stack respectively 
-    
-    xchg bx, bx
 
     sti 
     iret 

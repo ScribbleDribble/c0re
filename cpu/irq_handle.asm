@@ -22,7 +22,7 @@ _irq1:
 ; TODO implement the other irqs
 
 _irq_common_stub: 
-    xchg bx, bx
+    ; xchg bx, bx
 
     pusha   ; regular register save
     mov ax, 10
@@ -38,7 +38,6 @@ _irq_common_stub:
     pop eax
     
     je _irq_return
-    xchg bx, bx 
     push eax 
     mov eax, [esp + 4]
     cmp eax, 32

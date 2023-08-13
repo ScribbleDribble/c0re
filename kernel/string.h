@@ -3,8 +3,9 @@
 
 #include <stddef.h>
 #include <limits.h> 
+#include <stdint.h>
 
-void* memory_copy(void* src, void* dest, int n);
+void* memory_copy(void* src, void* dest, uint32_t n);
 void memory_set(void* src, unsigned int c, unsigned int n);
 size_t str_len(const char* s);
 char* str_cpy(char* dest, const char* src);

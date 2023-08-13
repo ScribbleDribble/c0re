@@ -1,5 +1,5 @@
 #include "string.h"
-
+#include "../drivers/serial_io.h"
 void reverse(char* str, int len) {
 	int i = 0;
 	// leave \0 in place
@@ -21,7 +21,7 @@ void memory_set(void* src, unsigned int c, unsigned int n) {
 }
 
 //todo: arbitrary blocks of memory copy (using void*)
-void* memory_copy(void* dest, void* src, int n) {
+void* memory_copy(void* dest, void* src, uint32_t n) {
 	int i;
 
 	char* to = (char*) dest;
