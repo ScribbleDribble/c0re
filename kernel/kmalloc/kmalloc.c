@@ -201,7 +201,6 @@ static void* first_fit(uint32_t size){
     kputs("[sys]: allocating new 4kb to kernel heap");
     // allocate additional memory
     palloc_result_t res = palloc(KERNEL_HEAP_PD_IDX, 1, 0x3);
-    // kputs(buf);
     bh = create_free_list(res.base_vaddress);
     connect_new_free_block(bh);
     coalesce(bh);
