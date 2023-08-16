@@ -1,4 +1,6 @@
 #include "../cpu/timer.h"
+#include <stdarg.h>
+
 
 #define COM1_PORT 0x3F8
 #define UART_CLOCK 115200

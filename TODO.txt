@@ -22,7 +22,6 @@ vmm
     - the above two points are important because we could override kernel code section if we allocate >4kb of memory atm
 
 pmm 
-- Increase available heap memory to 256MB
 - add tests. ensure initialisation, bitmap array, allocation and freeing are correct
 
 trap.c 

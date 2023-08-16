@@ -33,15 +33,11 @@ void kmain(uint32_t* boot_page_dir, uint32_t* boot_page_table) {
 
 	serial_init();
 
-	serial_ws("Hello my name is micah and i like writing programs");
-
-	// switch_to_userspace();	
-
-	clone_page_structures(0, 1);
-	// diverge_physical_mappings(1);
-	// clone_page_structures(1, 2);
-	// clone_page_structures(1, 4);
+	clone_page_structures(0, 3);
+	clone_page_structures(3, 1);
+	clone_page_structures(3, 2);
 	// clone_page_structures(4, 3);
+	klog("System memory available: %i", get_total_usable_space_bytes());
 
 	while (1);
 }

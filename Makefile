@@ -13,7 +13,7 @@ all : bin/kernel.elf bin/boot_sector.bin bin/myos.bin
 
 
 run : bin/myos.bin
-	qemu-system-x86_64 -kernel bin/myos.bin
+	qemu-system-x86_64 -no-reboot -kernel bin/myos.bin
 
 run-iso : bin/myos.iso 
 	qemu-system-x86_64 -cdrom bin/myos.iso

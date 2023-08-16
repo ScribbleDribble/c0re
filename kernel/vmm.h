@@ -9,11 +9,12 @@
 #include "memory_defs.h"
 
 
-// #define PT_BASE_ADDR 0x42000 // 100kb into free memory region of lower memory. 4kb aligned
-// #define PD_BASE_ADDR 0x21000
-
-
-#define SET_ADDR(entry) (entry |= (uint32_t) pmm_kalloc())
+#define SET_ADDR_KALLOC(entry) (entry |= (uint32_t) pmm_kalloc())
+#define CLEAR_ADDR(entry) (entry &= 0x00000fff)
+#define SET_ADDR(entry, addr) \
+    CLEAR_ADDR(entry); \
+    entry |= addr
+    
 #define GET_ADDR(entry) (entry & 0xfffff000)
 #define SET_PRESENT(entry) (entry |= 1)
 #define IS_PRESENT(entry) (entry & 1)
@@ -26,7 +27,6 @@
 #define PAGE_CD 16
 #define PAGE_AC 32
 #define PAGE_AV 64
-
 
 
 uint32_t create_pde(

@@ -1,15 +1,18 @@
 
 #include "pmm.h"
 #include "string.h"
+#include "../common/panic.h"
 
 
 
 // keeps track of what blocks are free in memory - 4MB in memory (4kb * 1000)
 static bool bitmap[N_BLOCKS];
-static uint32_t tail = 0;
+uint32_t tail = 0;
 
+int alloc_count = 0;
 // returns free block within physical memory to be used as a page
 uint32_t* pmm_kalloc() {
+    
     int i;
     for(i = 0; i < N_BLOCKS; i++) {
         if (bitmap[i] == (bool) FREE) {
@@ -19,7 +22,7 @@ uint32_t* pmm_kalloc() {
             return (uint32_t*) (ALIGN*i+PHYS_BASE);
         }    
     }
-    return (uint32_t*) MEMORY_FULL;
+    panic("Panic: Cannot allocate more physical memory");
 }
 
 bool pmm_kalloc_addr(uint32_t addr) {
@@ -44,8 +47,13 @@ void pmm_free(void* ptr) {
     bitmap[idx] = FREE;
 }
 
+uint32_t get_total_usable_space_bytes() {
+    return N_BLOCKS*PAGE_SIZE;
+}
+
 void pmm_init() {
     int i;
+    char buf[32];
     for (i = 0; i < N_BLOCKS; i++) {
         bitmap[i] = FREE;
     }

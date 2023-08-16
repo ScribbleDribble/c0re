@@ -17,6 +17,7 @@ uint32_t* pmm_kalloc(void);
 bool pmm_kalloc_addr(uint32_t addr);
 void pmm_free(void* ptr);
 void pmm_init(void);
+uint32_t get_total_usable_space_bytes();
 
 
 #endif 
