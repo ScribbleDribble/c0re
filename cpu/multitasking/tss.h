@@ -67,8 +67,6 @@ typedef struct tss_t {
     uint32_t ssp;
 }__attribute__((packed)) tss_t;
 
-tss_descriptor_t tss_descriptor;
-tss_t tss_entry;
 
 void _load_tss(void);
 

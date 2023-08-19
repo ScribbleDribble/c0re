@@ -13,6 +13,7 @@
 #define KERNEL_BINARY_PD_IDX 0xC0 // 0xC0 is PDE containing lower addresable memory and the kernel
 #define KERNEL_BINARY_PDE_COUNT 3 
 #define KERNEL_HEAP_PD_IDX KERNEL_BINARY_PD_IDX - 1 // Places kernel heap below kernel binary in virtual memory
+#define KERNEL_BASE_PD_IDX KERNEL_HEAP_PD_IDX - 8 // assuming the kernel heap goes downwards, we will then have a size of 32MB. This is used for defining the beginning of the kernel region of memory
 
 #define USER_BASE_PD_IDX 0x0
 

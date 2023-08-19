@@ -46,6 +46,7 @@ switch_to_userspace:
 	pushf ; eflags
 	push (3 * 8) | 3 ; code selector (ring 3 code with bottom 2 bits set for ring 3)
 	push userspace_test ; instruction address to return to
+    xchg bx, bx
 	iret
     
 

@@ -244,8 +244,6 @@ void create_page_table(uint16_t pd_index, uint16_t perms) {
     page_directory[pd_index] |= perms;
 }
 
-#include "../drivers/serial_io.h"
-
 // returns the page directory of new process
 uint32_t* clone_page_structures(uint16_t src_pid, uint16_t dest_pid) {
     if (page_dirs[src_pid] == NULL) {
@@ -297,7 +295,7 @@ uint32_t* clone_page_structures(uint16_t src_pid, uint16_t dest_pid) {
         if (IS_PRESENT(src_pd[i])) {
             klog("Copying src PT with address 0x%x into dest PT with address 0x%x", GET_ADDR(src_pd[i]) + VIRTUAL_ADDRESS_OFFSET, GET_ADDR(dest_pd[i] + VIRTUAL_ADDRESS_OFFSET));
             //we add the VA_OFFSET because we access the page table from this virtual address and cpu will perform translation for us
-            // memory_copy((void*) GET_ADDR(dest_pd[i]) + VIRTUAL_ADDRESS_OFFSET, GET_ADDR(src_pd[i]) + VIRTUAL_ADDRESS_OFFSET, 0x1000);
+            memory_copy((void*) GET_ADDR(dest_pd[i]) + VIRTUAL_ADDRESS_OFFSET, GET_ADDR(src_pd[i]) + VIRTUAL_ADDRESS_OFFSET, 0x1000);
         }
     }
     // use to verify (ish)
@@ -324,21 +322,28 @@ uint32_t* clone_page_structures(uint16_t src_pid, uint16_t dest_pid) {
 */
 
 void diverge_physical_mappings(uint32_t pid) {
-    // go through all PTEs and call kalloc
-    uint32_t* new_pt = (uint32_t) page_dirs[0] + 0x401000 * pid + 0x1000;
-
-     // since every page table is continguous, find offset to page table start
-    int i = 0;
-    // calculate end of page table address and iterate till then
-    int end_offset = MAX_PTE_COUNT*MAX_PDE_COUNT;
-    klog("new_pt 0x%x, content: 0x%x", new_pt, new_pt[i]);
-    for (; i < end_offset; i++) {
-        if (IS_PRESENT(new_pt[i])) {
-            uint32_t old_mapping = GET_ADDR(new_pt[i]);
-            new_pt[i] |= (uint32_t) pmm_kalloc();
-            klog("old phys: 0x%x ---> new phys: 0x%x", old_mapping, GET_ADDR(new_pt[i]));
+    uint32_t* pd = (uint32_t) page_dirs[0] + 0x401000 * pid;
+    klog("dest pd:0x%x", pd);
+    int i;
+    int j;
+    for (i = 0; i < MAX_PDE_COUNT; i++) {
+        // mappings for kernel will be shared across all processes, so stop diverge
+        if (i >= KERNEL_BASE_PD_IDX) {
+            break;
+        }
+        if (IS_PRESENT(pd[i])) {
+            uint32_t* pt = (uint32_t*)(GET_ADDR(pd[i]) + VIRTUAL_ADDRESS_OFFSET);
+            for (j = 0; j < MAX_PTE_COUNT; j++) {
+                if (IS_PRESENT(pt[j])) {
+                    uint32_t old_val = pt[j] ;
+                    SET_ADDR(pt[j], (uint32_t) pmm_kalloc());
+                    klog("pde%i - old pte: 0x%x ---> new pte: 0x%x",i, old_val, pt[j]);
+                }
+            }
         }
     }
+
+    klog("Divergence of physical page mappings completed.");
 
 }
 

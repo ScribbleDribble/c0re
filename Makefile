@@ -11,7 +11,7 @@ all : bin/myos.bin
 	grub-mkrescue -o bin/myos.iso isodir
 
 run : bin/myos.bin
-	qemu-system-x86_64 -no-reboot -kernel bin/myos.bin
+	qemu-system-x86_64 -kernel bin/myos.bin
 
 run-iso : bin/myos.iso 
 	qemu-system-x86_64 -cdrom bin/myos.iso

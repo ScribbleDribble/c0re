@@ -8,6 +8,7 @@
 uint32_t tick = 0;
 
 extern line;
+extern tss_entry;
 
 static uint16_t get_gs() {
 	uint32_t gs;
@@ -21,7 +22,6 @@ void timer_callback(registers_t* regs, interrupt_state_t* int_state) {
     if (get_gs() == USER_DATA_SEGMENT)
     {
         pcb_t* cur_process = schedule(regs, int_state);
-        klog("Process id: %i, esp0: 0x%x, tss->esp0: 0x%x", cur_process->pid, cur_process->esp0, tss_entry.esp0);
     }
 }
 

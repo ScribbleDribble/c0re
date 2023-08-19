@@ -33,11 +33,14 @@ void kmain(uint32_t* boot_page_dir, uint32_t* boot_page_table) {
 
 	serial_init();
 
-	clone_page_structures(0, 3);
-	clone_page_structures(3, 1);
-	clone_page_structures(3, 2);
+	// clone_page_structures(0, 1);
+	// diverge_physical_mappings(1);
+	switch_to_userspace();
+	
+	// clone_page_structures(3, 1);
+	// clone_page_structures(3, 2);
 	// clone_page_structures(4, 3);
-	klog("System memory available: %i", get_total_usable_space_bytes());
+	// klog("System memory available: %i", get_total_usable_space_bytes());
 
 	while (1);
 }

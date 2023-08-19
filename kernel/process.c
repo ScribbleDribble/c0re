@@ -2,6 +2,8 @@
 #include "../common/types.h"
 #include "../common/debug.h"
 
+extern tss_t tss_entry;
+
 // todo make these configurable at compile time. need to have completely separate regions of memory and page level protections of kernel stacks 
 const int KSTACK_BASE = 0x30190000;
 const int USTACK_BASE = 0x90000;
@@ -46,7 +48,7 @@ pcb_t* process_clone(pcb_t* src_pcb, int n_procs, const registers_t* context, in
 void setup_kernel_stack(uint32_t kstack_base, const registers_t* context, interrupt_state_t* int_state, uint32_t user_stack_base) {
     const int n_pusha_regs = 8;
     const int context_offset_bytes = 5 * sizeof(uint32_t);
-    uint32_t upper_stack_setup[] = {int_state->eip, int_state->cs, 0x202, user_stack_base, 0x10};
+    uint32_t upper_stack_setup[] = {int_state->eip, int_state->cs | 0x18 | 0x3, 0x202, user_stack_base, 0x20 | 0x3};
     memory_copy((uint32_t*) (kstack_base - context_offset_bytes), upper_stack_setup, sizeof(uint32_t)*5);
     memory_copy((uint32_t*) (kstack_base - context_offset_bytes - n_pusha_regs*sizeof(int)), context, n_pusha_regs*sizeof(int));
     // you can insert a breakpoint here to validate the stack sequence

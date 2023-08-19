@@ -1,5 +1,7 @@
 #include "tss.h"
 
+tss_descriptor_t tss_descriptor;
+tss_t tss_entry;
 
 static uint32_t get_esp() {
 	uint32_t sp;
@@ -9,7 +11,6 @@ static uint32_t get_esp() {
 
 void create_tss() {
     memory_set(&tss_entry, 0, sizeof(tss_t));
-
 
     tss_entry.ss0 = KERNEL_DATA_SEGMENT_SELECTOR;
     tss_entry.esp0 = get_esp();

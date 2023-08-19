@@ -7,6 +7,7 @@ gdt_entry_t create_gdt_entry(uint32_t, uint32_t, uint8_t, uint8_t);
 gdt_entry_t gdt_entries[6]; 
 gdt_descriptor_t gdt_descriptor;
 
+extern tss_t tss_entry;
 extern _gdt_load(void);
 extern _tss_load(void);
 
@@ -20,8 +21,7 @@ void init_gdt() {
     gdt_entries[4] = create_gdt_entry(0, 0xfffff, 0xf2, 0xc);
 
     create_tss();
-    gdt_entries[5] = create_gdt_entry(&tss_entry, sizeof(tss_entry)-1, 0x89, 0x0);
-
+    gdt_entries[5] = create_gdt_entry((uint32_t)&tss_entry, (uint32_t) sizeof(tss_t), 0x89, 0x40);
     gdt_descriptor.size = (sizeof(gdt_entry_t)*6)-1;
     gdt_descriptor.start = (uint32_t) &gdt_entries;
 
@@ -39,12 +39,12 @@ gdt_entry_t create_gdt_entry(
 
     gdt_entry_t gdt_entry;
 
-    gdt_entry.low_base = (uint16_t) (base & 0xffff);
-    gdt_entry.low_limit = (uint16_t) (limit & 0xffff);
-    gdt_entry.mid_base = (uint8_t) ((base & 0x00ff0000) >> 16);
+    gdt_entry.low_base =  (base & 0xffff);
+    gdt_entry.low_limit =  (limit & 0xffff);
+    gdt_entry.mid_base =  ((base & 0x00ff0000) >> 16);
     gdt_entry.access = access; 
-    gdt_entry.flags_with_upper_limit = (uint8_t) (flags << 4) | ((limit & 0xf0000) >> 16);
-    gdt_entry.upper_base = (uint8_t) (base & 0xff000000) >> 24;
+    gdt_entry.flags_with_upper_limit =  (flags << 4) | ((limit & 0xf0000) >> 16);
+    gdt_entry.upper_base =  (base & 0xff000000) >> 24;
 
     return gdt_entry;
 }
