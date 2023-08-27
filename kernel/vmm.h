@@ -3,10 +3,11 @@
 
 
 #include <stdint.h>
-#include "../kernel/string.h"
 #include <stdbool.h>
 #include "pmm.h"
 #include "memory_defs.h"
+#include "../common/panic.h"
+#include "string.h"
 
 
 #define SET_ADDR_KALLOC(entry) (entry |= (uint32_t) pmm_kalloc())
@@ -67,6 +68,7 @@ void create_page_table(uint16_t pd_index, uint16_t perms);
 palloc_result_t palloc(uint16_t pd_index, int n_allocs, uint16_t pte_perms);
 int mem_map(uint32_t);
 void handle_page_fault(uint32_t ec);
-void reload_cr3(uint32_t target_pid);
+uint32_t* reload_cr3(uint32_t target_pid);
+bool is_pdir_equal(uint16_t pid1, uint16_t pid2);
 
 #endif

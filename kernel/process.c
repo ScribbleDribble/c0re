@@ -41,12 +41,12 @@ pcb_t* process_clone(pcb_t* src_pcb, int n_procs, const registers_t* context, in
     setup_kernel_stack(new_pcb->esp0, context, int_state);
     new_pcb->esp0 -= (20 + 32); // account for pusha command 
 
-    klog("pid %i", new_pcb->pid);
-    // temporary until we implment COW
-    clone_page_structures(0, new_pcb->pid);
-    // diverge_physical_mappings(new_pcb->pid);
-    reload_cr3(1); // WIP
-    while (1);
+    // klog("pid %i", new_pcb->pid);
+    // // temporary until we implment COW
+    // clone_page_structures(0, new_pcb->pid);
+    // // diverge_physical_mappings(new_pcb->pid);
+    // reload_cr3(1); // WIP
+    // while (1);
 
     return new_pcb;
 }

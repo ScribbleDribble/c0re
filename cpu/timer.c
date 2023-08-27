@@ -10,7 +10,7 @@ uint32_t tick = 0;
 extern line;
 extern tss_entry;
 
-static uint16_t get_gs() {
+static uint16_t get_gs(void) {
 	uint32_t gs;
 	__asm__("mov %%gs, %%eax" : "=eax" (gs));
 	return gs;
