@@ -3,6 +3,7 @@
 #define FREE 0
 #define IN_USE 1
 
+#define PD_IDX_TO_ADDRESS(pd_idx) (pd_idx*0x400000)
 
 #define ALIGN 4096
 #define PAGE_SIZE 4096
@@ -14,7 +15,8 @@
 #define KERNEL_BINARY_PDE_COUNT 3 
 #define KERNEL_HEAP_PD_IDX KERNEL_BINARY_PD_IDX - 3 // Places kernel heap below kernel binary in virtual memory
 #define KERNEL_BASE_PD_IDX KERNEL_HEAP_PD_IDX - 8 // assuming the kernel heap goes downwards, we will then have a size of 32MB. This is used for defining the beginning of the kernel region of memory
-#define KERNEL_STACK_PD_IDX KERNEL_BINARY_PD_IDX - 1
+#define KERNEL_STACK_PD_IDX 0x140
+#define KERNEL_STACK_GUARD_PD_IDX KERNEL_STACK_PD_IDX-1 //TODO
 
 #define PROC_MM_OFFSET 0x401000 // rename to root_pd_pt_size
 #define PROC_PT_COUNT 0xa

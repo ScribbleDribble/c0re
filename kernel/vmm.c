@@ -228,6 +228,7 @@ void vmm_init(uint32_t* boot_page_dir, uint32_t* boot_page_table) {
     page_tables[0] = page_table;
     page_dirs[0] = page_directory;
     create_page_table(KERNEL_HEAP_PD_IDX, 0x3);
+    palloc(KERNEL_STACK_PD_IDX, MAX_PTE_COUNT, PAGE_P | PAGE_W);
 }
 
 void create_page_table(uint16_t pd_index, uint16_t perms) { 

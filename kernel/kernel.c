@@ -29,27 +29,11 @@ void kmain(uint32_t* boot_page_dir, uint32_t* boot_page_table) {
 	_enable_syscall();
 
 	user_space_vmm_init();
-
+	
 	serial_init();
 
+	switch_to_userspace();
 
-
-
-
-	clone_page_structures(0, 3);
-	clone_page_structures(3, 1);
-	clone_page_structures(3, 2);
-
-	// switch_to_userspace();
-
-	// reload_cr3(1);
-
-	// asm("mov %cr3, %eax");
-	// asm("mov %eax, %cr3");
-	
-
-	// clone_page_structures(4, 3);
-	// klog("System memory available: %i", get_total_usable_space_bytes());
 
 	while (1);
 }

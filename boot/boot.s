@@ -197,7 +197,6 @@ _start:
 	mov %ecx, %cr3
 
 	/* enable 4MB pages */
-
 	mov %cr4, %eax 
 	or $(0x00000010), %eax
 	mov %eax, %cr4

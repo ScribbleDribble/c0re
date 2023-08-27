@@ -5,13 +5,15 @@
 extern tss_t tss_entry;
 
 // todo make these configurable at compile time. need to have completely separate regions of memory and page level protections of kernel stacks 
-const int KSTACK_BASE = 0x30190000;
+const int KSTACK_PAGE_OFFSET = 0x100000;
+const int KSTACK_BASE = (PD_IDX_TO_ADDRESS(KERNEL_STACK_PD_IDX) + KSTACK_PAGE_OFFSET);
 const int USTACK_BASE = 0x90000;
 
 
 
 pcb_t* init_process_management(const registers_t* registers) {
-    return create_pcb_from_context(0, registers);
+    palloc(KERNEL_STACK_PD_IDX, MAX_PTE_COUNT, PAGE_P | PAGE_W);
+    create_pcb_from_context(0, registers);
 }
 
 
