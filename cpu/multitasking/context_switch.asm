@@ -27,7 +27,6 @@ ctx_switch:
     call _set_sysenter_esp ; ensure that syscalls will execute in process' kernel stack
     pop esp
     ; make sure we have eflags, cs, eip in stack respectively 
-
     sti 
     iret 
 
@@ -46,7 +45,6 @@ switch_to_userspace:
 	pushf ; eflags
 	push (3 * 8) | 3 ; code selector (ring 3 code with bottom 2 bits set for ring 3)
 	push userspace_test ; instruction address to return to
-    xchg bx, bx
 	iret
     
 

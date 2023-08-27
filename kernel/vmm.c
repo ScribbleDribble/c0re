@@ -229,7 +229,7 @@ void vmm_init(uint32_t* boot_page_dir, uint32_t* boot_page_table) {
     page_directory = boot_page_dir;
     page_tables[0] = page_table;
     page_dirs[0] = page_directory;
-    create_page_table(KERNEL_HEAP_PD_IDX, 0x3);   
+    create_page_table(KERNEL_HEAP_PD_IDX, 0x3);
 }
 
 void create_page_table(uint16_t pd_index, uint16_t perms) { 
@@ -250,10 +250,9 @@ uint32_t* clone_page_structures(uint16_t src_pid, uint16_t dest_pid) {
         return NULL;
     }
     klog(">Starting page table cloning procedure.");
-
+    
     // verify new pd starts at 4MB + 4kb from prev pt
-    // new pd will be at PTs + pd = 4MB + 4kb = 0x401000
-    uint32_t* dest_pd = (uint32_t) page_dirs[0] + 0x401000 * dest_pid;
+    uint32_t* dest_pd = (uint32_t) page_dirs[0] + PROC_MM_OFFSET + PROC_PD_PT_SIZE * dest_pid;
     uint32_t* src_pd = page_dirs[src_pid];
 
     page_dirs[dest_pid] = dest_pd;
@@ -261,37 +260,23 @@ uint32_t* clone_page_structures(uint16_t src_pid, uint16_t dest_pid) {
     // this is higher-half/kernel memory and quite sensitive - only kernel should r/w
     uint16_t pte_perms = 0x3;
     // allocate page to cover all of src_pid's page table, as we may not have done so already
-    palloc(KERNEL_BINARY_PD_IDX + src_pid, MAX_PTE_COUNT, pte_perms);
-    
-    // create/reuse next page table to cover all of 0x401000 required memory for copy 
-    create_page_table(KERNEL_BINARY_PD_IDX + src_pid+1, pte_perms);
-    palloc(KERNEL_BINARY_PD_IDX + src_pid + 1, MAX_PTE_COUNT, pte_perms);
 
-    // create page table for next PD+PT pair. again this will only cover 0x400,000 of the required 0x401000 copy
-    create_page_table(KERNEL_BINARY_PD_IDX + dest_pid, pte_perms);
-    palloc(KERNEL_BINARY_PD_IDX + dest_pid, MAX_PTE_COUNT, pte_perms);
-
-    create_page_table(KERNEL_BINARY_PD_IDX + dest_pid+1, pte_perms);
-    palloc(KERNEL_BINARY_PD_IDX + dest_pid+1, MAX_PTE_COUNT, pte_perms);
-
-    // another page table for the remaining 0x1000. allocating the full page table is overkill but accounts for any offsets
+    klog("dest pd 0x%x", dest_pd);
 
     // 1. copy page directory from src to dest
     memory_copy(dest_pd, src_pd, 0x1000);
-    klog("src 0x%x, dest 0x%x", (uint32_t)src_pd,  (uint32_t) dest_pd);
-    // 2. we need to set the addresses of the copied page directory entries to point to the new page table locations
-    int i;
-    for (i = 0; i < MAX_PDE_COUNT; i++) {
-        // klog("i:%i - Modifying 0x%x -> 0x%x", i, GET_ADDR(dest_pd[i]), ((uint32_t)dest_pd + 0x1000) + 0x1000 * i - VIRTUAL_ADDRESS_OFFSET);
+    // klog("src 0x%x, dest 0x%x", (uint32_t)src_pd,  (uint32_t) dest_pd);
 
+    // // 2. we need to set the addresses of the copied page directory entries to point to the new page table locations
+    int i;
+    for (i = 0; i < PROC_PT_COUNT; i++) {
+        // klog("i:%i - Modifying 0x%x -> 0x%x", i, GET_ADDR(dest_pd[i]), ((uint32_t)dest_pd + 0x1000) + 0x1000 * i - VIRTUAL_ADDRESS_OFFSET);
         // we subtract away VA_OFFSET (0x30,000,000) because the address part in the pde uses a physical address.
-        // klog("i:%i - Modifying 0x%x -> 0x%x", i, dest_pd[i], ((uint32_t)dest_pd + 0x1000) + 0x1000 * i - VIRTUAL_ADDRESS_OFFSET);
+        klog("i:%i - Modifying 0x%x -> 0x%x", i, dest_pd[i], ((uint32_t)dest_pd + 0x1000) + 0x1000 * i - VIRTUAL_ADDRESS_OFFSET);
         SET_ADDR(dest_pd[i], ((uint32_t)dest_pd + 0x1000) + 0x1000 * i - VIRTUAL_ADDRESS_OFFSET);
     }
-    // klog("dest end 0x%x", (uint32_t) dest_pd+0x401000);
-
-    // 3. loop through page directory and for each page directory entry that is PRESENT, we copy that into the new page table 
-    for (i = 0; i < MAX_PDE_COUNT; i++) {
+    // // 3. loop through page directory and for each page directory entry that is PRESENT, we copy that into the new page table 
+    for (i = 0; i < PROC_PT_COUNT; i++) {
         if (IS_PRESENT(src_pd[i])) {
             klog("Copying src PT with address 0x%x into dest PT with address 0x%x", GET_ADDR(src_pd[i]) + VIRTUAL_ADDRESS_OFFSET, GET_ADDR(dest_pd[i] + VIRTUAL_ADDRESS_OFFSET));
             //we add the VA_OFFSET because we access the page table from this virtual address and cpu will perform translation for us
@@ -299,15 +284,24 @@ uint32_t* clone_page_structures(uint16_t src_pid, uint16_t dest_pid) {
         }
     }
     // use to verify (ish)
-    // uint32_t* new_pte = GET_ADDR(dest_pd[USER_BASE_PD_IDX]) + VIRTUAL_ADDRESS_OFFSET;
-    // uint32_t* old_pte = GET_ADDR(src_pd[USER_BASE_PD_IDX]) + VIRTUAL_ADDRESS_OFFSET;
-    // for (i = 0; i < 5; i++) {
-    //     if (IS_PRESENT(*old_pte)){
-    //         klog("Actual pte at 0x%x, contains 0x%x Vs 0x%x, with 0x%x ", old_pte, *old_pte, new_pte, *new_pte);
-    //     }
-    //     new_pte++;
-    //     old_pte++;
-    // }
+    int j = 0;
+    for (; j < MAX_PDE_COUNT; j++) {
+        if (IS_PRESENT(src_pd[j])) {
+            uint32_t* new_pte = GET_ADDR(dest_pd[j]) + VIRTUAL_ADDRESS_OFFSET;
+            uint32_t* old_pte = GET_ADDR(src_pd[j]) + VIRTUAL_ADDRESS_OFFSET;
+            for (i = 0; i < MAX_PTE_COUNT; i++) {
+                if (j >= KERNEL_BINARY_PD_IDX) {
+                    // klog("Actual pte at 0x%x, contains 0x%x ", old_pte, *old_pte);
+                }
+                if (IS_PRESENT(*new_pte) && *old_pte != *new_pte){
+                    klog("PT COPY ERROR! Actual pte at 0x%x, contains 0x%x Vs 0x%x, with 0x%x ", old_pte, *old_pte, new_pte, *new_pte);
+                    // panic("Panic!");
+                }
+                new_pte++;
+                old_pte++;
+            }
+        }
+    }
     // 4. for each 
     klog(">Finished page table cloning procedure.");
 
@@ -343,7 +337,7 @@ void diverge_physical_mappings(uint32_t pid) {
         }
     }
 
-    klog("Divergence of physical page mappings completed.");
+    klog("Divergence of page frame mappings completed.");
 
 }
 
@@ -352,6 +346,29 @@ void user_space_vmm_init() {
     memory_set(page_table, 0, 0x1000);
     palloc(USER_BASE_PD_IDX, MAX_PTE_COUNT, user_perms);
 	page_directory[USER_BASE_PD_IDX] |= user_perms;
+
+
+    // map physical addresses used for store process page directories and tables
+    // 8MB mapped so should support 8M/0xb000 procs
+    page_directory[PROC_MM_PD_IDX] |= PAGE_PS | PAGE_W | PAGE_P;
+    SET_ADDR(page_directory[PROC_MM_PD_IDX], 0x400000);
+    page_directory[PROC_MM_PD_IDX+1] |= PAGE_PS | PAGE_W | PAGE_P;
+    SET_ADDR(page_directory[PROC_MM_PD_IDX+2], 0x800000);   
+}
+
+void reload_cr3(uint32_t target_pid) {
+
+    page_directory = page_dirs[target_pid];
+    page_table = (uint32_t*) (GET_ADDR((uint32_t)page_directory[0]) + VIRTUAL_ADDRESS_OFFSET);
+    int i;
+
+    klog("page dir 0x%x, pd upper bound 0x%x", page_directory,  (uint32_t)page_directory+0x401000);
+    // while(1);
+    // klog("pt addr 0x%x", GET_ADDR(page_directory));
+    asm("xchg %bx, %bx");
+
+    asm("mov %0, %%eax": :"r"((uint32_t) page_directory - VIRTUAL_ADDRESS_OFFSET));
+    asm("mov %eax, %cr3");
 }
 
 // returns first vaddress of contingous n page allocation

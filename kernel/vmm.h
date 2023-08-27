@@ -27,6 +27,7 @@
 #define PAGE_CD 16
 #define PAGE_AC 32
 #define PAGE_AV 64
+#define PAGE_PS 128
 
 
 uint32_t create_pde(
@@ -66,5 +67,6 @@ void create_page_table(uint16_t pd_index, uint16_t perms);
 palloc_result_t palloc(uint16_t pd_index, int n_allocs, uint16_t pte_perms);
 int mem_map(uint32_t);
 void handle_page_fault(uint32_t ec);
+void reload_cr3(uint32_t target_pid);
 
 #endif

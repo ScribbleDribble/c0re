@@ -106,7 +106,7 @@ _start:
 		cmp $(1024), %ecx
 		je _init_page_directory
 
-		cmp $(0x200000), %ebx
+		cmp $(0x400000), %ebx
 		jge _init_page_directory
 
 		jmp _kernel_higher_half_and_identity_mapping
@@ -175,7 +175,6 @@ _start:
 
 */  
 	lea 4f, %ecx 
-	xchg %bx, %bx
 	jmp *%ecx  
 
 .section .text
@@ -196,6 +195,12 @@ _start:
 	mov %edx, (%eax)
 	mov %cr3, %ecx
 	mov %ecx, %cr3
+
+	/* enable 4MB pages */
+
+	mov %cr4, %eax 
+	or $(0x00000010), %eax
+	mov %eax, %cr4
 
 	push $(boot_page_table)
 	push $(boot_page_dir)
