@@ -1,12 +1,20 @@
 
-process management: 
-- swap out process address space on context switch 
-- implement proper scheduler 
-- testing for an arbitrary amount processes
-- fix kernel stack from gradually falling in address space due to context switching  
-- refactor
+
+basic shell
+- need some kind of scanf call. buffer to read from text. 
+
+fix warnings
+
+scheduler:
+implement sleep syscall 
+improve scheduling algo
+signals 
+
+processes
+- implement copy-on-write
 
 system calls:
+- fork syscall
 - complete stdio interface 
 - cleaner interface - look into other kernel designs 
 
@@ -14,15 +22,13 @@ kmalloc/malloc
 - seperate user and kernel heaps - implement malloc for userspace programs
 
 vmm
-- stricter permissions for kernel code segments 
-- *long term* Remap kernel to start at higher memory (0xC0000...) like linux
+- stricter permissions for kernel code and data
+- mark shared kernel page tables as global 
 - *long term* code to obtain memory map
-- palloc option for heap to go downwards
-- set kernel binary permissions as non writable. make sure kernel stack is outside of this region. need to set THAT bit in cr0 again
-    - the above two points are important because we could override kernel code section if we allocate >4kb of memory atm
+- heap to grow downwards. palloc calls must decrement pd idxs but check beforehand.
 
 pmm 
-- add tests. ensure initialisation, bitmap array, allocation and freeing are correct
+- stack based management for O(1) page frame allocation
 
 trap.c 
 - merge idt.c, isr.c, irq.c
@@ -30,9 +36,6 @@ trap.c
 
 cleaner Makefile
 
-Future: qemu e2e tests. Dump logs from qemu and read data using python testing script. 
-E.g. check state of registers from log file. Must use:
-
-
+Future: move to 64-bit? although we may be in too deep for that...
 
 // todo when cloning process, use saved register state from parent process 

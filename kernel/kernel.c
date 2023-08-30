@@ -34,6 +34,5 @@ void kmain(uint32_t* boot_page_dir, uint32_t* boot_page_table) {
 
 	switch_to_userspace();
 
-
 	while (1);
 }
