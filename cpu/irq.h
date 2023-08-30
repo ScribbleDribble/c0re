@@ -41,8 +41,9 @@ typedef struct interrupt_state_t {
     int no;
     int err_code;
     int eip;
-    uint8_t cs;
-    uint32_t eflags;    
+    uint32_t cs;
+    uint32_t eflags;   
+    uint32_t task_stack_addr; 
 }__attribute__((packed)) interrupt_state_t;
 
 

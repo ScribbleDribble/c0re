@@ -9,7 +9,7 @@ boot: cdrom
 megs: 256 
 mouse: enabled=0
 clock: sync=slowdown, time0=local
-cpu: ips=100000000
+cpu: ips=1000000000
 magic_break: enabled=1
 com1: enabled=1, mode=file, dev=serial.txt
 display_library: x, options="gui_debug"

@@ -221,14 +221,19 @@ uint32_t
 
 void vmm_init(uint32_t* boot_page_dir, uint32_t* boot_page_table) {
     memory_set(page_dirs, NULL, sizeof(page_dirs));
-    memory_set(page_tables, NULL, sizeof(page_dirs));
+    memory_set(page_tables, NULL, sizeof(page_tables));
     pmm_init();
+
     page_table = boot_page_table;
     page_directory = boot_page_dir;
     page_tables[0] = page_table;
     page_dirs[0] = page_directory;
     create_page_table(KERNEL_HEAP_PD_IDX, 0x3);
     palloc(KERNEL_STACK_PD_IDX, MAX_PTE_COUNT, PAGE_P | PAGE_W);
+}
+
+static void invalidate_tlb_entry_flush(uint32_t entry) {
+    asm("invlpg (%0)" : : "r"(entry));
 }
 
 void create_page_table(uint16_t pd_index, uint16_t perms) { 
@@ -258,11 +263,9 @@ uint32_t* clone_page_structures(uint16_t src_pid, uint16_t dest_pid) {
     // this is higher-half/kernel memory and quite sensitive - only kernel should r/w
     uint16_t pte_perms = 0x3;
     // allocate page to cover all of src_pid's page table, as we may not have done so already
-
-    // klog("dest pd end 0x%x", dest_pd + 0xb000);
     // 1. copy page directory from src to dest
     memory_copy(dest_pd, src_pd, 0x1000);
-    klog("src 0x%x, dest 0x%x", (uint32_t)src_pd,  (uint32_t) dest_pd);
+    // klog("src 0x%x, dest 0x%x", (uint32_t)src_pd,  (uint32_t) dest_pd);
 
     // // 2. we need to set the addresses of the copied page directory entries to point to the new page table locations
     int i;
@@ -274,7 +277,7 @@ uint32_t* clone_page_structures(uint16_t src_pid, uint16_t dest_pid) {
     // // 3. loop through page directory and for each page directory entry that is PRESENT, we copy that into the new page table 
     for (i = 0; i < PROC_PT_COUNT; i++) {
         if (IS_PRESENT(src_pd[i])) {
-            klog("Copying src PT with address 0x%x into dest PT with address 0x%x", GET_ADDR(src_pd[i]) + VIRTUAL_ADDRESS_OFFSET, GET_ADDR(dest_pd[i] + VIRTUAL_ADDRESS_OFFSET));
+            // klog("Copying src PT with address 0x%x into dest PT with address 0x%x", GET_ADDR(src_pd[i]) + VIRTUAL_ADDRESS_OFFSET, GET_ADDR(dest_pd[i] + VIRTUAL_ADDRESS_OFFSET));
             //we add the VA_OFFSET because we access the page table from this virtual address and cpu will perform translation for us
             memory_copy((void*) GET_ADDR(dest_pd[i]) + VIRTUAL_ADDRESS_OFFSET, GET_ADDR(src_pd[i]) + VIRTUAL_ADDRESS_OFFSET, 0x1000);
         }
@@ -286,36 +289,27 @@ uint32_t* clone_page_structures(uint16_t src_pid, uint16_t dest_pid) {
     return dest_pd;
 }
 
-// address space sharding will require these steps
-/*
-    1. copy the page table/ page directory of the parent process
-    2. diverge the physical address mappings in newly copied tables
-    3. switch address by reloading cr3 value with the PHYSICAL address of the new page directory (v addr-0x30,000,000) 
-*/
-
 void diverge_physical_mappings(uint32_t pid) {
-    uint32_t* pd = (uint32_t) page_dirs[0] + 0x401000 * pid;
-    klog("dest pd:0x%x", pd);
+    uint32_t* pd = page_dirs[pid];
+    uint32_t* copy_pt = GET_ADDR(page_directory[PROC_VM_COPY_PD_IDX]) + VIRTUAL_ADDRESS_OFFSET;
+    uint32_t* link_va  = (uint32_t) 0x400000*PROC_VM_COPY_PD_IDX; // points to new physical address 
     int i;
     int j;
-    for (i = 0; i < MAX_PDE_COUNT; i++) {
-        // mappings for kernel will be shared across all processes, so stop diverge
-        if (i >= KERNEL_BASE_PD_IDX) {
-            break;
-        }
+    for (i = 0; i < PROC_PT_COUNT; i++) {
         if (IS_PRESENT(pd[i])) {
             uint32_t* pt = (uint32_t*)(GET_ADDR(pd[i]) + VIRTUAL_ADDRESS_OFFSET);
             for (j = 0; j < MAX_PTE_COUNT; j++) {
                 if (IS_PRESENT(pt[j])) {
-                    uint32_t old_val = pt[j] ;
-                    SET_ADDR(pt[j], (uint32_t) pmm_kalloc());
-                    klog("pde%i - old pte: 0x%x ---> new pte: 0x%x",i, old_val, pt[j]);
+                    uint32_t dest_phys_addr = (uint32_t) pmm_kalloc();
+                    SET_ADDR(copy_pt[0], dest_phys_addr);
+                    invalidate_tlb_entry_flush(link_va); // use invpg command instead
+                    memory_copy(link_va, PAGE_SIZE*j + i*0x400000, PAGE_SIZE);
+                    SET_ADDR(pt[j], dest_phys_addr);
                 }
             }
         }
     }
     klog("Divergence of page frame mappings completed.");
-
 }
 
 bool is_pdir_equal(uint16_t pid1, uint16_t pid2) {
@@ -346,13 +340,20 @@ void user_space_vmm_init() {
     palloc(USER_BASE_PD_IDX, MAX_PTE_COUNT, user_perms);
 	page_directory[USER_BASE_PD_IDX] |= user_perms;
 
-
+    int i;
+    for (i = KERNEL_BINARY_PD_IDX; i < KERNEL_BINARY_PD_IDX+10; i++) {
+        klog("pd[i] = 0x%x", page_directory[i]);
+    }
     // map physical addresses used for store process page directories and tables
-    // 8MB mapped so should support 8M/0xb000 procs
+    // 4MB mapped so should support 4MB/0xb000 procs  
+    // process page tables use direct mapping (using offsets of 0x30,000,000) so we know which physical address need to be present. 
     page_directory[PROC_MM_PD_IDX] |= PAGE_PS | PAGE_W | PAGE_P;
     SET_ADDR(page_directory[PROC_MM_PD_IDX], 0x400000);
-    page_directory[PROC_MM_PD_IDX+1] |= PAGE_PS | PAGE_W | PAGE_P;
-    SET_ADDR(page_directory[PROC_MM_PD_IDX+2], 0x800000);   
+    page_directory[PROC_VM_COPY_PD_IDX] |= PAGE_W | PAGE_P;
+    uint32_t* copy_pt = (uint32_t*) GET_ADDR(page_directory[PROC_VM_COPY_PD_IDX]); // PD for copying data between physical addresses for PT copying  
+    memory_set(copy_pt, 0, 0x1000);
+    palloc(PROC_VM_COPY_PD_IDX, 1, PAGE_W | PAGE_P);
+
 }
 
 uint32_t* reload_cr3(uint32_t target_pid) {
@@ -361,8 +362,6 @@ uint32_t* reload_cr3(uint32_t target_pid) {
         return NULL;
     }
     page_table = (uint32_t*) (GET_ADDR((uint32_t)page_directory[0]) + VIRTUAL_ADDRESS_OFFSET);
-    asm("xchg %bx, %bx");
-
     asm("mov %0, %%eax": :"r"((uint32_t) page_directory - VIRTUAL_ADDRESS_OFFSET));
     asm("mov %eax, %cr3");
     return page_directory;

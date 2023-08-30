@@ -3,9 +3,13 @@
 
 #include <stdint.h>
 
+// typedef struct registers_t {
+//     int AX, CX, DX, BX, SP, BP, SI, DI;
+// }registers_t __attribute__((packed));
+
 typedef struct registers_t {
-    int AX, CX, DX, BX, SP, BP, SI, DI;
-}registers_t;
+    int DI, SI, BP, SP, BX, DX, CX, AX;
+}registers_t __attribute__((packed));
 
 
 #endif 

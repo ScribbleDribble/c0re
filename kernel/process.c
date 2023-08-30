@@ -31,7 +31,7 @@ pcb_t* create_pcb_from_context(const uint8_t pid, const registers_t* context) {
     pcb->esp0 = KSTACK_BASE;
 
     return pcb;
-}
+}   
 
 pcb_t* process_clone(pcb_t* src_pcb, int n_procs, const registers_t* context, interrupt_state_t* int_state, uint32_t src_pid) {
 
@@ -42,26 +42,22 @@ pcb_t* process_clone(pcb_t* src_pcb, int n_procs, const registers_t* context, in
     new_pcb->pid = n_procs;
     setup_kernel_stack(new_pcb->esp0, context, int_state);
     new_pcb->esp0 -= (20 + 32); // account for pusha command 
-
-    // klog("pid %i", new_pcb->pid);
     // // temporary until we implment COW
-    // clone_page_structures(0, new_pcb->pid);
-    // // diverge_physical_mappings(new_pcb->pid);
-    // reload_cr3(1); // WIP
-    // while (1);
-
+    clone_page_structures(src_pid, new_pcb->pid);
+    diverge_physical_mappings(new_pcb->pid);
     return new_pcb;
 }
 
 // helper function to create stack with the following entries for iret (interrupt return)
-// DS -> ESP (this should be user stack value) -> EFLAGS -> CS -> code entry point
-void setup_kernel_stack(uint32_t kstack_base, const registers_t* context, interrupt_state_t* int_state, uint32_t user_stack_base) {
+// ss -> ESP (this should be user stack value) -> EFLAGS -> CS -> code entry point
+void setup_kernel_stack(uint32_t kstack_base, const registers_t* context, interrupt_state_t* int_state) {
     const int n_pusha_regs = 8;
     const int context_offset_bytes = 5 * sizeof(uint32_t);
-    uint32_t upper_stack_setup[] = {int_state->eip, int_state->cs | 0x18 | 0x3, 0x202, user_stack_base, 0x20 | 0x3};
+    int ss = 0;
+    ss = int_state->cs == 0x8 ? 0x10 : 0x20 | 0x3;
+    uint32_t upper_stack_setup[] = {int_state->eip, int_state->cs, int_state->eflags, int_state->task_stack_addr, ss};
     memory_copy((uint32_t*) (kstack_base - context_offset_bytes), upper_stack_setup, sizeof(uint32_t)*5);
-    memory_copy((uint32_t*) (kstack_base - context_offset_bytes - n_pusha_regs*sizeof(int)), context, n_pusha_regs*sizeof(int));
-    // you can insert a breakpoint here to validate the stack sequence
+    memory_copy((uint32_t*) (kstack_base - context_offset_bytes - n_pusha_regs*sizeof(int)), context, n_pusha_regs*sizeof(int));    // you can insert a breakpoint here to validate the stack sequence
 }
 
 void pcb_update_esp0(pcb_t* pcb, uint32_t new_esp0) {
