@@ -1,5 +1,4 @@
 #include "surface.h"
-#include <stdint.h>
 
 extern uint8_t current_pid;
 extern uint16_t n_procs;
@@ -9,14 +8,13 @@ void userspace_test() {
     int i = 0;
     int j = 1;
     int* p = (int*)0x22000;
+    int pid = fork();
+    pid = fork();
+    *p = getpid();
     while (1) {
-        // this value will be set only by process 0 and it cannot be read by other processes.
-        if (current_pid == 0 && n_procs > 1) {
-            *p = 0x192;
-        } 
+        // this value cannot be read by other processes
         int_to_str(*p, buf, 32);
         puts(buf);
-
         i++;
     }
 

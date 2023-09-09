@@ -9,7 +9,7 @@ static void poll_write_buf_ready_status(void);
 static void identify_devices(void);
 
 // irq handler for ps2 devices. will call device driver specific code. 
-void ps2_device_callback() {
+void ps2_device_callback(void) {
     uint8_t data = device_read_byte();
     switch(data) {
         case ACK: {

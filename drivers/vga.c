@@ -18,10 +18,10 @@ static bool is_special_non_null_char(const char c) {
 	return c == '\n' || c =='\t';
 }
 
-void scroll_down_one_line(void) {
+static void scroll_down_one_line(void) {
 	memory_copy(
 				(char*) VIDEO_ADDRESS, 
-				(char*) VIDEO_ADDRESS + (MAX_WIDTH*CHAR_SIZE), 
+				(char*) (VIDEO_ADDRESS + (MAX_WIDTH*CHAR_SIZE)), 
 				CHAR_SIZE*(MAX_HEIGHT*MAX_WIDTH) - CHAR_SIZE*MAX_WIDTH
 				);
 	memory_set(VIDEO_ADDRESS + CHAR_SIZE*((MAX_HEIGHT-1)*MAX_WIDTH), 0, MAX_WIDTH*CHAR_SIZE); 

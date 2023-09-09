@@ -62,7 +62,6 @@ typedef struct palloc_result_t {
 }palloc_result_t;
 
 void vmm_init(uint32_t* boot_page_dir, uint32_t* boot_page_table);
-void user_proc_address_space_allocate();
 void init_page_directory(void);
 void create_page_table(uint16_t pd_index, uint16_t perms);
 palloc_result_t palloc(uint16_t pd_index, int n_allocs, uint16_t pte_perms);
@@ -70,5 +69,6 @@ int mem_map(uint32_t);
 void handle_page_fault(uint32_t ec);
 uint32_t* reload_cr3(uint32_t target_pid);
 bool is_pdir_equal(uint16_t pid1, uint16_t pid2);
+void user_space_vmm_init(void);
 
 #endif

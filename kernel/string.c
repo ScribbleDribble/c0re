@@ -22,7 +22,7 @@ void memory_set(void* src, unsigned int c, unsigned int n) {
 
 //todo: arbitrary blocks of memory copy (using void*)
 void* memory_copy(void* dest, void* src, uint32_t n) {
-	int i;
+	uint32_t i;
 
 	char* to = (char*) dest;
 	char* from = (char*) src;
@@ -96,8 +96,6 @@ void int_to_str(const int x, char* res, int len) {
 
 	reverse(res, i);
 	res[i] = '\0';
-
-	return res;
 }
 
 void int_to_hex_str(int x, char* res, int len) {

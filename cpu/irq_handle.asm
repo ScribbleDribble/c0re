@@ -22,8 +22,6 @@ _irq1:
 ; TODO implement the other irqs
 
 _irq_common_stub: 
-    xchg bx, bx
-
     pusha   ; regular register save
     mov ax, 10
 
@@ -51,9 +49,8 @@ _irq_common_stub:
 
 _irq_return:
     add esp, 8
-
     sti
-    iret ; the special kind of ret for interrupts
+    iret 
 
 
 ; sets eip to newly running process 

@@ -14,4 +14,4 @@
 #define INTERRUPT_ENABLE_REG_OFFSET 1
 
 
-void serial_init();
+void serial_init(void);

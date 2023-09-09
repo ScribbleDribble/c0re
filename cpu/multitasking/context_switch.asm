@@ -13,13 +13,12 @@ extern _set_sysenter_esp
 ctx_switch:
     ; save state of cur process
     pusha  
-
     push esp 
     call kstack_save
     pop esp
-
     ; switch stacks - target_esp0 will point to the top of all saved registers
     mov esp, [target_esp0]
+    xchg bx, bx
     ; restore state
     popa 
 

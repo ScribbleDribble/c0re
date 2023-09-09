@@ -7,8 +7,6 @@
 
 uint32_t tick = 0;
 
-extern line;
-extern tss_entry;
 
 static uint16_t get_gs(void) {
 	uint32_t gs;
@@ -21,7 +19,7 @@ void timer_callback(registers_t* regs, interrupt_state_t* int_state) {
     tick++;
     if (get_gs() == USER_DATA_SEGMENT)
     {
-        pcb_t* cur_process = schedule(regs, int_state);
+        schedule(regs, int_state);
     }
 }
 

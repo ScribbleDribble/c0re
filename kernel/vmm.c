@@ -256,7 +256,7 @@ uint32_t* clone_page_structures(uint16_t src_pid, uint16_t dest_pid) {
     klog(">Starting page table cloning procedure.");
     
     // verify new pd starts at correct offset
-    uint32_t* dest_pd = (uint32_t) page_dirs[0] + PROC_MM_OFFSET + PROC_PD_PT_SIZE * dest_pid;
+    uint32_t* dest_pd = (uint32_t*) ((uint32_t) page_dirs[0] + PROC_MM_OFFSET + PROC_PD_PT_SIZE * dest_pid);
     uint32_t* src_pd = page_dirs[src_pid];
     page_dirs[dest_pid] = dest_pd;
 

@@ -1,9 +1,13 @@
 global _enable_syscall
 global KPUTS_SYSCALL_ID
+global FORK_SYSCALL_ID
+global GETPID_SYSCALL_ID
 global _set_sysenter_esp
 
 extern KSTACK_BASE
 extern kputs
+extern schedule_new_fork
+extern get_running_proc_pid
 
 ; sets up 3 registers required for syscalls
 ; IA32_SYSENTER_CS - ring 0 code segment selector 
@@ -29,7 +33,6 @@ _enable_syscall:
     mov ecx, IA32_SYSENTER_EIP
     
     wrmsr
-
     mov eax, [KSTACK_BASE] 
     mov edx, 0x0
     mov ecx, IA32_SYSENTER_ESP
@@ -56,6 +59,10 @@ _set_sysenter_esp
 
 
 _syscall_router:
+    ; handle fork special case 
+    cmp eax, FORK_SYSCALL_ID
+    je _fork
+    
     ; Save esi register (containing ESP3) and edi (for restoring EIP)
     push esi
     push edi
@@ -63,7 +70,30 @@ _syscall_router:
     cmp eax, KPUTS_SYSCALL_ID
     je _kputs
 
+    cmp eax, GETPID_SYSCALL_ID
+    je _getpid
 
+_fork:
+    ; set regs for sysexit 
+    mov edx, edi
+    mov ecx, esi
+    ; push args to the stack. used to save state 
+    sub eax, 0x38
+    push eax
+    pushf
+    push cs  
+    push _new_proc_sysexit_call 
+    push 0
+    push 0
+    pusha
+    call schedule_new_fork
+    mov [esp+28], eax ; make sure eax value doesn't get overriden by popa 
+    popa ; restore state so we can call sysexit
+    sysexit
+
+_getpid:
+    call get_running_proc_pid
+    jmp _syscall_return
 
 ; args:
 ; const char* str: ebx
@@ -71,18 +101,20 @@ _kputs:
     push ebx
     call kputs
     pop ebx 
-
     jmp _syscall_return
 
 
 _syscall_return:
     pop edx ; get edi 
     pop ecx ; get eci
-    mov eax, 0x202
-    push eax 
+    mov edi, 0x202
+    push edi
     popf
     sysexit
 
+_new_proc_sysexit_call:
+    mov eax, 0 ; return value for  fork child is 0
+    sysexit
 
 
 KERNEL_CODE_SELECTOR equ 0x8
@@ -90,4 +122,7 @@ IA32_SYSENTER_CS equ 0x174
 IA32_SYSENTER_EIP equ 0x176
 IA32_SYSENTER_ESP equ 0x175 
 
-KPUTS_SYSCALL_ID equ 0
+FORK_SYSCALL_ID equ 0
+KPUTS_SYSCALL_ID equ 1
+GETPID_SYSCALL_ID equ 2
+

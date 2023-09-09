@@ -26,8 +26,6 @@ global _isr18
 
 ; save cpu state
 _isr_common:
-    xchg bx, bx
-
     pusha ; save gp registers
 
     call interrupt_handler

@@ -9,7 +9,7 @@
 
 typedef struct registers_t {
     int DI, SI, BP, SP, BX, DX, CX, AX;
-}registers_t __attribute__((packed));
+}__attribute__((packed)) registers_t ;
 
 
 #endif 

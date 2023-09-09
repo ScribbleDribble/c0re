@@ -1,5 +1,10 @@
 global _puts
+global _fork 
+global _getpid
+
 extern KPUTS_SYSCALL_ID
+extern FORK_SYSCALL_ID
+extern GETPID_SYSCALL_ID
 
 ; eax stores syscall id
 ; ebx: arg1, ecx: arg2, edx: arg3
@@ -13,5 +18,21 @@ _puts:
     mov esi, esp
     add esi, RET_POP_SIZE  ; simulate ret instruction for when we call sysret
     sysenter
+
+; fs - func  
+_fork:
+    mov eax, FORK_SYSCALL_ID
+    mov edi, [esp]
+    mov esi, esp
+    add esi, RET_POP_SIZE 
+    sysenter
+
+_getpid:
+    mov eax, GETPID_SYSCALL_ID
+    mov edi, [esp]
+    mov esi, esp
+    add esi, RET_POP_SIZE 
+    sysenter
+
 
 RET_POP_SIZE equ 4
