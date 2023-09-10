@@ -1,6 +1,7 @@
 #include "vga.h"
 
 static unsigned int line = 0;
+static unsigned int width = 0;
 
 static void kprint_char(const char character, const unsigned char character_mode, position2D_t* pos) {
 
@@ -45,7 +46,9 @@ static void kprint(const char* string, const unsigned char character_mode, posit
 	if (pos->row >= MAX_HEIGHT) {
 		scroll_down_one_line();
 		pos->row -= 1;
+		pos->col = 0;
 		line = pos->row;
+		width = pos->col;
 	}
 	
 	int i = 0;
@@ -64,6 +67,7 @@ static void kprint(const char* string, const unsigned char character_mode, posit
 		}
 		i++;
 	}
+	width = pos->col;
 }
 
 char* format_type(const char specifier, va_list* arg_list, char* buf) {
@@ -117,13 +121,14 @@ void klog(const char* s, ...) {
 
 void kputs(const char* str) {	
 	line += 1;
+	width = 0;
 	position2D_t pos = {line, 0};
 	kprint(str, 0x0f, &pos);
 }
 
 void kputc(const char character) {
-	line += 1;
-	position2D_t pos = {line, 0};
+	width += 1;
+	position2D_t pos = {line, width};
 	kprint_char(character, 0x0f, &pos);
 }
 
