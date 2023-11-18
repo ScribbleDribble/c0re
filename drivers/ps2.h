@@ -63,7 +63,7 @@ typedef struct ps2_device_t {
 
 }ps2_device_t;
 
-ps2_device_t device;
+extern ps2_device_t device;
 
 
 uint8_t device_read_byte(void);

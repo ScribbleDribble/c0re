@@ -5,7 +5,11 @@ C_SOURCES = $(wildcard kernel/*.c kernel/kmalloc/*.c drivers/*.c cpu/*.c util/*.
 OBJ = ${C_SOURCES:.c=.o}
 ASM_OBJ = $(ASM_SOURCES:.asm=.o)
 
+ISO_DIR="isodir/boot/grub"
+
 all : bin/myos.bin
+	if [ ! -d $(ISO_DIR) ]; echo $(ISO_DIR) not found, creating directory...; then mkdir -p $(ISO_DIR); fi;
+
 	cp bin/myos.bin isodir/boot/myos.bin
 	cp boot/grub.cfg isodir/boot/grub/grub.cfg
 	grub-mkrescue -o bin/myos.iso isodir
@@ -100,7 +104,7 @@ common/panic.o: common/panic.c
 
 
 util/strmap.o: util/strmap.c
-	i386-elf-gcc  $(CFLAGS) util/strmap.c -o strmap.o
+	i386-elf-gcc  $(CFLAGS) util/strmap.c -o util/strmap.o
 
 
 kernel/syscall_handler.o: kernel/syscall_handler.asm
