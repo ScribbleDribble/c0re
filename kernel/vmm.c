@@ -339,11 +339,7 @@ void user_space_vmm_init() {
     memory_set(page_table, 0, 0x1000);
     palloc(USER_BASE_PD_IDX, MAX_PTE_COUNT, user_perms);
 	page_directory[USER_BASE_PD_IDX] |= user_perms;
-
-    int i;
-    for (i = KERNEL_BINARY_PD_IDX; i < KERNEL_BINARY_PD_IDX+10; i++) {
-        klog("pd[i] = 0x%x", page_directory[i]);
-    }
+    
     // map physical addresses used for store process page directories and tables
     // 4MB mapped so should support 4MB/0xb000 procs  
     // process page tables use direct mapping (using offsets of 0x30,000,000) so we know which physical address need to be present. 

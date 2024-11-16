@@ -1,10 +1,12 @@
 global _puts
 global _fork 
 global _getpid
+global _sleep
 
 extern KPUTS_SYSCALL_ID
 extern FORK_SYSCALL_ID
 extern GETPID_SYSCALL_ID
+extern SLEEP_SYSCALL_ID
 
 ; eax stores syscall id
 ; ebx: arg1, ecx: arg2, edx: arg3
@@ -32,6 +34,13 @@ _getpid:
     mov edi, [esp]
     mov esi, esp
     add esi, RET_POP_SIZE 
+    sysenter
+
+_sleep:
+    mov eax, SLEEP_SYSCALL_ID
+    mov ebx, [esp + 4]
+    mov edi, [esp]
+    add esi, RET_POP_SIZE
     sysenter
 
 

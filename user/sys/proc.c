@@ -8,3 +8,7 @@ uint32_t fork() {
 uint8_t getpid() {
     _getpid();
 }
+
+void sleep(int seconds) {
+    _sleep(seconds);
+}

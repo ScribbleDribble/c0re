@@ -2,6 +2,7 @@ global _enable_syscall
 global KPUTS_SYSCALL_ID
 global FORK_SYSCALL_ID
 global GETPID_SYSCALL_ID
+global SLEEP_SYSCALL_ID
 global _set_sysenter_esp
 
 extern KSTACK_BASE
@@ -73,6 +74,10 @@ _syscall_router:
     cmp eax, GETPID_SYSCALL_ID
     je _getpid
 
+    
+    ; should have panic here for system call not implemented 
+    
+
 _fork:
     ; set regs for sysexit 
     mov edx, edi
@@ -125,4 +130,5 @@ IA32_SYSENTER_ESP equ 0x175
 FORK_SYSCALL_ID equ 0
 KPUTS_SYSCALL_ID equ 1
 GETPID_SYSCALL_ID equ 2
+SLEEP_SYSCALL_ID equ 3
 

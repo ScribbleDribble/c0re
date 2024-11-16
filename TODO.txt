@@ -14,7 +14,6 @@ processes
 - implement copy-on-write
 
 system calls:
-- fork syscall
 - complete stdio interface 
 - cleaner interface - look into other kernel designs 
 
