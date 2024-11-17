@@ -12,6 +12,7 @@
 extern void _enable_paging(void);
 extern void _enable_syscall(void);
 extern void switch_to_userspace(void);
+
 extern void _tss_load(void);
 void kmain(uint32_t* boot_page_dir, uint32_t* boot_page_table) {
 	clear_screen();
@@ -32,7 +33,7 @@ void kmain(uint32_t* boot_page_dir, uint32_t* boot_page_table) {
 	
 	serial_init();
 
-	// switch_to_userspace();
+	switch_to_userspace();
 
 	while (1);
 }

@@ -1,4 +1,5 @@
 #include "surface.h"
+#include "stdbool.h"
 
 extern uint8_t current_pid;
 extern uint16_t n_procs;
@@ -11,7 +12,13 @@ void userspace_test() {
     int pid = fork();
     pid = fork();
     *p = getpid();
+    bool hasSlept = false;
     while (1) {
+
+        if (!hasSlept) {
+            sleep(5);
+            hasSlept = true;
+        }
         // this value cannot be read by other processes
         int_to_str(*p, buf, 32);
         puts(buf);

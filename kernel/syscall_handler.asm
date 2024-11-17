@@ -75,6 +75,10 @@ _syscall_router:
     je _getpid
 
     
+    cmp eax, SLEEP_SYSCALL_ID
+    je _sleep
+
+    
     ; should have panic here for system call not implemented 
     
 
@@ -100,6 +104,10 @@ _getpid:
     call get_running_proc_pid
     jmp _syscall_return
 
+_sleep:
+    
+    jmp _syscall_return
+
 ; args:
 ; const char* str: ebx
 _kputs:
@@ -121,6 +129,8 @@ _new_proc_sysexit_call:
     mov eax, 0 ; return value for  fork child is 0
     sysexit
 
+
+    
 
 KERNEL_CODE_SELECTOR equ 0x8
 IA32_SYSENTER_CS equ 0x174

@@ -37,6 +37,7 @@ _getpid:
     sysenter
 
 _sleep:
+    xchg bx, bx
     mov eax, SLEEP_SYSCALL_ID
     mov ebx, [esp + 4]
     mov edi, [esp]

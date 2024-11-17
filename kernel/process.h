@@ -19,6 +19,7 @@ typedef struct pcb_t {
     uint32_t esp0;
     uint16_t pid; 
     uint32_t ebp;
+    uint32_t sleep_time_remaining_milliseconds;
     uint32_t* read_only_pd;
     enum ProcessState state;
 
@@ -31,4 +32,4 @@ pcb_t* create_pcb_from_context(const uint8_t pid, const registers_t* context);
 pcb_t* process_clone(pcb_t* src_pcb, int n_procs, const registers_t* context, interrupt_state_t* int_state);
 void pcb_update_esp0(pcb_t* pcb, uint32_t new_esp0);
 
-#endif 
+#endif; 

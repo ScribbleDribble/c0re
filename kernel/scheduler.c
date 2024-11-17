@@ -13,11 +13,11 @@ uint32_t target_esp0 = 0;
 
 pcb_t* procs[250];
 
+pcb_t* waiting_procs[];
+
 pcb_t* schedule(const registers_t* context, interrupt_state_t* int_state) {
     if (n_procs == 0) {
         procs[n_procs++] = init_process_management(context);
-        // procs[n_procs++] = process_clone(procs[0], n_procs, context, int_state);
-        // procs[n_procs++] = process_clone(procs[0], n_procs, context, int_state);
     }
 
     current_pid++;
@@ -50,6 +50,7 @@ uint32_t schedule_new_fork(const registers_t context, interrupt_state_t int_stat
     if (n_procs == 0) {
         procs[n_procs++] = init_process_management(context);
     }
+    // TODO check if max amount of processes was reached 
     klog("state: esp %x, eax %x, edx %x, int_state: cs: %x, eflags: %x, eip %x", int_state.task_stack_addr, context.AX, context.DX, int_state.cs, int_state.eflags, int_state.eip);
     procs[n_procs++] = process_clone(procs[current_pid], n_procs, &context, &int_state);
 
@@ -60,3 +61,11 @@ uint32_t get_running_proc_pid() {
     return current_pid;
 }
 
+void wait_process() {
+    // calculate expected tick / point where we can set this process as READY.
+    // e.g. (given a tick is 100 ms) tick so we expect 10 ticks. 
+    // we will use a min-heap PQ so 10 tick to be prioritised over 11 ticks
+    if (sizeof(waiting_procs) == 0) {
+        waiting_procs = malloc(sizeof(pcb_t));
+    }
+}

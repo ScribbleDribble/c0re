@@ -2,7 +2,7 @@
 #define _TYPES_H
 
 #include <stdint.h>
-
+#include <stdbool.h>
 // typedef struct registers_t {
 //     int AX, CX, DX, BX, SP, BP, SI, DI;
 // }registers_t __attribute__((packed));
@@ -12,4 +12,4 @@ typedef struct registers_t {
 }__attribute__((packed)) registers_t ;
 
 
-#endif 
+#endif; 

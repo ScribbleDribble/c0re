@@ -66,3 +66,9 @@ void pcb_update_esp0(pcb_t* pcb, uint32_t new_esp0) {
     pcb->esp0 = new_esp0;
 }
 
+
+void set_sleep(int seconds, pcb_t* pcb) {
+    // we are interrupting every 100ms so lets work out how many 
+    pcb->sleep_time_remaining_milliseconds = seconds * 1000; 
+    return;
+}
