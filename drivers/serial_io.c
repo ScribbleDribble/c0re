@@ -64,13 +64,13 @@ void serial_log(const char* s, ...) {
 		if (s[i] == '%') {
 			char* str = format_type(s[i+1], &arg_list, tmp);
 			int new_size = str_len(str) + j;
-			res = realloc(res, new_size + 2);
+			res = krealloc(res, new_size + 2);
 			str_cpy(res + j, str);
 			j = new_size;
 			i += 1;
 		} else {
 			res[j] = s[i];
-			res = realloc(res, j+2);
+			res = krealloc(res, j+2);
 			j += 1;
 		}
 	}

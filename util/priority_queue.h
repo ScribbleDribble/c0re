@@ -6,6 +6,11 @@
 #include <stddef.h>
 #include "../common/math_util.h"
 
+#ifdef KERNEL_BUILD
+#include "../kernel/kmalloc/kmalloc.h"
+#endif
+
+
 typedef struct priority_queue_node_t
 {
     void* item;
@@ -19,12 +24,11 @@ typedef struct priority_queue_t {
 }priority_queue_t;
 
 
-void insert(priority_queue_t* priority_queue, int priority, void* item);
+void pq_insert(priority_queue_t* priority_queue, int priority, void* item);
 
-priority_queue_node_t* peek(priority_queue_t* priority_queue);
+priority_queue_node_t* pq_peek(priority_queue_t* priority_queue);
 
-priority_queue_node_t* poll(priority_queue_t* priority_queue);
+priority_queue_node_t* pq_poll(priority_queue_t* priority_queue);
 
 priority_queue_t* register_priority_queue();
 
-char print_pq(int);

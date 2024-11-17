@@ -191,7 +191,7 @@ int sm_put(StrMap *map, const char *key, const char *value)
 			/* If the new value is larger than the old value, re-allocate
 			 * space for the new larger value.
 			 */
-			tmp_value = realloc(pair->value, (value_len + 1) * sizeof(char));
+			tmp_value = krealloc(pair->value, (value_len + 1) * sizeof(char));
 			if (tmp_value == NULL) {
 				return 0;
 			}
@@ -228,7 +228,7 @@ int sm_put(StrMap *map, const char *key, const char *value)
 		/* The bucket wasn't empty but no pair existed that matches the provided
 		 * key, so create a new key-value pair.
 		 */
-		tmp_pairs = realloc(bucket->pairs, (bucket->count + 1) * sizeof(Pair));
+		tmp_pairs = krealloc(bucket->pairs, (bucket->count + 1) * sizeof(Pair));
 		if (tmp_pairs == NULL) {
 			free(new_key);
 			free(new_value);

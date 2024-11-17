@@ -54,7 +54,7 @@ typedef struct block_header_t {
 #define SET_FREE(block_header) (block_header->status = FREE)
 
 
-void* realloc(void*, uint32_t size);
+void* krealloc(void*, uint32_t size);
 
 void* kmalloc(uint32_t size);
 

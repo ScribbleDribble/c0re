@@ -259,7 +259,7 @@ void resize_adjacent_blocks(
 
 }
 
-void* realloc(void* ptr, size_t size) {
+void* krealloc(void* ptr, size_t size) {
     block_header_t* bh1_start = ptr-BLOCK_HEADER_SIZE;
     block_header_t* bh1_end = JMP_TO_NEXT_BH(bh1_start);
 

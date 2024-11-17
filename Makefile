@@ -31,7 +31,7 @@ log-run : bin/myos.bin
 CFLAGS += -Wall -Wextra -Wpedantic \
           -Wformat=2 -Wno-unused-parameter -Wshadow \
           -Wwrite-strings -Wstrict-prototypes  \
-          -Wredundant-decls -Wnested-externs -Wmissing-include-dirs --freestanding -g -c
+          -Wredundant-decls -Wnested-externs -Wmissing-include-dirs --freestanding -g -c -DKERNEL_BUILD
 
 ASMFLAGS += -g -f elf
 
@@ -106,6 +106,8 @@ common/panic.o: common/panic.c
 util/strmap.o: util/strmap.c
 	i386-elf-gcc  $(CFLAGS) util/strmap.c -o util/strmap.o
 
+util/priority_queue.o: util/priority_queue.c 
+	i386-elf-gcc  $(CFLAGS) util/priority_queue.c -o util/priority_queue.o
 
 kernel/syscall_handler.o: kernel/syscall_handler.asm
 	nasm kernel/syscall_handler.asm $(ASMFLAGS) -o kernel/syscall_handler.o
@@ -137,8 +139,8 @@ user/surface.o : user/surface.c
 boot/boot.o: boot/boot.s
 	i386-elf-as boot/boot.s -o boot/boot.o
 
-bin/myos.bin : boot/boot.o kernel/kernel.o kernel/string.o drivers/vga.o cpu/descriptor_table_load.o cpu/idt.o cpu/isr_handle.o cpu/irq_handle.o cpu/irq.o cpu/port_io.o cpu/timer.o drivers/ps2.o drivers/keyboard.o drivers/driver_entry.o kernel/vmm.o kernel/pmm.o  kernel/kmalloc.o util/strmap.o cpu/multitasking/load_tss.o cpu/multitasking/tss.o cpu/gdt.o user/surface.o kernel/process.o kernel/scheduler.o cpu/multitasking/context_switch.o user/syscall.o user/stdio.o kernel/syscall_handler.o drivers/serial_io.o common/panic.o user/sys/proc.o
-	 i386-elf-gcc -T boot/linker.ld -ffreestanding -O2 -nostdlib -o bin/myos.bin boot/boot.o kernel/kernel.o kernel/string.o drivers/vga.o cpu/descriptor_table_load.o cpu/idt.o cpu/isr_handle.o cpu/irq.o cpu/port_io.o cpu/irq_handle.o cpu/timer.o drivers/ps2.o drivers/keyboard.o drivers/driver_entry.o kernel/vmm.o kernel/pmm.o  util/strmap.o kernel/kmalloc.o cpu/gdt.o user/surface.o cpu/multitasking/load_tss.o cpu/multitasking/tss.o kernel/process.o kernel/scheduler.o cpu/multitasking/context_switch.o user/syscall.o user/stdio.o  user/sys/proc.o kernel/syscall_handler.o drivers/serial_io.o common/panic.o -lgcc
+bin/myos.bin : boot/boot.o kernel/kernel.o kernel/string.o drivers/vga.o cpu/descriptor_table_load.o cpu/idt.o cpu/isr_handle.o cpu/irq_handle.o cpu/irq.o cpu/port_io.o cpu/timer.o drivers/ps2.o drivers/keyboard.o drivers/driver_entry.o kernel/vmm.o kernel/pmm.o  kernel/kmalloc.o util/strmap.o cpu/multitasking/load_tss.o cpu/multitasking/tss.o cpu/gdt.o user/surface.o kernel/process.o kernel/scheduler.o cpu/multitasking/context_switch.o user/syscall.o user/stdio.o kernel/syscall_handler.o drivers/serial_io.o common/panic.o user/sys/proc.o util/priority_queue.o
+	 i386-elf-gcc -T boot/linker.ld -ffreestanding -O2 -nostdlib -o bin/myos.bin boot/boot.o kernel/kernel.o kernel/string.o drivers/vga.o cpu/descriptor_table_load.o cpu/idt.o cpu/isr_handle.o cpu/irq.o cpu/port_io.o cpu/irq_handle.o cpu/timer.o drivers/ps2.o drivers/keyboard.o drivers/driver_entry.o kernel/vmm.o kernel/pmm.o  util/strmap.o kernel/kmalloc.o cpu/gdt.o user/surface.o cpu/multitasking/load_tss.o cpu/multitasking/tss.o kernel/process.o kernel/scheduler.o cpu/multitasking/context_switch.o user/syscall.o user/stdio.o  user/sys/proc.o kernel/syscall_handler.o drivers/serial_io.o common/panic.o util/priority_queue.o -lgcc
 
 clean : 
 	rm kernel/*.o

@@ -13,11 +13,12 @@ uint32_t target_esp0 = 0;
 
 pcb_t* procs[250];
 
-pcb_t* waiting_procs[];
+priority_queue_t* wait_queue;
 
 pcb_t* schedule(const registers_t* context, interrupt_state_t* int_state) {
     if (n_procs == 0) {
         procs[n_procs++] = init_process_management(context);
+        wait_queue = register_priority_queue();
     }
 
     current_pid++;
@@ -61,11 +62,9 @@ uint32_t get_running_proc_pid() {
     return current_pid;
 }
 
-void wait_process() {
+void wait_process(int seconds) {
     // calculate expected tick / point where we can set this process as READY.
     // e.g. (given a tick is 100 ms) tick so we expect 10 ticks. 
     // we will use a min-heap PQ so 10 tick to be prioritised over 11 ticks
-    if (sizeof(waiting_procs) == 0) {
-        waiting_procs = malloc(sizeof(pcb_t));
-    }
+    
 }

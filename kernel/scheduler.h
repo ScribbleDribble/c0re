@@ -4,6 +4,7 @@
 
 #include <stdbool.h>
 #include "process.h"
+#include "../util/priority_queue.h"
 #include "../user/surface.h"
 
 
