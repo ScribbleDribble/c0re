@@ -16,23 +16,20 @@ pcb_t* procs[250];
 priority_queue_t* wait_queue;
 
 
-int select_next_process(int next_pid) {
+int select_next_process(int prospect_pid) {
 
     int i = 0;
-    while(procs[next_pid]->state != READY && procs[next_pid]->state != RUNNING ) {
-        if (next_pid == n_procs) {
-            next_pid = 0;
+    while(procs[prospect_pid]->state != READY && procs[prospect_pid]->state != RUNNING ) {
+        if (prospect_pid == n_procs) {
+            prospect_pid = 0;
         } else {
-            next_pid++;
+            prospect_pid++;
         }
-        klog("process with pid %i is not ready", next_pid, procs[next_pid]->state);
+        klog("process with pid %i is not ready", prospect_pid, procs[prospect_pid]->state);
         i++;
-        
-        if (i > n_procs) {
-            panic("No more processes available to run"); 
-        }
+        assert_true(i <= n_procs, "No more processes available to run");
     }
-    return next_pid;
+    return prospect_pid;
 }
 
 pcb_t* schedule(const registers_t* context, interrupt_state_t* int_state) {
@@ -43,13 +40,8 @@ pcb_t* schedule(const registers_t* context, interrupt_state_t* int_state) {
 
     current_pid = select_next_process(current_pid+1);
     
-    if (current_pid == 0) {
-        prev_pid = n_procs-1;
-    } else {
-        prev_pid = current_pid-1;
-    }
+    prev_pid = current_pid == 0 ? n_procs-1 : current_pid -1;
     
-    // poll_waiting_processes();
 
     update_pcb_and_tss_for_ctx_switch(procs[prev_pid], procs[current_pid]);
     target_esp0 = procs[current_pid]->esp0;
