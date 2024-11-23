@@ -1,7 +1,7 @@
 
 #include "scheduler.h"
 
-// prototype code to test multitasking 
+extern global_tick_count;
 
 uint8_t current_pid = 0;
 
@@ -15,19 +15,41 @@ pcb_t* procs[250];
 
 priority_queue_t* wait_queue;
 
+
+int select_next_process(int next_pid) {
+
+    int i = 0;
+    while(procs[next_pid]->state != READY && procs[next_pid]->state != RUNNING ) {
+        if (next_pid == n_procs) {
+            next_pid = 0;
+        } else {
+            next_pid++;
+        }
+        klog("process with pid %i is not ready", next_pid, procs[next_pid]->state);
+        i++;
+        
+        if (i > n_procs) {
+            panic("No more processes available to run"); 
+        }
+    }
+    return next_pid;
+}
+
 pcb_t* schedule(const registers_t* context, interrupt_state_t* int_state) {
     if (n_procs == 0) {
         procs[n_procs++] = init_process_management(context);
         wait_queue = register_priority_queue();
     }
 
-    current_pid++;
-    if (current_pid == n_procs) {
-        current_pid = 0;
+    current_pid = select_next_process(current_pid+1);
+    
+    if (current_pid == 0) {
         prev_pid = n_procs-1;
     } else {
         prev_pid = current_pid-1;
     }
+    
+    // poll_waiting_processes();
 
     update_pcb_and_tss_for_ctx_switch(procs[prev_pid], procs[current_pid]);
     target_esp0 = procs[current_pid]->esp0;
@@ -37,6 +59,8 @@ pcb_t* schedule(const registers_t* context, interrupt_state_t* int_state) {
 
     return procs[current_pid];
 }   
+
+
 
 // save kernel stack of the source process
 void kstack_save(uint32_t new_esp0) {
@@ -63,8 +87,32 @@ uint32_t get_running_proc_pid() {
 }
 
 void wait_process(int seconds) {
-    // calculate expected tick / point where we can set this process as READY.
+     // calculate expected tick / point where we can set this process as READY.
     // e.g. (given a tick is 100 ms) tick so we expect 10 ticks. 
     // we will use a min-heap PQ so 10 tick to be prioritised over 11 ticks
+
+    // int milliseconds_per_tick = 100;
+    // int ticks = seconds*1000 / milliseconds_per_tick;
+
+    // pcb_t* process_pcb = procs[current_pid];
+    // sleep(process_pcb, ticks + global_tick_count);
     
+    // pq_insert(wait_queue, process_pcb->waiting_params->ready_tick, process_pcb);
+
+    // TODO have a counter of ticks as global tick. this is the system clock
+    // insert with ticks+global tick
+    // poll until tick+global tick period has reached then unwait process
+    // do wrap around check on global_tick+tick to check for integer overflow
+}
+
+void poll_waiting_processes() {
+    int error = 100; // this may not be neeeded
+    pcb_t* pcb = pq_peek(wait_queue);
+    if (pcb == NULL || pcb->waiting_params->ready_tick != global_tick_count) 
+    {
+        klog("Process with PID: %i has ticks remaining",  pcb->waiting_params->ready_tick - global_tick_count);
+        return;
+    }
+    pq_poll(wait_queue);
+    wakeup(pcb);
 }

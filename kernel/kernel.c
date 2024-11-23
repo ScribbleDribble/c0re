@@ -33,8 +33,7 @@ void kmain(uint32_t* boot_page_dir, uint32_t* boot_page_table) {
 	
 	serial_init();
 
-
-	// switch_to_userspace();
+	switch_to_userspace();
 
 	while (1);
 }

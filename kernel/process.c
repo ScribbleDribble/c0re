@@ -20,12 +20,13 @@ pcb_t* init_process_management(const registers_t* registers) {
 uint32_t update_pcb_and_tss_for_ctx_switch(pcb_t* src_pcb, pcb_t* dest_pcb) {
     tss_entry.esp0 = dest_pcb->esp0;
     dest_pcb->state = RUNNING;
-    src_pcb->state = WAITING;
+    src_pcb->state = READY;
 }
 
 // to be called for the first process
 pcb_t* create_pcb_from_context(const uint8_t pid, const registers_t* context) {
     pcb_t* pcb = (pcb_t*)kmalloc(sizeof(pcb_t));
+    pcb->waiting_params = (waiting_params_t*)kmalloc(sizeof(waiting_params_t));
     pcb->state = RUNNING;
     pcb->pid = pid;
     pcb->esp0 = KSTACK_BASE;
@@ -36,8 +37,9 @@ pcb_t* create_pcb_from_context(const uint8_t pid, const registers_t* context) {
 pcb_t* process_clone(pcb_t* src_pcb, int n_procs, const registers_t* context, interrupt_state_t* int_state) {
 
     pcb_t* new_pcb = (pcb_t*) kmalloc(sizeof(pcb_t));    
+    new_pcb->waiting_params = (waiting_params_t*)kmalloc(sizeof(waiting_params_t));
     memory_set(new_pcb, 0, sizeof(new_pcb));
-    new_pcb->state = WAITING;
+    new_pcb->state = READY;
     new_pcb->esp0 = KSTACK_BASE + n_procs * 0x1000;
     new_pcb->pid = n_procs;
     setup_kernel_stack(new_pcb->esp0, src_pcb->esp0, context, int_state);
@@ -67,8 +69,14 @@ void pcb_update_esp0(pcb_t* pcb, uint32_t new_esp0) {
 }
 
 
-void set_sleep(int seconds, pcb_t* pcb) {
+void set_sleep(pcb_t* pcb, int expiry_tick) {
     // we are interrupting every 100ms so lets work out how many 
-    pcb->sleep_time_remaining_milliseconds = seconds * 1000; 
+    pcb->waiting_params->ready_tick = expiry_tick; 
+    pcb->state = WAITING;
     return;
+}
+
+void wakeup(pcb_t* pcb) {
+    pcb->state = READY;
+    pcb->waiting_params->ready_tick = NULL;
 }

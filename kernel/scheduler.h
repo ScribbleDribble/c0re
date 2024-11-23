@@ -3,6 +3,7 @@
 #define _SCHEDULER_H
 
 #include <stdbool.h>
+#include <limits.h>
 #include "process.h"
 #include "../util/priority_queue.h"
 #include "../user/surface.h"

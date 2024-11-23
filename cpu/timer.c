@@ -5,7 +5,7 @@
 #define FAILURE_CODE 1
 
 
-uint32_t tick = 0;
+unsigned long int global_tick_count = 0;
 
 
 static uint16_t get_gs(void) {
@@ -16,7 +16,7 @@ static uint16_t get_gs(void) {
 
 
 void timer_callback(registers_t* regs, interrupt_state_t* int_state) {
-    tick++;
+    global_tick_count++;
     if (get_gs() == USER_DATA_SEGMENT)
     {
         schedule(regs, int_state);

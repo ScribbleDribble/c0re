@@ -16,7 +16,7 @@ void userspace_test() {
     while (1) {
 
         if (!hasSlept) {
-            sleep(5);
+            // sleep(5);
             hasSlept = true;
         }
         // this value cannot be read by other processes
