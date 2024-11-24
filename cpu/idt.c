@@ -19,7 +19,10 @@ const char* exception_desc[] = {
 
 
 void interrupt_handler(registers_t regs, interrupt_state_t int_state) {
-    klog("ISR 0x%x: %s", int_state.no, exception_desc[int_state.no]);  
+    klog("ISR 0x%x: %s", int_state.no, exception_desc[int_state.no]); 
+    if (int_state.no == 0xe) {
+        panic("");
+    }
 }
 
 void init_idt() {

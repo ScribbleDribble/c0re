@@ -11,6 +11,7 @@
 
 pcb_t* schedule(const registers_t* context, interrupt_state_t* int_state);
 uint32_t schedule_new_fork(const registers_t context, interrupt_state_t int_state);
+void wait_process(int seconds);
 uint32_t get_running_proc_pid(void);
 
 #endif 

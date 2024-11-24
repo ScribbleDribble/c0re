@@ -10,7 +10,7 @@ extern "C" {
 
 TEST(priority_queue, pq_insert) {
 
-    priority_queue_t* pq = register_priority_queue();
+    priority_queue_t* pq = pq_register();
 
     
     char a = 's';
@@ -37,8 +37,8 @@ TEST(priority_queue, pq_insert) {
 
 TEST(priority_queue, multipe_priority_queues) {
 
-    priority_queue_t* pq = register_priority_queue();
-    priority_queue_t* pq2 = register_priority_queue();
+    priority_queue_t* pq = pq_register();
+    priority_queue_t* pq2 = pq_register();
 
     
 
@@ -77,7 +77,7 @@ TEST(priority_queue, multipe_priority_queues) {
 
 TEST(priority_queue, pq_poll) {
 
-    priority_queue_t* pq = register_priority_queue();
+    priority_queue_t* pq = pq_register();
 
     
     char a = 's';

@@ -30,6 +30,7 @@
 #define PAGE_AV 64
 #define PAGE_PS 128
 
+#define KERNEL_PAGE_TABLE_INDEX 0
 
 uint32_t create_pde(
     bool present,

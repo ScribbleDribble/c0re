@@ -88,7 +88,7 @@ priority_queue_node_t* pq_peek(priority_queue_t* priority_queue) {
     return priority_queue->items[0];
 }
 
-priority_queue_t* register_priority_queue() {
+priority_queue_t* pq_register() {
     if (queue_count == 0) {
         queue_list = kmalloc(sizeof(priority_queue_t));
     }

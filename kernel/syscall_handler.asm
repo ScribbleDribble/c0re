@@ -9,6 +9,7 @@ extern KSTACK_BASE
 extern kputs
 extern schedule_new_fork
 extern get_running_proc_pid
+extern wait_process
 
 ; sets up 3 registers required for syscalls
 ; IA32_SYSENTER_CS - ring 0 code segment selector 
@@ -105,7 +106,10 @@ _getpid:
     jmp _syscall_return
 
 _sleep:
-    
+    xchg bx, bx
+    push ebx
+    call wait_process
+    pop ebx
     jmp _syscall_return
 
 ; args:

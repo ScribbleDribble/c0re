@@ -363,24 +363,26 @@ uint32_t* reload_cr3(uint32_t target_pid) {
     return page_directory;
 }
 
-// returns first vaddress of contingous n page allocation
+// returns first virtual address of contingous n page allocation
 palloc_result_t palloc(uint16_t pd_index, int n_allocs, uint16_t pte_perms) {
     if (n_allocs <= 0 || n_allocs > MAX_PTE_COUNT) {
         panic("panic! Invalid allocation amount");
     }
-
+    
     page_directory[pd_index] |= 0x3; // todo remove and test
 
     int start = MAX_PTE_COUNT*pd_index;
     int end = (pd_index*MAX_PTE_COUNT)+MAX_PTE_COUNT;
     int i = start;
     int first_pte_index = -1;
-
+    // we are only concerned with shared kernel page tables.
+    // a user malloc can use an api to retrieve pages from process level page tables
+    uint32_t* kernel_pt = page_tables[KERNEL_PAGE_TABLE_INDEX]; 
     while (i < end && n_allocs > 0) {
-        if (!IS_PRESENT(page_table[i])) {
-            SET_PRESENT(page_table[i]);
-            SET_ADDR_KALLOC(page_table[i]);
-            page_table[i] |= pte_perms;
+        if (!IS_PRESENT(kernel_pt[i])) {
+            SET_PRESENT(kernel_pt[i]);
+            SET_ADDR_KALLOC(kernel_pt[i]);
+            kernel_pt[i] |= pte_perms;
             n_allocs -= 1;
             if (first_pte_index == -1) {
                 first_pte_index = i - start;

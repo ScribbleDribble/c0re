@@ -30,5 +30,5 @@ priority_queue_node_t* pq_peek(priority_queue_t* priority_queue);
 
 priority_queue_node_t* pq_poll(priority_queue_t* priority_queue);
 
-priority_queue_t* register_priority_queue();
+priority_queue_t* pq_register();
 
