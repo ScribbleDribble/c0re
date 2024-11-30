@@ -91,13 +91,16 @@ priority_queue_node_t* pq_peek(priority_queue_t* priority_queue) {
 priority_queue_t* pq_register() {
     if (queue_count == 0) {
         queue_list = kmalloc(sizeof(priority_queue_t));
+    } else {
+        queue_list = (priority_queue_t**) krealloc(queue_list, queue_count * sizeof(priority_queue_t));
     }
     priority_queue_t* queue = (priority_queue_t*) kmalloc(sizeof(priority_queue_t));
     queue->size = 0;
     queue->items = (priority_queue_node_t*) kmalloc(sizeof(priority_queue_node_t)*10);
-    queue_list = (priority_queue_t**) krealloc(queue_list, queue_count * sizeof(priority_queue_t));
+    memory_set(queue->items, NULL, sizeof(priority_queue_node_t)*10);
     queue_list[queue_count++] = queue;
-    return (void*) queue ;
+
+    return queue ;
 }
 
 void pq_close(priority_queue_t* priority_queue) {

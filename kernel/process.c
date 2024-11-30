@@ -20,7 +20,10 @@ pcb_t* init_process_management(const registers_t* registers) {
 uint32_t update_pcb_and_tss_for_ctx_switch(pcb_t* src_pcb, pcb_t* dest_pcb) {
     tss_entry.esp0 = dest_pcb->esp0;
     dest_pcb->state = RUNNING;
-    src_pcb->state = READY;
+
+    if (src_pcb->state != WAITING) {
+        src_pcb->state = READY;
+    }
 }
 
 // to be called for the first process
@@ -43,7 +46,7 @@ pcb_t* process_clone(pcb_t* src_pcb, int n_procs, const registers_t* context, in
     new_pcb->esp0 = KSTACK_BASE + n_procs * 0x1000;
     new_pcb->pid = n_procs;
     setup_kernel_stack(new_pcb->esp0, src_pcb->esp0, context, int_state);
-    new_pcb->esp0 -= (20 + 32); // account for pusha command 
+    // new_pcb->esp0 -= (20 + 32); // account for pusha command 
     // // temporary until we implment COW
     clone_page_structures(src_pcb->pid, new_pcb->pid);
     diverge_physical_mappings(new_pcb->pid);
@@ -60,7 +63,10 @@ void setup_kernel_stack(uint32_t kstack_base, uint32_t prev_kstack_base, registe
     uint32_t upper_stack_setup[] = {int_state->eip, int_state->cs, int_state->eflags, int_state->task_stack_addr, ss};
     memory_copy((uint32_t*) (kstack_base - context_offset_bytes), upper_stack_setup, sizeof(uint32_t)*5);
     // memory_copy(kstack_base-SIZEOF_KERNEL_STACK, prev_kstack_base-SIZEOF_KERNEL_STACK, SIZEOF_KERNEL_STACK);
-    memory_copy((uint32_t*) (kstack_base - context_offset_bytes - n_pusha_regs*sizeof(int)), context, n_pusha_regs*sizeof(int));    // you can insert a breakpoint here to validate the stack sequence
+    memory_copy((uint32_t*) (kstack_base - context_offset_bytes - n_pusha_regs*sizeof(int)), context, n_pusha_regs*sizeof(int));    // could assert stack state 
+    
+    int* kernel_stack_base = kstack_base;
+    *kernel_stack_base = sizeof(upper_stack_setup);
 }
 
 void pcb_update_esp0(pcb_t* pcb, uint32_t new_esp0) {
@@ -79,4 +85,6 @@ void set_sleep(pcb_t* pcb, int expiry_tick) {
 void wakeup(pcb_t* pcb) {
     pcb->state = READY;
     pcb->waiting_params->ready_tick = NULL;
+    klog("esp0 %x, pid: %i, read_only_pd: %x, state: %i", pcb->esp0, pcb->pid, pcb->read_only_pd, pcb->state);
 }
+

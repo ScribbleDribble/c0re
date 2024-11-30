@@ -14,13 +14,14 @@ void userspace_test() {
     bool hasSlept = false;
     while (1) {
 
-        if (!hasSlept && *p == 1) {
-            sleep(5);
-            hasSlept = true;
-        }
-        // this value cannot be read by other processes
-        // int_to_str(*p, buf, 32);
-        // puts(buf);
+        
+        if (*p == 1 && i % 500 == 0) {
+            sleep(60);
+        } 
+        int_to_str(i, buf, 32);
+        if (*p == 1 || *p == 2) {
+            puts(buf);
+        } 
         i++;
     }
 

@@ -21,7 +21,7 @@ _irq1:
 
 ; TODO implement the other irqs
 
-_irq_common_stub: 
+_irq_common_stub:
     pusha   ; regular register save
     mov ax, 10
 

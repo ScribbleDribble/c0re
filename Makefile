@@ -25,6 +25,7 @@ log-run : bin/myos.bin
 	echo "" > logs.txt
 	qemu-system-x86_64 -no-reboot -d int -D logs.txt -kernel bin/myos.bin > logs.txt 
 
+
 # kernel runs with debug msgs
 	
 

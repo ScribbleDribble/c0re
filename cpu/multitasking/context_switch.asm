@@ -6,19 +6,35 @@ global update_esp0
 extern USTACK_BASE
 extern kstack_save
 extern target_esp0
+extern prev_esp0
 extern userspace_test
 extern _set_sysenter_esp
 
 
 ctx_switch:
+    xchg bx, bx
+
+    ; prepares kernel stack for the state save
+    ; places required number of registers needed for iret in prev_esp0
+    push eax ; save state of registers
+    push ebx
+    mov eax, [prev_esp0]
+    add esp, 8
+    sub eax, esp 
+    mov ebx, [prev_esp0]
+    mov [ebx], eax  ; *prev_esp0 =  prev_esp0 - esp0
+    sub esp, 8
+    pop ebx
+    pop eax
+
     ; save state of cur process
-    pusha  
-    push esp 
-    call kstack_save
-    pop esp
+    pusha
+      
     ; switch stacks - target_esp0 will point to the top of all saved registers
     mov esp, [target_esp0]
-    xchg bx, bx
+    sub esp, [esp]
+    sub esp, 32
+    ;xchg bx, bx
     ; restore state
     popa 
 
@@ -29,6 +45,8 @@ ctx_switch:
     xchg bx, bx
     sti 
     iret 
+
+
 
 
 switch_to_userspace:

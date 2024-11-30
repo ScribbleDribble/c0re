@@ -75,7 +75,6 @@ _syscall_router:
     cmp eax, GETPID_SYSCALL_ID
     je _getpid
 
-    
     cmp eax, SLEEP_SYSCALL_ID
     je _sleep
 
@@ -106,7 +105,6 @@ _getpid:
     jmp _syscall_return
 
 _sleep:
-    xchg bx, bx
     push ebx
     call wait_process
     pop ebx
