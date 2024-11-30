@@ -36,9 +36,6 @@ int select_next_process(int prospect_pid) {
     return prospect_pid;
 }
 
-// error with a long term sleep (> 24s) because stack pointers of all processes gradually falling
-// ... during execution. since the sleeping process has its sp frozen, by the time it wakes,
-// ... its stack would have been overwritten with bogus data from other kernel stacks.
 pcb_t* schedule(const registers_t* context, interrupt_state_t* int_state) {
     poll_waiting_processes();
     
@@ -47,7 +44,6 @@ pcb_t* schedule(const registers_t* context, interrupt_state_t* int_state) {
     current_pid = select_next_process(current_pid+1);    
     
     update_pcb_and_tss_for_ctx_switch(procs[prev_pid], procs[current_pid]);
-    // asm("xchg %bx, %bx");
     target_esp0 = procs[current_pid]->esp0;
     klog("source esp0: 0x%x | target esp0 0x%x |current pid: %i", procs[prev_pid]->esp0, procs[current_pid]->esp0, current_pid);
     reload_cr3(current_pid);
@@ -57,14 +53,6 @@ pcb_t* schedule(const registers_t* context, interrupt_state_t* int_state) {
 
 
 
-// save kernel stack of the source process
-void kstack_save(uint32_t new_esp0) {
-    // if (procs[prev_pid]->state == RUNNING) {
-    //     klog("[Process] Should not perform ESP0 save on a running process!");
-    // }
-    // klog("Saving stack for process pid: %i", procs[prev_pid]->pid);
-    // pcb_update_esp0(procs[prev_pid], procs[]);
-}
 
 uint32_t schedule_new_fork(const registers_t context, interrupt_state_t int_state) {
     if (n_procs == 0) {

@@ -6,7 +6,6 @@ basic shell
 fix warnings
 
 scheduler:
-implement sleep syscall 
 improve scheduling algo
 signals 
 

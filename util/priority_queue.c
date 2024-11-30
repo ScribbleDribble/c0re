@@ -19,6 +19,8 @@ void pq_swap(priority_queue_t* pq, priority_queue_node_t* node1, priority_queue_
 void pq_insert(priority_queue_t* priority_queue, int priority, void* item) {
     priority_queue_node_t* incoming_node = (priority_queue_node_t*)kmalloc(sizeof(priority_queue_node_t));
 
+    // TODO realloc 
+
     incoming_node->item = item;
     incoming_node->priority = priority;
 
